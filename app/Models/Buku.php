@@ -12,9 +12,13 @@ class Buku extends Model
         'nama_buku',
         'penerbit',
         'jenis_buku',
+        'genre_buku',
         'sampul_buku',
+        'file_ebook',
         'stok_total',
         'stok_tersedia',
+        'view_count',
+        'borrow_count',
     ];
 
     public function pinjamans() {

@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\PeminjamanController;
 use App\Http\Controllers\Admin\PengembalianController;
 use App\Http\Controllers\Admin\DendaController;
 use App\Http\Controllers\Admin\HistoryController;
+use App\Http\Controllers\Public\ChatController as PublicChatController;
+use App\Http\Controllers\Admin\ChatController as AdminChatController;
 
 // =====================
 // ROUTE PUBLIK
@@ -18,6 +20,8 @@ use App\Http\Controllers\Admin\HistoryController;
 Route::get('/', [KatalogController::class, 'index'])->name('publik.katalog');
 Route::get('/buku/{id}', [KatalogController::class, 'show'])->name('publik.buku.show');
 Route::get('/katalog/search', [KatalogController::class, 'search'])->name('publik.katalog.search');
+Route::get('/ebook/baca/{id}', [KatalogController::class, 'ebookReader'])->name('publik.ebook.baca');
+Route::get('/ebook/stream/{id}', [KatalogController::class, 'streamPdf'])->name('ebook.stream');
 
 Route::get('/pinjam', [PinjamController::class, 'index'])->name('publik.pinjam.form');
 Route::post('/pinjam', [PinjamController::class, 'store'])->name('publik.pinjam');
@@ -26,6 +30,7 @@ Route::get('/pinjam/get-qr', [PinjamController::class, 'getPeminjamanByQr'])->na
 Route::get('/pinjam/konfirmasi/{booking_id}', [PinjamController::class, 'konfirmasi'])->name('publik.konfirmasi');
 Route::get('/cek-status', [PinjamController::class, 'cekStatus'])->name('publik.cek-status');
 Route::post('/cek-status', [PinjamController::class, 'cekStatusPost'])->name('publik.cek-status.post');
+
 Route::get('/cek-status/ajax', [PinjamController::class, 'cekStatusAjax'])->name('publik.cek-status.ajax');
 // =====================
 // ROUTE AUTH ADMIN
@@ -81,4 +86,18 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::get('/history', [HistoryController::class, 'index'])->name('admin.history.index');
     Route::get('/history/export/pdf', [HistoryController::class, 'exportPdf'])->name('admin.history.export-pdf');
     Route::get('/history/export/excel', [HistoryController::class, 'exportExcel'])->name('admin.history.export-excel');
+
+    // Chat Admin
+    Route::get('/chat', [AdminChatController::class, 'index'])->name('admin.chat.index');
+    Route::get('/chat/{sessionId}', [AdminChatController::class, 'show'])->name('admin.chat.show');
+    Route::post('/chat/send', [AdminChatController::class, 'sendMessage'])->name('admin.chat.send');
+    Route::post('/chat/{sessionId}/close', [AdminChatController::class, 'closeSession'])->name('admin.chat.close');
+    Route::get('/chat/{sessionId}/messages', [AdminChatController::class, 'getNewMessages'])->name('admin.chat.messages');
 });
+
+// =====================
+// ROUTE CHAT PUBLIK (untuk mahasiswa yang NIM-nya terdaftar)
+// =====================
+Route::post('/chat/verify-nim', [PublicChatController::class, 'verifyNim'])->name('chat.verify-nim');
+Route::post('/chat/send-message', [PublicChatController::class, 'sendMessage'])->name('chat.send');
+Route::get('/chat/messages', [PublicChatController::class, 'getMessages'])->name('chat.messages');

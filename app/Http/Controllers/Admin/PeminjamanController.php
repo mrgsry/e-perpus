@@ -48,6 +48,9 @@ class PeminjamanController extends Controller
 
         // Kurangi stok buku
         $pinjaman->buku->decrement('stok_tersedia');
+        
+        // Increment borrow count
+        $pinjaman->buku->increment('borrow_count');
 
         // Catat history
         History::create([

@@ -22,8 +22,10 @@ class BukuController extends Controller
             'nama_buku'   => 'required|string|max:200',
             'penerbit'    => 'required|string',
             'jenis_buku'  => 'required|string',
-            'stok_total'  => 'required|integer|min:1',
+            'genre_buku'  => 'required|string',
+            'stok_total'  => 'required|integer|min:0',
             'sampul_buku' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'file_ebook'  => 'nullable|mimes:pdf|max:10240',
         ]);
 
         $sampulPath = null;
@@ -31,13 +33,20 @@ class BukuController extends Controller
             $sampulPath = $request->file('sampul_buku')->store('sampul', 'public');
         }
 
+        $ebookPath = null;
+        if ($request->hasFile('file_ebook')) {
+            $ebookPath = $request->file('file_ebook')->store('ebooks', 'public');
+        }
+
         Buku::create([
             'nama_buku'     => $request->nama_buku,
             'penerbit'      => $request->penerbit,
             'jenis_buku'    => $request->jenis_buku,
+            'genre_buku'    => $request->genre_buku,
             'stok_total'    => $request->stok_total,
             'stok_tersedia' => $request->stok_total,
             'sampul_buku'   => $sampulPath,
+            'file_ebook'    => $ebookPath,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Buku berhasil ditambahkan!']);
@@ -49,7 +58,9 @@ class BukuController extends Controller
             'nama_buku'  => 'required|string|max:200',
             'penerbit'   => 'required|string',
             'jenis_buku' => 'required|string',
-            'stok_total' => 'required|integer|min:1',
+            'genre_buku' => 'required|string',
+            'stok_total' => 'required|integer|min:0',
+            'file_ebook' => 'nullable|mimes:pdf|max:10240',
         ]);
 
         $sampulPath = $buku->sampul_buku;
@@ -58,14 +69,22 @@ class BukuController extends Controller
             $sampulPath = $request->file('sampul_buku')->store('sampul', 'public');
         }
 
+        $ebookPath = $buku->file_ebook;
+        if ($request->hasFile('file_ebook')) {
+            if ($ebookPath) Storage::disk('public')->delete($ebookPath);
+            $ebookPath = $request->file('file_ebook')->store('ebooks', 'public');
+        }
+
         $selisih = $request->stok_total - $buku->stok_total;
         $buku->update([
             'nama_buku'     => $request->nama_buku,
             'penerbit'      => $request->penerbit,
             'jenis_buku'    => $request->jenis_buku,
+            'genre_buku'    => $request->genre_buku,
             'stok_total'    => $request->stok_total,
             'stok_tersedia' => max(0, $buku->stok_tersedia + $selisih),
             'sampul_buku'   => $sampulPath,
+            'file_ebook'    => $ebookPath,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Buku berhasil diupdate!']);
@@ -73,7 +92,23 @@ class BukuController extends Controller
 
     public function destroy($id) {
         $buku = Buku::findOrFail($id);
-        if ($buku->sampul_buku) Storage::disk('public')->delete($buku->sampul_buku);
+        
+        // Cek apakah buku pernah dipinjam
+        if ($buku->pinjamans()->exists()) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Buku tidak dapat dihapus karena memiliki riwayat peminjaman. Untuk keamanan data, buku yang pernah dipinjam tidak boleh dihapus.'
+            ], 400);
+        }
+        
+        // Hapus file sampul dan ebook jika ada
+        if ($buku->sampul_buku) {
+            Storage::disk('public')->delete($buku->sampul_buku);
+        }
+        if ($buku->file_ebook) {
+            Storage::disk('public')->delete($buku->file_ebook);
+        }
+        
         $buku->delete();
         return response()->json(['success' => true, 'message' => 'Buku berhasil dihapus!']);
     }

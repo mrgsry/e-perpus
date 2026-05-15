@@ -311,21 +311,21 @@
             bottom: 24px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: var(--navy);
-            color: white;
-            border-radius: 20px;
-            padding: 16px 28px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 20px 60px rgba(15,36,68,0.4);
-            z-index: 200;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            min-width: 380px;
-        }
-        .floating-cart.show { transform: translateX(-50%) translateY(0); }
-        .cart-preview { display: flex; gap: 8px; flex: 1; }
-        .cart-mini-cover {
+        background: var(--navy);
+        color: white;
+        border-radius: 20px;
+        padding: 16px 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 20px 60px rgba(15,36,68,0.4);
+        z-index: 200;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        min-width: 380px;
+    }
+    .floating-cart.show { transform: translateX(-50%) translateY(0); }
+    .cart-preview { display: flex; gap: 8px; flex: 1; overflow-x: auto; }
+    .cart-mini-cover {
             width: 36px; height: 48px;
             border-radius: 6px;
             object-fit: cover;
@@ -355,6 +355,22 @@
             white-space: nowrap;
         }
         .pinjam-btn:hover { background: var(--gold-light); transform: scale(1.03); }
+
+        /* READ BUTTON */
+        .btn-primary {
+            background: var(--navy) !important;
+            border-color: var(--navy) !important;
+            color: white !important;
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            transition: all 0.2s !important;
+        }
+        .btn-primary:hover {
+            background: var(--navy-mid) !important;
+            transform: translateY(-1px) !important;
+        }
 
         /* MODAL */
         .modal-content { border-radius: 20px; border: none; overflow: hidden; }
@@ -449,6 +465,31 @@
         /* EMPTY STATE */
         .empty-state { text-align: center; padding: 80px 0; color: var(--muted); }
         .empty-state i { font-size: 64px; margin-bottom: 16px; color: #cbd5e1; }
+
+        /* PDF READER */
+        #pdf-viewer {
+            width: 100%;
+            height: 70vh;
+            overflow-y: auto;
+            background: #525659;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .pdf-page {
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 100%;
+        }
+        .reader-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+        }
 
         /* RESPONSIVE */
         @media (max-width: 576px) {
@@ -550,41 +591,66 @@
 
         <div class="books-grid" id="booksGrid">
             @forelse($bukus as $buku)
-            <div class="book-card {{ $buku->stok_tersedia < 1 ? 'out-of-stock' : '' }}"
-                 id="card-{{ $buku->id }}"
-                 data-id="{{ $buku->id }}"
-                 data-nama="{{ $buku->nama_buku }}"
-                 data-penerbit="{{ $buku->penerbit }}"
-                 data-jenis="{{ $buku->jenis_buku }}"
-                 data-stok="{{ $buku->stok_tersedia }}"
-                 data-sampul="{{ $buku->sampul_buku ? asset('storage/'.$buku->sampul_buku) : '' }}"
-                 onclick="{{ $buku->stok_tersedia > 0 ? 'togglePilih(this)' : '' }}">
+             <div class="book-card {{ $buku->stok_tersedia < 1 ? 'out-of-stock' : '' }}"
+                  id="card-{{ $buku->id }}"
+                  data-id="{{ $buku->id }}"
+                  data-nama="{{ $buku->nama_buku }}"
+                  data-penerbit="{{ $buku->penerbit }}"
+                  data-jenis="{{ $buku->jenis_buku }}"
+                  data-genre="{{ $buku->genre_buku ?? 'Fisik' }}"
+                  data-stok="{{ $buku->stok_tersedia }}"
+                  data-sampul="{{ $buku->sampul_buku ? asset('storage/'.$buku->sampul_buku) : '' }}"
+                    data-ebook="{{ $buku->file_ebook ? route('publik.ebook.baca', ['id' => $buku->id]) : '' }}">
 
                 <div class="selected-badge" id="badge-{{ $buku->id }}">✓</div>
 
                 @if($buku->sampul_buku)
                     <img src="{{ asset('storage/'.$buku->sampul_buku) }}"
-                         alt="{{ $buku->nama_buku }}" class="book-cover">
+                         alt="{{ $buku->nama_buku }}" class="book-cover"
+                         data-book-id="{{ $buku->id }}"
+                         onclick="handleCoverClick(this)">
                 @else
-                    <div class="book-cover-placeholder">📖</div>
+                    <div class="book-cover-placeholder" 
+                         data-book-id="{{ $buku->id }}"
+                         onclick="handleCoverClick(this)">📖</div>
                 @endif
 
                 <div class="book-info">
                     <span class="book-jenis">{{ $buku->jenis_buku }}</span>
                     <div class="book-title">{{ $buku->nama_buku }}</div>
                     <div class="book-penerbit">{{ $buku->penerbit }}</div>
+                    
+                    <!-- Stats: Views and Borrows -->
+                    <div style="display: flex; gap: 12px; margin: 8px 0; font-size: 11px; color: var(--muted);">
+                        <span title="Total dilihat">
+                            <i class="fas fa-eye" style="color: #3b82f6;"></i> {{ $buku->view_count ?? 0 }}
+                        </span>
+                        <span title="Total dipinjam">
+                            <i class="fas fa-book-open" style="color: #10b981;"></i> {{ $buku->borrow_count ?? 0 }}
+                        </span>
+                    </div>
+                    
                     <div class="book-footer">
-                        @if($buku->stok_tersedia < 1)
-                            <span class="stok-badge stok-habis">Stok Habis</span>
-                        @elseif($buku->stok_tersedia <= 3)
-                            <span class="stok-badge stok-sedikit">Sisa {{ $buku->stok_tersedia }}</span>
+                        @if($buku->genre_buku == 'Ebook' || $buku->genre_buku == 'Hybrid')
+                            <span class="stok-badge stok-ada">E-Book</span>
                         @else
-                            <span class="stok-badge stok-ada">Tersedia {{ $buku->stok_tersedia }}</span>
+                            @if($buku->stok_tersedia < 1)
+                                <span class="stok-badge stok-habis">Stok Habis</span>
+                            @elseif($buku->stok_tersedia <= 3)
+                                <span class="stok-badge stok-sedikit">Sisa {{ $buku->stok_tersedia }}</span>
+                            @else
+                                <span class="stok-badge stok-ada">Tersedia {{ $buku->stok_tersedia }}</span>
+                            @endif
                         @endif
-                        @if($buku->stok_tersedia > 0)
-                        <div class="pick-btn" id="pickbtn-{{ $buku->id }}">
-                            <i class="fas fa-plus"></i>
-                        </div>
+                        
+                        @if($buku->genre_buku == 'Ebook' || $buku->genre_buku == 'Hybrid')
+                            <a href="{{ route('publik.ebook.baca', ['id' => $buku->id]) }}" class="btn btn-sm btn-primary" id="readbtn-{{ $buku->id }}" target="_blank">
+                                <i class="fas fa-book-reader me-1"></i>Baca
+                            </a>
+                        @elseif($buku->stok_tersedia > 0)
+                            <div class="pick-btn" id="pickbtn-{{ $buku->id }}">
+                                <i class="fas fa-plus"></i>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -611,6 +677,62 @@
     <button class="pinjam-btn" onclick="bukaModalPinjam()">
         <i class="fas fa-paper-plane me-2"></i>Ajukan Pinjam
     </button>
+</div>
+
+<!-- MODAL EBOOK READER -->
+<div class="modal fade" id="modalEbook" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-navy text-white py-2">
+                <h5 class="modal-title" id="ebookTitle">Baca E-Book</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <span id="pageCount" class="badge bg-light text-navy">Hal: 0/0</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeEbook()"></button>
+                </div>
+            </div>
+            <div class="reader-controls">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="prevPage()"><i class="fas fa-chevron-left"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="nextPage()"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="text-muted small" id="accessStatus">Akses: Preview (25%)</div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-gold" id="btnVerifyReader" onclick="showVerifyModal()">
+                        <i class="fas fa-unlock me-1"></i>Buka Akses Full
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body p-0">
+                <div id="pdf-viewer">
+                    <div id="pdf-loader" class="text-white mt-5">
+                        <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+                        <p class="mt-2">Memuat dokumen...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL VERIFIKASI NIM READER -->
+<div class="modal fade" id="modalVerifyReader" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3 text-gold">
+                    <i class="fas fa-lock fa-3x"></i>
+                </div>
+                <h5 class="fw-bold">Akses Terbatas</h5>
+                <p class="text-muted small">Silakan verifikasi NIM Anda untuk membaca buku ini secara lengkap.</p>
+                <div class="mb-3">
+                    <input type="text" id="reader_nim" class="form-control text-center" placeholder="Masukkan NIM Anda">
+                </div>
+                <div id="verifyError" class="text-danger small mb-2" style="display:none">NIM tidak terdaftar!</div>
+                <button class="btn btn-navy w-100 py-2" onclick="verifyReaderNim()">Verifikasi NIM</button>
+                <button class="btn btn-link btn-sm mt-2 text-muted text-decoration-none" data-bs-dismiss="modal">Nanti Saja</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- MODAL FORM PEMINJAMAN -->
@@ -706,10 +828,41 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
+    // Set PDF.js worker source immediately after library loads
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
     // State management
     let selectedBooks = [];
     const MAX_BOOKS = 3;
+    
+    // PDF Reader State
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    let scale = 1.5;
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    let isFullAccess = false;
+    let currentEbookUrl = '';
+    let maxPages = 0;
+
+    function handleCoverClick(element) {
+        event.stopPropagation();
+        
+        const id = element.dataset.bookId;
+        const card = document.getElementById('card-' + id);
+        const genre = card.getAttribute('data-genre');
+        const stok = parseInt(card.dataset.stok);
+        
+        if (genre === 'Ebook' || genre === 'Hybrid') {
+            window.open('/ebook/baca/' + id, '_blank');
+        } else if (stok > 0) {
+            togglePilih(card);
+        }
+    }
 
     function togglePilih(card) {
         const id = parseInt(card.dataset.id);
@@ -990,15 +1143,165 @@ document.getElementById('f_nim').addEventListener('keyup', function() {
     }, 400);
 });
 
-function resetFieldMahasiswa() {
-    document.getElementById('f_nama').value = '';
-    document.getElementById('f_jurusan').value = '';
-    document.getElementById('f_telepon').value = '';
+    function resetFieldMahasiswa() {
+        document.getElementById('f_nama').value = '';
+        document.getElementById('f_jurusan').value = '';
+        document.getElementById('f_telepon').value = '';
 
-    document.getElementById('f_nama').readOnly = false;
-    document.getElementById('f_jurusan').readOnly = false;
-    document.getElementById('f_telepon').readOnly = false;
-}
+        document.getElementById('f_nama').readOnly = false;
+        document.getElementById('f_jurusan').readOnly = false;
+        document.getElementById('f_telepon').readOnly = false;
+    }
+
+    // EBOOK READER FUNCTIONS
+    function openEbookReader(id) {
+        // Redirect to dedicated ebook reader page
+        window.open('/ebook/baca/' + id, '_blank');
+    }
+
+    function loadPdf(bookId) {
+        // Wait for PDF.js to be ready
+        if (typeof pdfjsLib === 'undefined') {
+            setTimeout(() => loadPdf(bookId), 1);
+            return;
+        }
+
+        const streamUrl = `/ebook/${bookId}`;
+
+        pdfjsLib.getDocument({
+            url: streamUrl,
+            withCredentials:true,
+            disableRange:true
+        }).promise.then(pdfDoc_ => {
+            pdfDoc = pdfDoc_;
+            maxPages = pdfDoc.numPages;
+            pageNum = 1;
+            
+            updateAccessStatus();
+            renderPage(pageNum);
+        }).catch(err => {
+            console.error(err);
+            document.getElementById('pdf-viewer').innerHTML = '<div class="text-white mt-5 text-center"><i class="fas fa-exclamation-triangle fa-2x text-warning"></i><p class="mt-2">Gagal memuat PDF. Pastikan file tersedia.</p></div>';
+        });
+    }
+
+    function renderPage(num) {
+        pageRendering = true;
+        
+        // Check restrictions
+        if (!isFullAccess) {
+            const limit = Math.ceil(maxPages / 4);
+            if (num > limit) {
+                showVerifyModal();
+                pageRendering = false;
+                return;
+            }
+        }
+
+        pdfDoc.getPage(num).then(page => {
+            const viewport = page.getViewport({ scale: scale });
+            const canvas = document.createElement('canvas');
+            canvas.className = 'pdf-page';
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+
+            const viewer = document.getElementById('pdf-viewer');
+            viewer.innerHTML = '';
+            viewer.appendChild(canvas);
+
+            page.render(renderContext).promise.then(() => {
+                document.getElementById('pageCount').textContent = `Hal: ${num}/${maxPages}`;
+                
+                pageRendering = false;
+                if (pageNumPending !== null) {
+                    renderPage(pageNumPending);
+                    pageNumPending = null;
+                }
+            });
+        });
+    }
+
+    function queueRenderPage(num) {
+        if (pageRendering) {
+            pageNumPending = num;
+        } else {
+            renderPage(num);
+        }
+    }
+
+    function prevPage() {
+        if (pageNum <= 1) return;
+        pageNum--;
+        queueRenderPage(pageNum);
+    }
+
+    function nextPage() {
+        if (pageNum >= maxPages) return;
+        
+        if (!isFullAccess) {
+            const limit = Math.ceil(maxPages / 4);
+            if (pageNum >= limit) {
+                showVerifyModal();
+                return;
+            }
+        }
+        
+        pageNum++;
+        queueRenderPage(pageNum);
+    }
+
+    function showVerifyModal() {
+        const verifyModal = new bootstrap.Modal(document.getElementById('modalVerifyReader'));
+        verifyModal.show();
+    }
+
+    function verifyReaderNim() {
+        const nim = document.getElementById('reader_nim').value.trim();
+        if (!nim) return;
+
+        fetch(`{{ route('publik.cek-nim') }}?nim=${nim}`)
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    isFullAccess = true;
+                    bootstrap.Modal.getInstance(document.getElementById('modalVerifyReader')).hide();
+                    updateAccessStatus();
+                    showToast('Verifikasi berhasil! Akses full dibuka.', 'success');
+                    renderPage(pageNum);
+                } else {
+                    document.getElementById('verifyError').style.display = 'block';
+                }
+            })
+            .catch(() => {
+                showToast('Terjadi kesalahan koneksi.', 'warning');
+            });
+    }
+
+    function updateAccessStatus() {
+        const status = document.getElementById('accessStatus');
+        const btn = document.getElementById('btnVerifyReader');
+        if (isFullAccess) {
+            status.textContent = 'Akses: Full Version';
+            status.className = 'text-success small fw-bold';
+            btn.style.display = 'none';
+        } else {
+            const limit = Math.ceil(maxPages / 4);
+            status.textContent = `Akses: Preview (${limit} Halaman)`;
+            status.className = 'text-muted small';
+            btn.style.display = 'block';
+        }
+    }
+
+    function closeEbook() {
+        pdfDoc = null;
+        document.getElementById('pdf-viewer').innerHTML = '';
+    }
 </script>
 
 <style>
@@ -1014,7 +1317,351 @@ function resetFieldMahasiswa() {
     20%, 60% { transform: translateX(-6px); }
     40%, 80% { transform: translateX(6px); }
 }
+
+/* CHAT WIDGET STYLES */
+.chat-widget-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+.chat-toggle {
+    width: 60px; height: 60px; border-radius: 50%; background: var(--navy);
+    border: none; color: white; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; box-shadow: 0 4px 12px rgba(15,36,68,0.4); transition: all 0.3s ease;
+}
+.chat-toggle:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(15,36,68,0.5); }
+.chat-toggle svg { width: 28px; height: 28px; }
+.chat-badge {
+    position: absolute; top: 0; right: 0; width: 20px; height: 20px; background: #ef4444;
+    border-radius: 50%; font-size: 11px; display: flex; align-items: center;
+    justify-content: center; color: white; font-weight: 600;
+}
+.chat-box {
+    position: absolute; bottom: 75px; right: 0; width: 350px; height: 450px;
+    background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
+}
+.chat-box.open { display: flex; }
+.chat-header {
+    padding: 1rem; background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+    color: white; display: flex; align-items: center; justify-content: space-between;
+}
+.chat-title { font-weight: 600; font-size: 0.95rem; }
+.chat-close {
+    background: none; border: none; color: white; cursor: pointer; width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;
+}
+.chat-close:hover { background: rgba(255, 255, 255, 0.2); }
+.chat-close svg { width: 18px; height: 18px; }
+.chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background: #f8fafc; }
+.chat-message { max-width: 80%; display: flex; flex-direction: column; gap: 0.25rem; }
+.chat-message.user { align-self: flex-end; }
+.chat-message.bot, .chat-message.admin { align-self: flex-start; }
+.chat-message-text { padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; }
+.chat-message.user .chat-message-text { background: var(--navy); color: white; border-bottom-right-radius: 4px; }
+.chat-message.bot .chat-message-text, .chat-message.admin .chat-message-text { background: white; color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+.chat-message-time { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
+.chat-message.user .chat-message-time { text-align: right; }
+.chat-status { padding: 0.5rem 1rem; background: #ecfdf5; border-top: 1px solid var(--border); display: none; }
+.status-badge { font-size: 0.75rem; color: #059669; font-weight: 500; }
+.chat-form { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; background: white; }
+.chat-form input[type="text"] {
+    flex: 1; padding: 0.625rem 1rem; border: 1px solid var(--border); border-radius: 12px;
+    font-size: 0.875rem; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
+}
+.chat-form input[type="text"]:focus { border-color: var(--navy); }
+.chat-form button {
+    width: 40px; height: 40px; border: none; background: var(--navy); color: white;
+    border-radius: 12px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; transition: background 0.2s;
+}
+.chat-form button:hover { background: var(--navy-mid); }
+.chat-form button svg { width: 18px; height: 18px; }
+.chat-typing { display: flex; gap: 0.25rem; padding: 0.75rem 1rem; }
+.chat-typing span { width: 8px; height: 8px; background: var(--muted); border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
+.chat-typing span:nth-child(1) { animation-delay: -0.32s; }
+.chat-typing span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+@media (max-width: 480px) { .chat-box { width: calc(100vw - 40px); height: 60vh; } }
 </style>
+
+{{-- CHAT WIDGET --}}
+<div class="chat-widget-container">
+    <button class="chat-toggle" id="chatToggle" aria-label="Buka chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span class="chat-badge" id="chatBadge" style="display: none;"></span>
+    </button>
+    <div class="chat-box" id="chatBox">
+        <div class="chat-header">
+            <span class="chat-title">&#x1F4AC; SIPUSAKA Assistant</span>
+            <button class="chat-close" id="chatClose" aria-label="Tutup chat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be added here -->
+        </div>
+        <div class="chat-status" id="chatStatus">
+            <span class="status-badge">&#x1F7E2; Terhubung dengan Admin</span>
+        </div>
+        <form class="chat-form" id="chatForm">
+            @csrf
+            <input type="hidden" id="chatSessionId" name="session_id" value="">
+            <input type="hidden" id="lastMessageId" value="0">
+            <input type="text" id="chatInput" name="message" placeholder="Ketik pesan Anda..." autocomplete="off" required>
+            <button type="submit" aria-label="Kirim">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // Elements
+    var chatToggle = document.getElementById('chatToggle');
+    var chatClose = document.getElementById('chatClose');
+    var chatBox = document.getElementById('chatBox');
+    var chatForm = document.getElementById('chatForm');
+    var chatInput = document.getElementById('chatInput');
+    var chatMessages = document.getElementById('chatMessages');
+    var chatSessionId = document.getElementById('chatSessionId');
+    var lastMessageId = document.getElementById('lastMessageId');
+    var chatStatus = document.getElementById('chatStatus');
+    var chatBadge = document.getElementById('chatBadge');
+
+    // State
+    var isChatOpen = false;
+    var isConnectedToAdmin = false;
+    var pollInterval = null;
+    var isVerified = false;
+    var awaitingNimInput = false;
+
+    // CSRF Token
+    var csrfToken = document.querySelector('input[name="_token"]') ? document.querySelector('input[name="_token"]').value : '';
+    
+    // Routes
+    var verifyNimUrl = '{{ route("chat.verify-nim") }}';
+    var sendMessageUrl = '{{ route("chat.send") }}';
+    var getMessagesUrl = '{{ route("chat.messages") }}';
+
+    // Toggle chat open/close
+    function toggleChat() {
+        openChat();
+    }
+
+    function openChat() {
+        isChatOpen = true;
+        chatBox.classList.add('open');
+        
+        // Show welcome message if first time opening
+        if (chatMessages.children.length === 0) {
+            addMessage('bot', 'Halo! Selamat datang di SIPUSAKA Assistant. 👋');
+            setTimeout(function() {
+                addMessage('bot', 'Untuk memulai, silakan masukkan NIM Anda.');
+                awaitingNimInput = true;
+            }, 500);
+        }
+        
+        chatInput.focus();
+    }
+
+    function closeChat() {
+        isChatOpen = false;
+        chatBox.classList.remove('open');
+        stopPolling();
+    }
+
+    // Verify NIM
+    function verifyNim(nim) {
+        showTyping();
+        
+        fetch('{{ route("chat.verify-nim") }}', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({ nim: nim })
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            hideTyping();
+            
+            if (data.success) {
+                isVerified = true;
+                awaitingNimInput = false;
+                addMessage('bot', 'Terima kasih! Anda terdaftar sebagai ' + data.mahasiswa.nama + ' ✓');
+                setTimeout(function() {
+                    addMessage('bot', 'Ada yang bisa saya bantu hari ini?');
+                    startPolling();
+                }, 800);
+            } else {
+                addMessage('bot', '❌ ' + (data.message || 'NIM tidak terdaftar. Silakan coba lagi atau hubungi admin.'));
+                awaitingNimInput = true;
+            }
+        })
+        .catch(function(err) {
+            hideTyping();
+            addMessage('bot', '❌ Terjadi kesalahan. Silakan coba lagi.');
+            awaitingNimInput = true;
+        });
+    }
+
+    // Add message to chat
+    function addMessage(sender, text) {
+        var messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message ' + sender;
+        var time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        var escapedText = escapeHtml(text);
+        messageDiv.innerHTML = '<div class="chat-message-text">' + escapedText + '</div><div class="chat-message-time">' + time + '</div>';
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Show/hide typing indicator
+    function showTyping() {
+        var typingDiv = document.createElement('div');
+        typingDiv.className = 'chat-message bot chat-typing';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = '<span></span><span></span><span></span>';
+        chatMessages.appendChild(typingDiv);
+        scrollToBottom();
+    }
+
+    function hideTyping() {
+        var typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+    }
+
+    // Send message
+    function sendMessage(message) {
+        addMessage('user', message);
+        chatInput.value = '';
+        showTyping();
+
+        fetch('{{ route("chat.send") }}', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                session_id: chatSessionId.value || null,
+                message: message
+            })
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            hideTyping();
+
+            if (data.session_id) {
+                chatSessionId.value = data.session_id;
+            }
+
+            if (data.is_connected_to_admin && !isConnectedToAdmin) {
+                isConnectedToAdmin = true;
+                chatStatus.style.display = 'block';
+                addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
+            }
+
+            if (data.message) {
+                addMessage('bot', data.message);
+            }
+        })
+        .catch(function(err) {
+            hideTyping();
+            console.error('Error:', err);
+        });
+    }
+
+    // Polling for new messages
+    function pollMessages() {
+        if (!chatSessionId.value) return;
+
+        fetch('{{ route("chat.messages") }}?session_id=' + encodeURIComponent(chatSessionId.value) + '&last_message_id=' + encodeURIComponent(lastMessageId.value), {
+            credentials: 'same-origin'
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.messages && data.messages.length > 0) {
+                data.messages.forEach(function(msg) {
+                    if (msg.sender_type === 'admin') {
+                        addMessage('admin', msg.message);
+                    } else if (msg.sender_type === 'bot') {
+                        addMessage('bot', msg.message);
+                    }
+                    if (msg.id > lastMessageId.value) {
+                        lastMessageId.value = msg.id;
+                    }
+                });
+            }
+
+            if (data.is_connected_to_admin && !isConnectedToAdmin) {
+                isConnectedToAdmin = true;
+                chatStatus.style.display = 'block';
+                addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
+            }
+        })
+        .catch(function(err) {
+            console.error("Error polling:", err);
+        });
+    }
+
+    function startPolling() {
+        pollMessages();
+        pollInterval = setInterval(pollMessages, 3000);
+    }
+
+    function stopPolling() {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+    }
+
+    // Event Listeners
+    chatToggle.addEventListener('click', toggleChat);
+    chatClose.addEventListener('click', closeChat);
+
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var message = chatInput.value.trim();
+        if (!message) return;
+        
+        // If awaiting NIM input, verify NIM instead of sending message
+        if (awaitingNimInput && !isVerified) {
+            addMessage('user', message);
+            chatInput.value = '';
+            verifyNim(message);
+        } else if (isVerified) {
+            sendMessage(message);
+        } else {
+            addMessage('user', message);
+            chatInput.value = '';
+            addMessage('bot', 'Silakan masukkan NIM Anda terlebih dahulu.');
+        }
+    });
+})();
+</script>
 
 </body>
 </html>

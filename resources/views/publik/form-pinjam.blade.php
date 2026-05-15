@@ -570,18 +570,22 @@
     letter-spacing: 2px;
   }
   .qr-placeholder {
-    width: 140px; height: 140px;
+    width: auto;
     background: var(--gray-light);
     border: 2px dashed var(--border);
     border-radius: 12px;
     margin: 0 auto 20px;
-    display: flex; align-items: center; justify-content: center;
+    display: inline-flex; align-items: center; justify-content: center;
     flex-direction: column;
     gap: 6px;
     color: var(--gray);
     font-size: 12px;
+    padding: 16px;
   }
-  .qr-placeholder svg { opacity: 0.4; }
+  #qr-code-svg img, #qr-code-svg canvas {
+    border-radius: 6px;
+    display: block;
+  }
 
   /* ── BUTTONS ── */
   .btn-row {
@@ -977,10 +981,10 @@
       📋 <span id="booking-id-text">—</span>
     </div>
     <div class="qr-placeholder" id="qr-container" style="display: flex; flex-direction: column; align-items: center;">
-      <svg id="qr-code-svg" width="200" height="200" style="border: 2px solid var(--navy); border-radius: 8px; padding: 8px; background: white;"></svg>
+      <div id="qr-code-svg" style="border: 2px solid var(--navy); border-radius: 8px; padding: 8px; background: white; line-height: 0;"></div>
       <p style="margin-top: 12px; font-size: 12px; color: var(--gray);">Tunjukkan QR Code ini ke Admin Perpustakaan</p>
       <a href="#" id="btn-download-qr" class="btn btn-next" style="margin-top: 12px;">
-        <i class="fas fa-download"></i> Download QR Code
+        ⬇ Download QR Code
       </a>
     </div>
     <p style="font-size:12px;color:var(--gray);margin-top:16px;">Booking ID dan QR Code juga dikirimkan ke email Anda.</p>
@@ -1291,10 +1295,12 @@ function submitForm() {
         text: bookingId,
         width: 200,
         height: 200,
-        colorDark: '#000000',
+        colorDark: '#0f2444',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.H
       });
+      // Resize qr-container to fit content
+      document.getElementById('qr-container').style.width = 'auto';
 
       // Setup download button
       document.getElementById('btn-download-qr').onclick = function(e) {
@@ -1322,20 +1328,27 @@ function submitForm() {
 }
 
 function downloadQRCode(bookingId) {
+  // qrcodejs renders either a canvas or an img depending on browser support
   const qrCanvas = document.querySelector('#qr-code-svg canvas');
-  if (!qrCanvas) {
-    alert('QR Code not found');
-    return;
+  const qrImg = document.querySelector('#qr-code-svg img');
+
+  if (qrCanvas) {
+    const link = document.createElement('a');
+    link.href = qrCanvas.toDataURL('image/png');
+    link.download = `QR-${bookingId}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else if (qrImg) {
+    const link = document.createElement('a');
+    link.href = qrImg.src;
+    link.download = `QR-${bookingId}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else {
+    showAlert('QR Code belum siap. Tunggu sebentar lalu coba lagi.');
   }
-  
-  const link = document.createElement('a');
-  link.href = qrCanvas.toDataURL('image/png');
-  link.download = `QR-${bookingId}.png`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-  URL.revokeObjectURL(url);
 }
 </script>
 

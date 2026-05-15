@@ -667,6 +667,16 @@
                         </a>
                     </li>
 
+                    <li class="nav-header">Layanan</li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.chat.index') }}"
+                           class="nav-link {{ request()->routeIs('admin.chat*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>Chat Mahasiswa</p>
+                        </a>
+                    </li>
+
                 </ul>
             </nav>
         </div>
