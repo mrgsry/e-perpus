@@ -63,6 +63,18 @@
                                             <i class="fas fa-times"></i>
                                         </button>
                                     @endif
+                                    <button type="button" class="btn btn-outline-primary btn-xs btn-edit" 
+                                        data-url="{{ route('admin.mahasiswa.update', $mahasiswa->id) }}" 
+                                        data-nama="{{ $mahasiswa->nama }}"
+                                        data-nim="{{ $mahasiswa->nim }}"
+                                        data-jurusan="{{ $mahasiswa->jurusan }}"
+                                        data-telepon="{{ $mahasiswa->no_telepon }}"
+                                        data-email="{{ $mahasiswa->email }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-info btn-xs btn-action" data-url="{{ route('admin.mahasiswa.approve', $mahasiswa->id) }}" data-action="Generate Token" data-nama="{{ $mahasiswa->nama }}">
+                                        <i class="fas fa-key"></i>
+                                    </button>
                                     <button type="button" class="btn btn-outline-danger btn-xs btn-delete" data-url="{{ route('admin.mahasiswa.destroy', $mahasiswa->id) }}" data-nama="{{ $mahasiswa->nama }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -72,6 +84,48 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="editForm">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Mahasiswa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Nama</label>
+                        <input type="text" name="nama" id="editNama" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>NIM</label>
+                        <input type="text" name="nim" id="editNim" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Jurusan</label>
+                        <input type="text" name="jurusan" id="editJurusan" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>No. Telepon</label>
+                        <input type="text" name="no_telepon" id="editTelepon" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" id="editEmail" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -100,6 +154,7 @@
 <script>
 // Initialize Bootstrap modal
 const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 let currentAction = null;
 let currentUrl = null;
 let currentNama = null;
@@ -151,6 +206,53 @@ document.querySelectorAll('.btn-delete').forEach(button => {
     });
 });
 
+// Handle Edit button
+document.querySelectorAll('.btn-edit').forEach(button => {
+    button.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        
+        document.getElementById('editNama').value = this.getAttribute('data-nama');
+        document.getElementById('editNim').value = this.getAttribute('data-nim');
+        document.getElementById('editJurusan').value = this.getAttribute('data-jurusan');
+        document.getElementById('editTelepon').value = this.getAttribute('data-telepon');
+        document.getElementById('editEmail').value = this.getAttribute('data-email');
+        
+        document.getElementById('editForm').setAttribute('action', url);
+        
+        editModal.show();
+    });
+});
+
+// Handle Edit form submission
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    fetch(this.getAttribute('action'), {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            _method: 'PUT',
+            nama: document.getElementById('editNama').value,
+            nim: document.getElementById('editNim').value,
+            jurusan: document.getElementById('editJurusan').value,
+            no_telepon: document.getElementById('editTelepon').value,
+            email: document.getElementById('editEmail').value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Gagal update data');
+        }
+    });
+});
+
 // Handle confirm button click
 document.getElementById('confirmBtn').addEventListener('click', function() {
     const method = currentAction === 'Delete' ? 'DELETE' : 'POST';
@@ -178,11 +280,13 @@ document.getElementById('confirmBtn').addEventListener('click', function() {
                 'Mahasiswa "' + currentNama + '" berhasil disetujui.' :
                 currentAction === 'Reject' ?
                 'Mahasiswa "' + currentNama + '" berhasil ditolak.' :
+                currentAction === 'Generate Token' ?
+                'Token berhasil di generate ulang untuk "' + currentNama + '".' :
                 'Mahasiswa "' + currentNama + '" berhasil dihapus.';
             
             // Add token info if approve action
             let tokenInfo = '';
-            if (currentAction === 'Approve' && data.referral_token) {
+            if ((currentAction === 'Approve' || currentAction === 'Generate Token') && data.referral_token) {
                 tokenInfo = `
                     <div class="alert alert-info mt-3 mb-0" style="text-align: left;">
                         <strong><i class="fas fa-key me-2"></i>Token Referral:</strong>
