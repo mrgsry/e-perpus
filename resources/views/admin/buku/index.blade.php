@@ -66,7 +66,7 @@
                                 @endif
                             </td>
                             <td>
-                                <button onclick="editBuku({{ $buku->id }}, '{{ addslashes($buku->nama_buku) }}', '{{ addslashes($buku->penerbit) }}', '{{ $buku->jenis_buku }}', {{ $buku->stok_total }})"
+                                <button onclick="editBuku({{ $buku->id }}, '{{ addslashes($buku->nama_buku) }}', '{{ addslashes($buku->penerbit) }}', '{{ addslashes($buku->jenis_buku) }}', '{{ addslashes($buku->genre_buku) }}', {{ $buku->stok_total }}, '{{ addslashes($buku->file_ebook ? Storage::url($buku->file_ebook) : '') }}')"
                                         class="btn btn-warning btn-xs">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -103,6 +103,16 @@
                     <input type="text" id="tambah_penerbit" class="form-control" placeholder="Nama penerbit">
                 </div>
                 <div class="mb-3">
+                    <label class="form-label">Genre Buku</label>
+                    <select id="tambah_genre" class="form-control" onchange="toggleEbookField('tambah')">
+                        <option value="">-- Pilih Genre --</option>
+                        <option value="Fisik">Buku Fisik</option>
+                        <option value="Ebook">E-Book</option>
+                        <option value="Hybrid">Fisik + E-Book</option>
+                    </select>
+                    <small class="text-muted">Pilih jenis format buku</small>
+                </div>
+                <div class="mb-3">
                     <label class="form-label">Jenis Buku</label>
                     <select id="tambah_jenis" class="form-control">
                         <option value="">-- Pilih Jenis --</option>
@@ -114,14 +124,20 @@
                         <option value="Sejarah">Sejarah</option>
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Stok Buku</label>
-                    <input type="number" id="tambah_stok" class="form-control" placeholder="Jumlah stok" min="1">
+                <div class="mb-3" id="tambah_stok_wrapper">
+                    <label class="form-label">Stok Buku Fisik</label>
+                    <input type="number" id="tambah_stok" class="form-control" placeholder="Jumlah stok fisik" min="0" value="0">
+                    <small class="text-muted">Isi 0 jika hanya E-Book</small>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Sampul Buku</label>
                     <input type="file" id="tambah_sampul" class="form-control" accept="image/*">
                     <small class="text-muted">Format: JPG, PNG. Maks 2MB</small>
+                </div>
+                <div class="mb-3" id="tambah_ebook_wrapper" style="display:none">
+                    <label class="form-label">File PDF E-Book <span class="text-danger">*</span></label>
+                    <input type="file" id="tambah_ebook" class="form-control" accept="application/pdf">
+                    <small class="text-muted">Format: PDF. Maks 10MB. Wajib untuk E-Book</small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -164,12 +180,30 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Stok Buku</label>
-                    <input type="number" id="edit_stok" class="form-control" min="1">
+                    <label class="form-label">Genre Buku</label>
+                    <select id="edit_genre" class="form-control" onchange="toggleEbookField('edit')">
+                        <option value="Fisik">Buku Fisik</option>
+                        <option value="Ebook">E-Book</option>
+                        <option value="Hybrid">Fisik + E-Book</option>
+                    </select>
+                    <small class="text-muted">Pilih jenis format buku</small>
+                </div>
+                <div class="mb-3" id="edit_stok_wrapper">
+                    <label class="form-label">Stok Buku Fisik</label>
+                    <input type="number" id="edit_stok" class="form-control" min="0">
+                    <small class="text-muted">Isi 0 jika hanya E-Book</small>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Ganti Sampul (opsional)</label>
                     <input type="file" id="edit_sampul" class="form-control" accept="image/*">
+                </div>
+                <div class="mb-3" id="edit_ebook_wrapper" style="display:none">
+                    <label class="form-label">Ganti File PDF E-Book (opsional)</label>
+                    <input type="file" id="edit_ebook" class="form-control" accept="application/pdf">
+                    <small class="text-muted">Format: PDF. Maks 10MB.</small>
+                    <div id="current_ebook_file" class="mt-2" style="font-size:13px;display:none">
+                        File saat ini: <a href="#" target="_blank" id="current_ebook_link"></a>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -210,15 +244,66 @@ $('#tableBuku').DataTable({
     language: { url: '//cdn.datatables.net/plug-ins/1.10.x/i18n/Indonesian.json' }
 });
 
+function toggleEbookField(mode) {
+    const genre = $('#' + mode + '_genre').val();
+    const ebookWrapper = $('#' + mode + '_ebook_wrapper');
+    const stokWrapper = $('#' + mode + '_stok_wrapper');
+    
+    if (genre === 'Ebook' || genre === 'Hybrid') {
+        ebookWrapper.show();
+    } else {
+        ebookWrapper.hide();
+        $('#' + mode + '_ebook').val('');
+    }
+    
+    if (genre === 'Ebook') {
+        stokWrapper.hide();
+        $('#' + mode + '_stok').val(1); // Default stok 1 untuk ebook
+    } else {
+        stokWrapper.show();
+        if ($('#' + mode + '_stok').val() == 1 || $('#' + mode + '_stok').val() == 0) {
+            $('#' + mode + '_stok').val(''); // Reset jika sebelumnya ebook
+        }
+    }
+}
+
 function simpanBuku() {
+    const genre = $('#tambah_genre').val();
+    
+    // Validasi genre
+    if (!genre) {
+        $('#alertTambah').html('<div class="alert alert-danger">Pilih genre buku terlebih dahulu</div>');
+        return;
+    }
+    
+    // Validasi ebook file untuk genre Ebook atau Hybrid
+    if ((genre === 'Ebook' || genre === 'Hybrid') && !$('#tambah_ebook')[0].files[0]) {
+        $('#alertTambah').html('<div class="alert alert-danger">File PDF E-Book wajib diupload untuk genre ' + genre + '</div>');
+        return;
+    }
+    
+    // Validasi stok untuk genre Fisik atau Hybrid
+    if ((genre === 'Fisik' || genre === 'Hybrid') && $('#tambah_stok').val() < 1) {
+        $('#alertTambah').html('<div class="alert alert-danger">Stok buku fisik harus lebih dari 0 untuk genre ' + genre + '</div>');
+        return;
+    }
+    
     let formData = new FormData();
     formData.append('_token', '{{ csrf_token() }}');
     formData.append('nama_buku', $('#tambah_nama').val());
     formData.append('penerbit', $('#tambah_penerbit').val());
+    formData.append('genre_buku', genre);
     formData.append('jenis_buku', $('#tambah_jenis').val());
-    formData.append('stok_total', $('#tambah_stok').val());
+    
+    // Untuk ebook, stok default 1 (unlimited digital copies)
+    const stok = genre === 'Ebook' ? 1 : $('#tambah_stok').val();
+    formData.append('stok_total', stok);
+    
     if ($('#tambah_sampul')[0].files[0]) {
         formData.append('sampul_buku', $('#tambah_sampul')[0].files[0]);
+    }
+    if ($('#tambah_ebook')[0].files[0]) {
+        formData.append('file_ebook', $('#tambah_ebook')[0].files[0]);
     }
 
     $.ajax({
@@ -238,12 +323,27 @@ function simpanBuku() {
     });
 }
 
-function editBuku(id, nama, penerbit, jenis, stok) {
+function editBuku(id, nama, penerbit, jenis, genre, stok, ebookUrl) {
     $('#edit_id').val(id);
     $('#edit_nama').val(nama);
     $('#edit_penerbit').val(penerbit);
     $('#edit_jenis').val(jenis);
+    $('#edit_genre').val(genre);
     $('#edit_stok').val(stok);
+    
+    // Reset file inputs
+    $('#edit_sampul').val('');
+    $('#edit_ebook').val('');
+
+    // Update current ebook link
+    if (ebookUrl) {
+        $('#current_ebook_link').attr('href', ebookUrl).text(ebookUrl.split('/').pop());
+        $('#current_ebook_file').show();
+    } else {
+        $('#current_ebook_file').hide();
+    }
+
+    toggleEbookField('edit'); // Apply visibility rules based on genre
     $('#modalEdit').modal('show');
 }
 
@@ -255,9 +355,13 @@ function updateBuku() {
     formData.append('nama_buku', $('#edit_nama').val());
     formData.append('penerbit', $('#edit_penerbit').val());
     formData.append('jenis_buku', $('#edit_jenis').val());
+    formData.append('genre_buku', $('#edit_genre').val());
     formData.append('stok_total', $('#edit_stok').val());
     if ($('#edit_sampul')[0].files[0]) {
         formData.append('sampul_buku', $('#edit_sampul')[0].files[0]);
+    }
+    if ($('#edit_ebook')[0].files[0]) {
+        formData.append('file_ebook', $('#edit_ebook')[0].files[0]);
     }
 
     $.ajax({
@@ -284,9 +388,51 @@ function konfirmasiHapus() {
         method: 'POST',
         data: { _token: '{{ csrf_token() }}', _method: 'DELETE' },
         success: function(res) {
-            if (res.success) location.reload();
+            if (res.success) {
+                $('#modalHapus').modal('hide');
+                showNotification('success', res.message);
+                setTimeout(() => location.reload(), 1500);
+            }
+        },
+        error: function(xhr) {
+            $('#modalHapus').modal('hide');
+            const message = xhr.responseJSON?.message || 'Terjadi kesalahan saat menghapus buku';
+            showNotification('error', message);
         }
     });
+}
+
+function showNotification(type, message) {
+    const bgColor = type === 'success' ? '#10b981' : '#ef4444';
+    const icon = type === 'success' ? '✓' : '✕';
+    
+    const notification = $('<div>')
+        .css({
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            background: bgColor,
+            color: 'white',
+            padding: '16px 24px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            fontSize: '14px',
+            fontWeight: '500',
+            maxWidth: '400px'
+        })
+        .html(`<span style="font-size:18px">${icon}</span><span>${message}</span>`);
+    
+    $('body').append(notification);
+    
+    setTimeout(() => {
+        notification.fadeOut(300, function() {
+            $(this).remove();
+        });
+    }, 4000);
 }
 </script>
 @endpush

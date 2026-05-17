@@ -19,12 +19,13 @@ class PinjamController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama'       => 'required|string|max:100',
-            'nim'        => 'required|string',
-            'jurusan'    => 'required|string',
-            'no_telepon' => 'required|string',
-            'buku_ids'   => 'required|array|min:1|max:3',
-            'buku_ids.*' => 'exists:bukus,id',
+            'nama'           => 'required|string|max:100',
+            'nim'            => 'required|string',
+            'jurusan'        => 'required|string',
+            'no_telepon'     => 'required|string',
+            'referral_token' => 'required|string',
+            'buku_ids'       => 'required|array|min:1|max:3',
+            'buku_ids.*'     => 'exists:bukus,id',
         ]);
 
         // Cek NIM terdaftar
@@ -32,9 +33,29 @@ class PinjamController extends Controller
         if (!$mahasiswa) {
             return response()->json([
                 'success' => false,
-                'message' => 'NIM tidak terdaftar. Hubungi admin untuk mendaftar.'
+                'message' => 'NIM tidak terdaftar. Silakan daftar terlebih dahulu.'
             ], 422);
         }
+
+         // Cek status mahasiswa
+         if ($mahasiswa->status !== 'approved') {
+             $statusMessage = $mahasiswa->status === 'pending' 
+                 ? 'Pendaftaran Anda masih menunggu persetujuan admin.' 
+                 : 'Pendaftaran Anda ditolak. Hubungi admin untuk informasi lebih lanjut.';
+             
+             return response()->json([
+                 'success' => false,
+                 'message' => $statusMessage
+             ], 422);
+         }
+
+         // Cek token referral
+         if (empty($mahasiswa->referral_token) || $request->referral_token !== $mahasiswa->referral_token) {
+             return response()->json([
+                 'success' => false,
+                 'message' => 'Kode referral tidak valid atau belum terdaftar. Silakan periksa token Anda.'
+             ], 422);
+         }
 
         // Cek apakah masih ada pinjaman aktif
         $aktivPinjaman = Peminjaman::where('mahasiswa_id', $mahasiswa->id)
@@ -162,13 +183,63 @@ class PinjamController extends Controller
     ]);
 }
 
+    public function validateToken(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string|size:6',
+        ]);
+
+        $token = strtoupper($request->token);
+        $mahasiswa = Mahasiswa::where('referral_token', $token)
+            ->where('status', 'approved')
+            ->first();
+
+        if (!$mahasiswa) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Token referral tidak valid atau tidak ditemukan.',
+            ]);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'mahasiswa' => [
+                'nama' => $mahasiswa->nama,
+                'nim' => $mahasiswa->nim
+            ]
+        ]);
+    }
+
+    public function getMahasiswaByNim($nim)
+    {
+        $mahasiswa = Mahasiswa::where('nim', $nim)->first();
+
+        if (!$mahasiswa) {
+            return response()->json(['success' => false, 'message' => 'NIM tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'nama'       => $mahasiswa->nama,
+                'jurusan'    => $mahasiswa->jurusan,
+                'no_telepon' => $mahasiswa->no_telepon,
+            ]
+        ]);
+    }
+
     public function cekNim(Request $request)
     {
         $request->validate([
             'nim' => 'required|string',
+            'referral_token' => 'required|string|size:6',
         ]);
 
-        $mahasiswa = Mahasiswa::where('nim', $request->nim)->first();
+        $nim = $request->nim;
+        $token = strtoupper($request->referral_token);
+
+        // Cek NIM terdaftar
+        $mahasiswa = Mahasiswa::where('nim', $nim)->first();
 
         if (!$mahasiswa) {
             return response()->json([
@@ -177,14 +248,35 @@ class PinjamController extends Controller
             ], 404);
         }
 
+        // Cek status mahasiswa
+        if ($mahasiswa->status !== 'approved') {
+            $statusMessage = $mahasiswa->status === 'pending' 
+                ? 'Pendaftaran Anda masih menunggu persetujuan admin.' 
+                : 'Pendaftaran Anda ditolak. Hubungi admin untuk informasi lebih lanjut.';
+            
+            return response()->json([
+                'success' => false,
+                'message' => $statusMessage
+            ], 422);
+        }
+
+        // Cek token referral
+        if (empty($mahasiswa->referral_token) || $token !== $mahasiswa->referral_token) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token referral tidak valid atau tidak ditemukan.',
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
-                'id'         => $mahasiswa->id,
-                'nim'        => $mahasiswa->nim,
-                'nama'       => $mahasiswa->nama,
-                'jurusan'    => $mahasiswa->jurusan,
-                'no_telepon' => $mahasiswa->no_telepon,
+                'id'              => $mahasiswa->id,
+                'nim'             => $mahasiswa->nim,
+                'nama'            => $mahasiswa->nama,
+                'jurusan'         => $mahasiswa->jurusan,
+                'no_telepon'      => $mahasiswa->no_telepon,
+                'referral_token'  => $mahasiswa->referral_token,
             ]
         ]);
     }

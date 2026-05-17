@@ -3,16 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Mahasiswa extends Model
 {
+    use Notifiable;
+
     protected $table = 'mahasiswas';
 
     protected $fillable = [
-        'nama',
         'nim',
+        'nama',
         'jurusan',
         'no_telepon',
+        'angkatan',
+        'email',
+        'status',
+        'referral_token',
     ];
 
     public function pinjamans() {

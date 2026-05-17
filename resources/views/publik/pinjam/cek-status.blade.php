@@ -3,6 +3,7 @@
 @section('title', 'Cek Status Peminjaman')
 
 @push('head_styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
     .cek-page {
         min-height: calc(100vh - 64px - 73px);
@@ -17,7 +18,6 @@
     }
 
     .cek-box { width: 100%; max-width: 460px; }
-
     .cek-header { text-align: center; margin-bottom: 1.75rem; }
 
     .cek-icon-wrap {
@@ -25,14 +25,8 @@
         width: 54px; height: 54px; background: #2563eb; border-radius: 14px;
         margin-bottom: 1rem; box-shadow: 0 6px 20px rgba(37,99,235,0.28);
     }
-    .cek-icon-wrap svg {
-        width: 26px; height: 26px; fill: none; stroke: #fff;
-        stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .cek-title {
-        font-size: 1.4rem; font-weight: 800; color: #0f172a;
-        letter-spacing: -0.025em; margin: 0 0 0.35rem;
-    }
+    .cek-icon-wrap svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .cek-title { font-size: 1.4rem; font-weight: 800; color: #0f172a; letter-spacing: -0.025em; margin: 0 0 0.35rem; }
     .cek-desc { font-size: 0.875rem; color: #64748b; margin: 0; }
 
     .cek-card {
@@ -41,10 +35,7 @@
         box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04), 0 10px 30px -5px rgba(37,99,235,0.07);
     }
 
-    .field-label {
-        display: block; font-size: 0.775rem; font-weight: 700;
-        color: #475569; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.5rem;
-    }
+    .field-label { display: block; font-size: 0.775rem; font-weight: 700; color: #475569; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.5rem; }
     .field-wrap { position: relative; margin-bottom: 0.625rem; }
     .field-ico {
         position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
@@ -62,15 +53,9 @@
     }
     .field-input::placeholder { color: #cbd5e1; font-weight: 400; font-size: 0.875rem; letter-spacing: 0; }
     .field-input:hover { border-color: #bfdbfe; background: #f0f6ff; }
-    .field-input:focus {
-        border-color: #2563eb; background: #fff;
-        box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
-    }
+    .field-input:focus { border-color: #2563eb; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
     .field-hint { font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem; }
-    .field-hint code {
-        font-family: 'Courier New', monospace; background: #f1f5f9;
-        color: #2563eb; font-size: 0.75rem; padding: 1px 6px; border-radius: 4px;
-    }
+    .field-hint code { font-family: 'Courier New', monospace; background: #f1f5f9; color: #2563eb; font-size: 0.75rem; padding: 1px 6px; border-radius: 4px; }
 
     .btn-cek {
         width: 100%; height: 50px; margin-top: 1.25rem;
@@ -78,8 +63,7 @@
         background: #2563eb; color: #fff;
         font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: 0.9375rem; font-weight: 700; border: none;
-        border-radius: 11px; cursor: pointer;
-        transition: all 0.2s;
+        border-radius: 11px; cursor: pointer; transition: all 0.2s;
         box-shadow: 0 4px 12px rgba(37,99,235,0.3);
     }
     .btn-cek svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -91,10 +75,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .cek-sep { border: none; border-top: 1px solid #f1f5f9; margin: 1.5rem 0; }
-    .cek-info {
-        display: flex; gap: 10px; align-items: flex-start;
-        background: #eff6ff; border-radius: 10px; padding: 0.875rem 1rem;
-    }
+    .cek-info { display: flex; gap: 10px; align-items: flex-start; background: #eff6ff; border-radius: 10px; padding: 0.875rem 1rem; }
     .cek-info svg { flex-shrink: 0; width: 17px; height: 17px; fill: none; stroke: #2563eb; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin-top: 1px; }
     .cek-info p { font-size: 0.8125rem; color: #1e40af; margin: 0; line-height: 1.6; }
 
@@ -102,69 +83,35 @@
     .cek-footer a { color: #2563eb; font-weight: 600; text-decoration: none; }
     .cek-footer a:hover { text-decoration: underline; }
 
-    /* ── MODAL CUSTOM ── */
-    .modal-content {
-        border: none;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    }
-
-    .modal-header-custom {
-        padding: 1.25rem 1.5rem 1rem;
-        border-bottom: 1px solid #f1f5f9;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .modal-header-left {
-        display: flex;
-        align-items: center;
+    /* Inline error box */
+    .inline-error-box {
+        display: none;
+        align-items: flex-start;
         gap: 10px;
+        margin-bottom: 1rem;
+        padding: 0.875rem 1rem;
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        border-radius: 10px;
     }
+    .inline-error-box svg { flex-shrink: 0; width: 17px; height: 17px; fill: none; stroke: #e11d48; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin-top: 1px; }
+    .inline-error-box p { font-size: 0.875rem; color: #9f1239; margin: 0; line-height: 1.5; }
 
-    .modal-header-icon {
-        width: 36px; height: 36px;
-        background: #eff6ff;
-        border-radius: 9px;
-        display: flex; align-items: center; justify-content: center;
-    }
-
-    .modal-header-icon svg {
-        width: 18px; height: 18px; fill: none;
-        stroke: #2563eb; stroke-width: 2;
-        stroke-linecap: round; stroke-linejoin: round;
-    }
-
-    .modal-header-title {
-        font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;
-        letter-spacing: -0.01em;
-    }
-
-    .modal-header-sub {
-        font-size: 0.775rem; color: #94a3b8; margin: 0;
-    }
-
-    .modal-close {
-        width: 32px; height: 32px;
-        border: none; background: #f1f5f9;
-        border-radius: 8px; cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        transition: background 0.15s;
-        flex-shrink: 0;
-    }
+    /* Modal */
+    .modal-content { border: none; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+    .modal-header-custom { padding: 1.25rem 1.5rem 1rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header-left { display: flex; align-items: center; gap: 10px; }
+    .modal-header-icon { width: 36px; height: 36px; background: #eff6ff; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+    .modal-header-icon svg { width: 18px; height: 18px; fill: none; stroke: #2563eb; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .modal-header-title { font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0; letter-spacing: -0.01em; }
+    .modal-header-sub { font-size: 0.775rem; color: #94a3b8; margin: 0; }
+    .modal-close { width: 32px; height: 32px; border: none; background: #f1f5f9; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; flex-shrink: 0; }
     .modal-close:hover { background: #e2e8f0; }
     .modal-close svg { width: 16px; height: 16px; fill: none; stroke: #64748b; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* Status badge */
-    .status-badge {
-        display: inline-flex; align-items: center; gap: 6px;
-        padding: 5px 12px; border-radius: 999px;
-        font-size: 0.8rem; font-weight: 700; letter-spacing: 0.01em;
-    }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.01em; }
     .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
-
     .badge-primary   { background: #eff6ff; color: #1d4ed8; }
     .badge-primary .dot   { background: #2563eb; }
     .badge-warning   { background: #fffbeb; color: #92400e; }
@@ -175,123 +122,44 @@
     .badge-danger .dot    { background: #e11d48; }
     .badge-secondary { background: #f8fafc; color: #475569; }
     .badge-secondary .dot { background: #94a3b8; }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
-    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* Detail rows */
     .detail-body { padding: 1.25rem 1.5rem; }
-
-    .detail-section-title {
-        font-size: 0.725rem; font-weight: 700; color: #94a3b8;
-        letter-spacing: 0.07em; text-transform: uppercase;
-        margin-bottom: 0.75rem;
-    }
-
-    .detail-row {
-        display: flex; align-items: flex-start;
-        padding: 0.6rem 0;
-        border-bottom: 1px solid #f8fafc;
-    }
+    .detail-section-title { font-size: 0.725rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 0.75rem; }
+    .detail-row { display: flex; align-items: flex-start; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc; }
     .detail-row:last-child { border-bottom: none; }
-
-    .detail-icon {
-        width: 30px; height: 30px; flex-shrink: 0;
-        background: #f8fafc; border-radius: 7px;
-        display: flex; align-items: center; justify-content: center;
-        margin-right: 10px; margin-top: 1px;
-    }
+    .detail-icon { width: 30px; height: 30px; flex-shrink: 0; background: #f8fafc; border-radius: 7px; display: flex; align-items: center; justify-content: center; margin-right: 10px; margin-top: 1px; }
     .detail-icon svg { width: 14px; height: 14px; fill: none; stroke: #64748b; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-    .detail-key {
-        font-size: 0.775rem; color: #94a3b8; font-weight: 500;
-        width: 130px; flex-shrink: 0; padding-top: 6px;
-    }
-
-    .detail-val {
-        font-size: 0.875rem; color: #0f172a; font-weight: 600;
-        flex: 1; padding-top: 5px; line-height: 1.4;
-    }
+    .detail-key { font-size: 0.775rem; color: #94a3b8; font-weight: 500; width: 130px; flex-shrink: 0; padding-top: 6px; }
+    .detail-val { font-size: 0.875rem; color: #0f172a; font-weight: 600; flex: 1; padding-top: 5px; line-height: 1.4; }
 
     /* Denda alert */
-    .denda-alert {
-        margin: 0 1.5rem 1.25rem;
-        background: #fff7ed;
-        border: 1px solid #fed7aa;
-        border-radius: 10px;
-        padding: 0.875rem 1rem;
-        display: flex; align-items: flex-start; gap: 10px;
-    }
+    .denda-alert { margin: 0 1.5rem 1.25rem; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 0.875rem 1rem; display: flex; align-items: flex-start; gap: 10px; }
     .denda-alert svg { flex-shrink: 0; width: 17px; height: 17px; fill: none; stroke: #ea580c; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin-top: 1px; }
     .denda-alert-text p { margin: 0; }
     .denda-alert-text .denda-label { font-size: 0.775rem; color: #9a3412; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
     .denda-alert-text .denda-amount { font-size: 1.1rem; color: #c2410c; font-weight: 800; margin-top: 2px; }
 
     /* QR section */
-    .qr-section {
-        margin: 0 1.5rem 1.25rem;
-        background: #f8fafc;
-        border-radius: 12px;
-        padding: 1.25rem;
-        text-align: center;
-    }
-    .qr-section img {
-        width: 140px; height: 140px;
-        border-radius: 8px;
-        border: 4px solid #fff;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-    }
+    .qr-section { margin: 0 1.5rem 1.25rem; background: #f8fafc; border-radius: 12px; padding: 1.25rem; text-align: center; }
+    .qr-section img { width: 140px; height: 140px; border-radius: 8px; border: 4px solid #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
     .qr-label { font-size: 0.775rem; color: #94a3b8; margin-top: 0.625rem; }
-    .qr-download {
-        display: inline-flex; align-items: center; gap: 5px;
-        margin-top: 0.625rem;
-        font-size: 0.8rem; font-weight: 600;
-        color: #2563eb; text-decoration: none;
-        padding: 5px 12px;
-        background: #eff6ff;
-        border-radius: 7px;
-        transition: background 0.15s;
-    }
+    .qr-download { display: inline-flex; align-items: center; gap: 5px; margin-top: 0.625rem; font-size: 0.8rem; font-weight: 600; color: #2563eb; text-decoration: none; padding: 5px 12px; background: #eff6ff; border-radius: 7px; transition: background 0.15s; }
     .qr-download:hover { background: #dbeafe; color: #1d4ed8; }
     .qr-download svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
     /* Modal footer */
-    .modal-footer-custom {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid #f1f5f9;
-        display: flex;
-        gap: 10px;
-    }
-
-    .btn-cek-lain {
-        flex: 1; height: 42px;
-        display: flex; align-items: center; justify-content: center; gap: 6px;
-        background: #f8fafc; color: #475569;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.875rem; font-weight: 600;
-        border: 1.5px solid #e2e8f0; border-radius: 10px;
-        cursor: pointer; transition: all 0.15s;
-    }
+    .modal-footer-custom { padding: 1rem 1.5rem; border-top: 1px solid #f1f5f9; display: flex; gap: 10px; }
+    .btn-cek-lain { flex: 1; height: 42px; display: flex; align-items: center; justify-content: center; gap: 6px; background: #f8fafc; color: #475569; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.875rem; font-weight: 600; border: 1.5px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.15s; }
     .btn-cek-lain:hover { background: #f1f5f9; border-color: #cbd5e1; }
     .btn-cek-lain svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-    .btn-tutup {
-        flex: 1; height: 42px;
-        display: flex; align-items: center; justify-content: center;
-        background: #2563eb; color: #fff;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.875rem; font-weight: 700;
-        border: none; border-radius: 10px;
-        cursor: pointer; transition: all 0.15s;
-    }
+    .btn-tutup { flex: 1; height: 42px; display: flex; align-items: center; justify-content: center; background: #2563eb; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.875rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; transition: all 0.15s; }
     .btn-tutup:hover { background: #1d4ed8; }
 </style>
 @endpush
 
 @section('content')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <div class="cek-page">
     <div class="cek-box">
 
@@ -311,13 +179,14 @@
         {{-- Form Card --}}
         <div class="cek-card">
 
-            {{-- Inline error (fallback non-JS) --}}
-            <div id="inline-error" style="display:none;" class="d-flex gap-2 align-items-start mb-3 p-3"
-                 style="background:#fff1f2;border:1px solid #fecdd3;border-radius:10px;">
-                <svg style="flex-shrink:0;width:17px;height:17px;fill:none;stroke:#e11d48;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px;" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            {{-- Inline error --}}
+            <div id="inline-error" class="inline-error-box">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
-                <p id="inline-error-msg" style="font-size:0.875rem;color:#9f1239;margin:0;line-height:1.5;"></p>
+                <p id="inline-error-msg"></p>
             </div>
 
             <form id="cekStatusForm" novalidate>
@@ -402,7 +271,8 @@
             <div class="denda-alert" id="dendaAlert" style="display:none; margin-top: 1rem;">
                 <svg viewBox="0 0 24 24">
                     <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
                 <div class="denda-alert-text">
                     <p class="denda-label">Denda Berjalan</p>
@@ -485,6 +355,9 @@
         </div>
     </div>
 </div>
+@endsection
+
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -498,10 +371,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const modal      = new bootstrap.Modal(document.getElementById('modalStatus'));
 
     function setLoading(on) {
-        btnSubmit.disabled           = on;
-        btnSpinner.style.display     = on ? 'block' : 'none';
-        btnIcon.style.display        = on ? 'none'  : 'block';
-        btnText.textContent          = on ? 'Mencari...' : 'Cek Status Sekarang';
+        btnSubmit.disabled       = on;
+        btnSpinner.style.display = on ? 'block' : 'none';
+        btnIcon.style.display    = on ? 'none'  : 'block';
+        btnText.textContent      = on ? 'Mencari...' : 'Cek Status Sekarang';
     }
 
     function showError(msg) {
@@ -609,4 +482,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-@endsection
+@endpush

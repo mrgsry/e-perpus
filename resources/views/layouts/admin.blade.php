@@ -10,12 +10,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/css/adminlte.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="icon" href="{{ asset('img/sipusaka.png') }}" type="image/png">
 
     <style>
-        /* ════════════════════════════════════════
-           SIPUSAKA — MODERN ADMIN SKIN
-           Override AdminLTE dengan desain modern
-        ════════════════════════════════════════ */
+    
 
         :root {
             --sidebar-w:      240px;
@@ -69,13 +67,19 @@
 
         .brand-link:hover { background: var(--sidebar-hover) !important; }
 
-        .brand-icon-box {
-            width: 32px; height: 32px;
-            background: var(--brand-blue);
-            border-radius: 9px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            font-size: 16px;
+        /* Override AdminLTE default img constraints in brand-link */
+        .brand-link img,
+        .brand-link .brand-icon-box {
+            width: 44px !important;
+            height: 44px !important;
+            max-height: none !important;
+            background: transparent !important;
+            border-radius: 0 !important;
+            object-fit: contain !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            float: none !important;
+            line-height: 1 !important;
         }
 
         .brand-text {
@@ -535,6 +539,9 @@
         body.sidebar-collapse .main-footer {
             margin-left: 0 !important;
         }
+        body.sidebar-collapse .badge-sidebar {
+            display: none !important;
+        }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
@@ -587,7 +594,8 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-0">
         {{-- Brand --}}
         <a href="{{ route('admin.dashboard') }}" class="brand-link">
-            <div class="brand-icon-box">📚</div>
+            <img src="{{ asset('img/sipusaka.png') }}" alt="SiPusaka"
+                 style="width:56px;height:56px;max-height:none;object-fit:contain;background:transparent;flex-shrink:0;">
             <span class="brand-text">SI<span>PUSAKA</span></span>
         </a>
 
@@ -615,11 +623,19 @@
                         </a>
                     </li>
 
+                    @php
+                        $pendingCount = \App\Models\Mahasiswa::where('status', 'pending')->count();
+                    @endphp
                     <li class="nav-item">
                         <a href="{{ route('admin.mahasiswa.index') }}"
-                           class="nav-link {{ request()->routeIs('admin.mahasiswa*') ? 'active' : '' }}">
+                           class="nav-link {{ request()->routeIs('admin.mahasiswa*') ? 'active' : '' }}" style="position:relative;">
                             <i class="nav-icon fas fa-user-graduate"></i>
                             <p>Mahasiswa</p>
+                            @if($pendingCount > 0)
+                            <span class="badge-sidebar" style="position:absolute; top:50%; right:15px; transform:translateY(-50%); font-size:9px; padding:2px 6px; border-radius:10px; background-color:#e74c3c; color:#fff; font-weight:bold; line-height:1;">
+                                {{ $pendingCount > 99 ? '99+' : $pendingCount }}
+                            </span>
+                            @endif
                         </a>
                     </li>
 
@@ -667,6 +683,26 @@
                         </a>
                     </li>
 
+                    <li class="nav-header">Layanan</li>
+
+                    @php
+                        $chatCount = \App\Models\ChatSession::where('status', '!=', 'closed')
+                            ->where('is_connected_to_admin', true)
+                            ->count();
+                    @endphp
+                    <li class="nav-item">
+                        <a href="{{ route('admin.chat.index') }}"
+                           class="nav-link {{ request()->routeIs('admin.chat*') ? 'active' : '' }}" style="position:relative;">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>Chat Mahasiswa</p>
+                            @if($chatCount > 0)
+                            <span class="badge-sidebar" style="position:absolute; top:50%; right:15px; transform:translateY(-50%); font-size:9px; padding:2px 6px; border-radius:10px; background-color:#e74c3c; color:#fff; font-weight:bold; line-height:1;">
+                                {{ $chatCount > 99 ? '99+' : $chatCount }}
+                            </span>
+                            @endif
+                        </a>
+                    </li>
+
                 </ul>
             </nav>
         </div>
@@ -690,5 +726,6 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 @stack('js')
+@stack('scripts')
 </body>
 </html>

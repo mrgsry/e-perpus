@@ -7,6 +7,7 @@ use App\Services\QrCodeService;
 use App\Models\Peminjaman;
 use App\Models\History;
 use App\Exports\PeminjamanExport;
+use App\Notifications\PeminjamanApproved;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -31,7 +32,7 @@ class PeminjamanController extends Controller
 
     public function approve(Request $request, $id)
     {
-        $pinjaman = Peminjaman::findOrFail($id);
+        $pinjaman = Peminjaman::with(['mahasiswa', 'buku'])->findOrFail($id);
 
         // Generate QR Code
         $qrService = new QrCodeService();
@@ -48,6 +49,9 @@ class PeminjamanController extends Controller
 
         // Kurangi stok buku
         $pinjaman->buku->decrement('stok_tersedia');
+        
+        // Increment borrow count
+        $pinjaman->buku->increment('borrow_count');
 
         // Catat history
         History::create([
@@ -57,9 +61,12 @@ class PeminjamanController extends Controller
             'dilakukan_oleh' => session('admin_name'),
         ]);
 
+        // Kirim email notifikasi ke mahasiswa
+        $pinjaman->mahasiswa->notify(new PeminjamanApproved($pinjaman));
+
         return response()->json([
             'success' => true,
-            'message' => 'Peminjaman berhasil di-approve! QR Code telah dibuat.'
+            'message' => 'Peminjaman berhasil di-approve! QR Code telah dibuat dan email notifikasi telah dikirim.'
         ]);
     }
 
