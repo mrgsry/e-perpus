@@ -284,27 +284,30 @@ $(document).ready(function() {
         }
     });
 
-    // Function to send reminder email
-    function sendReminderEmail(id) {
-        if (confirm('Apakah Anda yakin ingin mengirim email peringatan keterlambatan kepada mahasiswa ini?')) {
-            $.ajax({
-                url: '/admin/peminjaman/' + id + '/send-reminder-email',
-                method: 'POST',
-                data: { _token: '{{ csrf_token() }}' },
-                success: function(res) {
-                    if (res.success) {
-                        alert(res.message);
-                    } else {
-                        alert('Gagal mengirim email: ' + res.message);
-                    }
-                },
-                error: function(xhr) {
-                    alert('Terjadi kesalahan saat mengirim email.');
-                }
-            });
-        }
-    }
 });
+
+function sendReminderEmail(id) {
+    if (confirm('Apakah Anda yakin ingin mengirim email peringatan keterlambatan kepada mahasiswa ini?')) {
+        $.ajax({
+            url: '/admin/peminjaman/' + id + '/send-reminder-email',
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}' },
+            success: function(res) {
+                if (res.success) {
+                    alert(res.message);
+                } else {
+                    alert('Gagal mengirim email: ' + res.message);
+                }
+            },
+            error: function(xhr) {
+                let message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Terjadi kesalahan saat mengirim email.';
+                alert(message);
+            }
+        });
+    }
+}
 
 function approvePinjam(id, bookingId, mahasiswa, buku) {
     $('#approve_id').val(id);

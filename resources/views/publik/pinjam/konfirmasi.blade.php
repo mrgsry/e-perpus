@@ -6,7 +6,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
+            {{-- <div class="card"> --}}
                 <div class="card-header bg-success text-white">
                     <h4 class="mb-0"><i class="fas fa-check-circle"></i> Peminjaman Berhasil Diajukan</h4>
                 </div>

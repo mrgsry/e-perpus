@@ -86,6 +86,7 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::get('/peminjaman/scan-qr', [PeminjamanController::class, 'scanQr'])->name('admin.peminjaman.scan-qr');
     Route::post('/peminjaman/{id}/approve', [PeminjamanController::class, 'approve'])->name('admin.peminjaman.approve');
     Route::post('/peminjaman/{id}/tolak', [PeminjamanController::class, 'tolak'])->name('admin.peminjaman.tolak');
+    Route::post('/peminjaman/{id}/send-reminder-email', [PeminjamanController::class, 'sendReminderEmail'])->name('admin.peminjaman.send-reminder-email');
     Route::get('/peminjaman/export/pdf', [PeminjamanController::class, 'exportPdf'])->name('admin.peminjaman.export-pdf');
     Route::get('/peminjaman/export/excel', [PeminjamanController::class, 'exportExcel'])->name('admin.peminjaman.export-excel');
 

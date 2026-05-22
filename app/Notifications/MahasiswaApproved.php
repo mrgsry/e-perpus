@@ -45,7 +45,7 @@ class MahasiswaApproved extends Notification
             ->line('Anda sekarang dapat login menggunakan NIM Anda: ' . $this->mahasiswa->nim)
             ->line('Token Referral Anda adalah: **' . $this->referralToken . '**')
             ->line('Bagikan token ini kepada teman-teman Anda untuk mendapatkan keuntungan menarik.')
-            ->action('Login ke Akun Anda', url('/login')) // Anda mungkin perlu menyesuaikan URL login
+            ->action('Login ke Akun Anda', url('/mahasiswa/login')) // Anda mungkin perlu menyesuaikan URL login
             ->line('Terima kasih telah bergabung dengan kami!');
     }
 

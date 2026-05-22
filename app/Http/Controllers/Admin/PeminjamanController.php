@@ -7,8 +7,10 @@ use App\Services\QrCodeService;
 use App\Models\Peminjaman;
 use App\Models\History;
 use App\Exports\PeminjamanExport;
+use App\Mail\LateReturnReminder;
 use App\Notifications\PeminjamanApproved;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
@@ -79,6 +81,53 @@ class PeminjamanController extends Controller
             'success' => true,
             'message' => 'Peminjaman berhasil ditolak.'
         ]);
+    }
+
+    public function sendReminderEmail($id)
+    {
+        $pinjaman = Peminjaman::with(['mahasiswa', 'buku'])->findOrFail($id);
+
+        if ($pinjaman->status !== 'dipinjam') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Peminjaman ini tidak sedang aktif.'
+            ], 422);
+        }
+
+        if (!$pinjaman->tanggal_kembali_rencana || !Carbon::parse($pinjaman->tanggal_kembali_rencana)->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Peminjaman ini belum terlambat.'
+            ], 422);
+        }
+
+        if (!$pinjaman->mahasiswa || !$pinjaman->mahasiswa->email) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email mahasiswa tidak ditemukan.'
+            ], 422);
+        }
+
+        try {
+            Mail::to($pinjaman->mahasiswa->email)->send(new LateReturnReminder($pinjaman));
+
+            History::create([
+                'pinjaman_id'    => $pinjaman->id,
+                'aksi'           => 'Email Reminder',
+                'keterangan'     => 'Email peringatan keterlambatan dikirim ke ' . $pinjaman->mahasiswa->email,
+                'dilakukan_oleh' => session('admin_name'),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email peringatan keterlambatan berhasil dikirim.'
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim email: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function scanQr()
