@@ -26,6 +26,10 @@ Route::get('/ebook/stream/{id}', [KatalogController::class, 'streamPdf'])->name(
 
 Route::get('/pinjam', [PinjamController::class, 'index'])->name('publik.pinjam.form');
 Route::post('/pinjam', [PinjamController::class, 'store'])->name('publik.pinjam');
+// History page - form display
+Route::get('/history', [App\Http\Controllers\Publik\HistoryController::class, 'showForm'])->name('publik.history.form');
+// History page - form submission
+Route::post('/history', [App\Http\Controllers\Publik\HistoryController::class, 'show'])->name('publik.history.show');
 Route::get('/pinjam/get-mahasiswa/{nim}', [PinjamController::class, 'getMahasiswaByNim'])->name('publik.get-mahasiswa');
 Route::get('/pinjam/cek-nim', [PinjamController::class, 'cekNim'])->name('publik.cek-nim');
 Route::get('/pinjam/validate-token', [PinjamController::class, 'validateToken'])->name('publik.validate-token');
@@ -44,6 +48,11 @@ Route::post('/register', [\App\Http\Controllers\Public\RegisterController::class
 // ROUTE AUTH ADMIN
 // =====================
 Route::get('/admin/login', [AuthController::class, 'showLogin'])->name('admin.login');
+
+Route::get('/mahasiswa/login', [App\Http\Controllers\Publik\AuthMahasiswaController::class, 'showLoginForm'])->name('mahasiswa.login');
+Route::post('/mahasiswa/login', [App\Http\Controllers\Publik\AuthMahasiswaController::class, 'login'])->name('mahasiswa.login.submit');
+Route::get('/mahasiswa/dashboard', [App\Http\Controllers\Publik\AuthMahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
+Route::post('/mahasiswa/logout', [App\Http\Controllers\Publik\AuthMahasiswaController::class, 'logout'])->name('mahasiswa.logout');
 Route::post('/admin/login', [AuthController::class, 'login'])->name('admin.login.post');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
 

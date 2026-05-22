@@ -88,6 +88,55 @@
             position: relative;
             overflow: hidden;
         }
+        
+        /* AUTO-SLIDE HERO TEXT */
+        .hero-title-container {
+            position: relative;
+            height: auto;
+            overflow: hidden;
+        }
+        .hero-title-slide {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            color: white;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+        .hero-title-slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            position: relative;
+        }
+        .hero-title-slide span {
+            color: var(--gold-light);
+            font-style: italic;
+        }
+        
+        .hero-sub-container {
+            position: relative;
+            height: auto;
+            overflow: hidden;
+        }
+        .hero-sub-slide {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+            color: rgba(255,255,255,0.65);
+            font-size: 16px;
+            max-width: 480px;
+        }
+        .hero-sub-slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            position: relative;
+        }
         .hero-section::before {
             content: '';
             position: absolute;
@@ -589,12 +638,16 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-7">
-                <div class="hero-title">
-                    Temukan Buku<br><span>Favoritmu</span> di Sini
+                <div class="hero-title-container" id="heroTitleContainer">
+                    <div class="hero-title-slide active">Temukan Buku<br><span>Favoritmu</span> di Sini</div>
+                    <div class="hero-title-slide">Pinjam Buku<br><span>Mudah</span> dalam 1 Langkah</div>
+                    <div class="hero-title-slide">Akses E-Book<br><span>Digital</span> Kapan Saja</div>
                 </div>
-                <p class="hero-sub">
-                    Jelajahi koleksi buku perpustakaan digital kami. Pilih hingga 3 buku sekaligus dan ajukan peminjaman dalam satu langkah.
-                </p>
+                <div class="hero-sub-container" id="heroSubContainer">
+                    <div class="hero-sub-slide active">Jelajahi koleksi buku perpustakaan digital kami. Pilih hingga 3 buku sekaligus dan ajukan peminjaman dalam satu langkah.</div>
+                    <div class="hero-sub-slide">Proses peminjaman cepat dan praktis. Cukup pilih buku, isi data diri, dan tunggu konfirmasi dari admin.</div>
+                    <div class="hero-sub-slide">Baca ribuan koleksi buku digital kami secara langsung melalui browser tanpa perlu download.</div>
+                </div>
                 <div class="hero-stats">
                     <div class="hero-stat">
                         <strong>{{ $bukus->count() }}</strong>
@@ -1322,6 +1375,31 @@
         document.getElementById('f_jurusan').readOnly = false;
         document.getElementById('f_telepon').readOnly = false;
     }
+
+    // HERO AUTO-SLIDE
+    let heroIndex = 0;
+    const titleSlides = document.querySelectorAll('.hero-title-slide');
+    const subSlides = document.querySelectorAll('.hero-sub-slide');
+    
+    function showNextHeroSlide() {
+        titleSlides.forEach((slide, i) => {
+            if (i === heroIndex) {
+                slide.classList.add('active');
+                subSlides[i].classList.add('active');
+            } else {
+                slide.classList.remove('active');
+                subSlides[i].classList.remove('active');
+            }
+        });
+        
+        heroIndex = (heroIndex + 1) % titleSlides.length;
+    }
+    
+    let heroInterval = setInterval(showNextHeroSlide, 4000);
+    
+    const heroContainer = document.querySelector('.hero-section');
+    heroContainer.addEventListener('mouseenter', () => clearInterval(heroInterval));
+    heroContainer.addEventListener('mouseleave', () => heroInterval = setInterval(showNextHeroSlide, 4000));
 </script>
 
 <!-- CHAT WIDGET -->

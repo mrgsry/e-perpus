@@ -22,17 +22,25 @@ class DendaController extends Controller
         return view('admin.denda.index', compact('dendas'));
     }
 
-    public function tandaiLunas($id)
+    public function tandaiLunas(Request $request, $id)
     {
         $denda = Denda::findOrFail($id);
+        
+        // Simpan bukti pembayaran jika ada
+        $path = null;
+        if ($request->hasFile('bukti_pembayaran')) {
+            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
+        }
+
         $denda->update([
             'status_bayar' => 'lunas',
             'dibayar_at' => now(),
+            'bukti_pembayaran' => $path,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Denda berhasil ditandai lunas!'
+            'message' => 'Pembayaran denda berhasil diproses!'
         ]);
     }
 

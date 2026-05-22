@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Publik;
 
 use App\Http\Controllers\Controller;
-use App\Models\Mahasiswa;
 use App\Models\Buku;
+use App\Models\Denda;
+use App\Models\Mahasiswa;
 use App\Models\Peminjaman;
 use App\Services\DendaService;
 use Illuminate\Http\Request;
@@ -64,19 +65,58 @@ class PinjamController extends Controller
              ], 422);
          }
 
-        // Cek apakah masih ada pinjaman aktif
-        $aktivPinjaman = Peminjaman::where('mahasiswa_id', $mahasiswa->id)
-            ->whereIn('status', ['pending', 'dipinjam'])
-            ->count();
+        $dendaService = new DendaService();
 
-        if ($aktivPinjaman >= 3) {
+        // Blokir peminjaman jika ada proses pengembalian terlambat atau denda belum lunas
+        $pinjamanMahasiswa = Peminjaman::with('denda')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->get();
+
+        $adaPinjamanTerlambat = $pinjamanMahasiswa->contains(function ($pinjaman) use ($dendaService) {
+            if ($pinjaman->status === 'terlambat') {
+                return true;
+            }
+
+            if ($pinjaman->status === 'dipinjam' && $pinjaman->tanggal_kembali_rencana) {
+                return $dendaService->hitungDenda($pinjaman)['terlambat'];
+            }
+
+            return false;
+        });
+
+        $dendaBelumBayar = Denda::whereHas('peminjaman', function ($query) use ($mahasiswa) {
+                $query->where('mahasiswa_id', $mahasiswa->id);
+            })
+            ->where('status_bayar', 'belum_bayar')
+            ->sum('total_denda');
+
+        if ($adaPinjamanTerlambat || $dendaBelumBayar > 0) {
+            $message = 'Peminjaman tidak dapat diproses karena Anda masih memiliki proses pengembalian terlambat';
+
+            if ($dendaBelumBayar > 0) {
+                $message .= ' dan denda belum dibayar sebesar Rp ' . number_format($dendaBelumBayar, 0, ',', '.');
+            }
+
+            $message .= '. Selesaikan pengembalian dan lunasi denda terlebih dahulu.';
+
             return response()->json([
                 'success' => false,
-                'message' => 'Anda sudah memiliki 3 peminjaman aktif. Kembalikan buku terlebih dahulu.'
+                'message' => $message
             ], 422);
         }
 
-        $dendaService = new DendaService();
+        // Cek apakah masih ada pinjaman aktif
+        $aktivPinjaman = $pinjamanMahasiswa
+            ->whereIn('status', ['pending', 'dipinjam'])
+            ->count();
+
+        if (($aktivPinjaman + count($request->buku_ids)) > 3) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Maksimal 3 peminjaman aktif. Anda masih memiliki ' . $aktivPinjaman . ' peminjaman aktif, kurangi jumlah buku yang diajukan atau kembalikan buku terlebih dahulu.'
+            ], 422);
+        }
+
         $bookingIds   = [];
 
         foreach ($request->buku_ids as $bukuId) {

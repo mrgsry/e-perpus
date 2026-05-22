@@ -24,8 +24,21 @@ class DashboardController extends Controller
         $peminjamanTerbaru = Peminjaman::with(['mahasiswa', 'buku'])
                                         ->latest()->take(5)->get();
 
-        // Buku stok kritis (stok tersedia < 3)
-        $stokKritis = Buku::where('stok_tersedia', '<', 3)->get();
+            // Mahasiswa dengan peminjaman terlambat (status 'terlambat')
+            // Filter: Belum dikembalikan (terlambat) ATAU (Sudah dikembalikan terlambat DAN denda belum lunas)
+            $stokKritis = Peminjaman::where(function($q) {
+                    $q->where('status', 'dipinjam')
+                      ->whereDate('tanggal_kembali_rencana', '<', now());
+                })
+                ->orWhere(function($q) {
+                    $q->where('status', 'dikembalikan')
+                      ->whereColumn('tanggal_kembali_aktual', '>', 'tanggal_kembali_rencana')
+                      ->whereHas('denda', function($d) {
+                          $d->where('status_bayar', '!=', 'lunas');
+                      });
+                })
+                ->with(['mahasiswa', 'buku', 'denda'])
+                ->get();
 
         // Data peminjaman per jurusan untuk donut chart
         $peminjamanPerJurusan = Peminjaman::join('mahasiswas', 'pinjamans.mahasiswa_id', '=', 'mahasiswas.id')

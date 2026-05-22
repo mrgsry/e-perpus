@@ -109,6 +109,7 @@
                                     <th>Batas Kembali</th>
                                     <th>Sisa Hari</th>
                                     <th>QR</th>
+                                    <th>Aksi</th> {{-- New column for actions --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -137,17 +138,26 @@
                                       {{-- Di tabAktif, bagian kolom QR --}}
 @if($p->qr_code_path)
     {{-- Pastikan asset path benar --}}
-    <button onclick="lihatQR('{{ asset('storage/'.$p->qr_code_path) }}', '{{ $p->booking_id }}')">
-        QR
+    <button onclick="lihatQR('{{ asset('storage/'.$p->qr_code_path) }}', '{{ $p->booking_id }}')" class="btn btn-info btn-xs">
+        <i class="fas fa-qrcode"></i> QR
     </button>
 @else
-    <span>NULL: {{ var_dump($p->qr_code_path) }}</span>  {{-- debug sementara --}}
+    <span class="text-muted">-</span>
 @endif
+                                    </td>
+                                    <td>
+                                        @if($sisaHari < 0) {{-- Only show email button if late --}}
+                                            <button onclick="sendReminderEmail({{ $p->id }})" class="btn btn-warning btn-xs">
+                                                <i class="fas fa-envelope"></i> Email
+                                            </button>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
+                                    <td colspan="9" class="text-center text-muted py-4"> {{-- Updated colspan --}}
                                         <i class="fas fa-book fa-2x mb-2 d-block"></i>
                                         Tidak ada buku yang sedang dipinjam
                                     </td>
@@ -273,6 +283,27 @@ $(document).ready(function() {
             $('#tableAktif').DataTable();
         }
     });
+
+    // Function to send reminder email
+    function sendReminderEmail(id) {
+        if (confirm('Apakah Anda yakin ingin mengirim email peringatan keterlambatan kepada mahasiswa ini?')) {
+            $.ajax({
+                url: '/admin/peminjaman/' + id + '/send-reminder-email',
+                method: 'POST',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function(res) {
+                    if (res.success) {
+                        alert(res.message);
+                    } else {
+                        alert('Gagal mengirim email: ' + res.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert('Terjadi kesalahan saat mengirim email.');
+                }
+            });
+        }
+    }
 });
 
 function approvePinjam(id, bookingId, mahasiswa, buku) {

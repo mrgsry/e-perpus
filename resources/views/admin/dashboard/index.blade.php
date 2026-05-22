@@ -31,9 +31,9 @@
                     <div class="icon">
                         <i class="fas fa-book"></i>
                     </div>
-                    <a href="{{ route('admin.buku.index') }}" class="small-box-footer">
-                        Lihat Detail <i class="fas fa-arrow-circle-right"></i>
-                    </a>
+<a href="{{ route('admin.buku.index') }}" class="small-box-footer">
+    Lihat Detail <i class="fas fa-arrow-circle-right"></i>
+</a>
                 </div>
             </div>
 
@@ -70,20 +70,65 @@
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-gradient-danger shadow">
                     <div class="inner">
-                        <h3>{{ $stokKritis->count() }}</h3>
-                        <p>Stok Kritis</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <a href="{{ route('admin.buku.index') }}" class="small-box-footer">
-                        Lihat Detail <i class="fas fa-arrow-circle-right"></i>
-                    </a>
+<h3>{{ $stokKritis->count() }}</h3>
+<p>Telat Pengembalian</p>
+</div>
+<div class="icon">
+    <i class="fas fa-exclamation-triangle"></i>
+</div>
+<a href="#" data-bs-toggle="modal" data-bs-target="#lateReturnModal" class="small-box-footer">
+    Lihat Detail <i class="fas fa-arrow-circle-right"></i>
+</a>
                 </div>
-            </div>
-        </div>
+</div>
+</div>
 
-        <div class="row">
+<!-- Modal Late Returns -->
+<div class="modal fade" id="lateReturnModal" tabindex="-1" aria-labelledby="lateReturnModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lateReturnModalLabel">Mahasiswa dengan Pengembalian Telat</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        @if($stokKritis->isEmpty())
+          <p>Tidak ada pengembalian telat.</p>
+        @else
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Mahasiswa</th>
+                <th>Buku</th>
+                <th>Tanggal Pinjam</th>
+                <th>Tanggal Kembali Rencana</th>
+                <th>Tanggal Kembali Aktual</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($stokKritis as $index => $pinjam)
+                <tr>
+                  <td>{{ $index + 1 }}</td>
+                  <td>{{ $pinjam->mahasiswa->nama ?? '-' }} ({{ $pinjam->mahasiswa->nim ?? '-' }})</td>
+                  <td>{{ $pinjam->buku->nama_buku ?? '-' }}</td>
+                  <td>{{ $pinjam->tanggal_pinjam ? \Carbon\Carbon::parse($pinjam->tanggal_pinjam)->format('d M Y') : '-' }}</td>
+                  <td>{{ $pinjam->tanggal_kembali_rencana ? \Carbon\Carbon::parse($pinjam->tanggal_kembali_rencana)->format('d M Y') : '-' }}</td>
+                  <td>{{ $pinjam->tanggal_kembali_aktual ? \Carbon\Carbon::parse($pinjam->tanggal_kembali_aktual)->format('d M Y') : '-' }}</td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        @endif
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
             {{-- Donut Chart Peminjaman per Jurusan --}}
             <div class="col-md-4">
                 <div class="card card-outline card-primary shadow-sm">
