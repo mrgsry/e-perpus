@@ -85,7 +85,7 @@
 
 <!-- Modal Late Returns -->
 <div class="modal fade" id="lateReturnModal" tabindex="-1" aria-labelledby="lateReturnModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="lateReturnModalLabel">Mahasiswa dengan Pengembalian Telat</h5>
@@ -95,30 +95,35 @@
         @if($stokKritis->isEmpty())
           <p>Tidak ada pengembalian telat.</p>
         @else
-          <table class="table table-sm table-striped">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Mahasiswa</th>
-                <th>Buku</th>
-                <th>Tanggal Pinjam</th>
-                <th>Tanggal Kembali Rencana</th>
-                <th>Tanggal Kembali Aktual</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($stokKritis as $index => $pinjam)
+          <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover table-bordered mb-0 late-return-table">
+              <thead class="thead-light">
                 <tr>
-                  <td>{{ $index + 1 }}</td>
-                  <td>{{ $pinjam->mahasiswa->nama ?? '-' }} ({{ $pinjam->mahasiswa->nim ?? '-' }})</td>
-                  <td>{{ $pinjam->buku->nama_buku ?? '-' }}</td>
-                  <td>{{ $pinjam->tanggal_pinjam ? \Carbon\Carbon::parse($pinjam->tanggal_pinjam)->format('d M Y') : '-' }}</td>
-                  <td>{{ $pinjam->tanggal_kembali_rencana ? \Carbon\Carbon::parse($pinjam->tanggal_kembali_rencana)->format('d M Y') : '-' }}</td>
-                  <td>{{ $pinjam->tanggal_kembali_aktual ? \Carbon\Carbon::parse($pinjam->tanggal_kembali_aktual)->format('d M Y') : '-' }}</td>
+                  <th class="text-center">#</th>
+                  <th>Mahasiswa</th>
+                  <th>Buku</th>
+                  <th>Tanggal Pinjam</th>
+                  <th>Tanggal Kembali Rencana</th>
+                  <th>Tanggal Kembali Aktual</th>
                 </tr>
-              @endforeach
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @foreach($stokKritis as $index => $pinjam)
+                  <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td>
+                      <div class="font-weight-bold">{{ $pinjam->mahasiswa->nama ?? '-' }}</div>
+                      <small class="text-muted">{{ $pinjam->mahasiswa->nim ?? '-' }}</small>
+                    </td>
+                    <td>{{ $pinjam->buku->nama_buku ?? '-' }}</td>
+                    <td>{{ $pinjam->tanggal_pinjam ? \Carbon\Carbon::parse($pinjam->tanggal_pinjam)->format('d M Y') : '-' }}</td>
+                    <td>{{ $pinjam->tanggal_kembali_rencana ? \Carbon\Carbon::parse($pinjam->tanggal_kembali_rencana)->format('d M Y') : '-' }}</td>
+                    <td>{{ $pinjam->tanggal_kembali_aktual ? \Carbon\Carbon::parse($pinjam->tanggal_kembali_aktual)->format('d M Y') : '-' }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div>
         @endif
       </div>
       <div class="modal-footer">
@@ -245,6 +250,45 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+  #lateReturnModal .modal-body {
+    overflow-x: hidden;
+  }
+
+  #lateReturnModal .table-responsive {
+    border-radius: .25rem;
+  }
+
+  #lateReturnModal .late-return-table {
+    min-width: 900px;
+    font-size: .875rem;
+  }
+
+  #lateReturnModal .late-return-table th {
+    white-space: nowrap;
+    vertical-align: middle;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+
+  #lateReturnModal .late-return-table td {
+    vertical-align: middle;
+  }
+
+  @media (max-width: 575.98px) {
+    #lateReturnModal .modal-title {
+      font-size: 1rem;
+    }
+
+    #lateReturnModal .late-return-table {
+      font-size: .8125rem;
+    }
+  }
+</style>
+@endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

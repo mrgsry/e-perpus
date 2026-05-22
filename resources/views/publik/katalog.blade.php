@@ -623,8 +623,8 @@
         <div class="nav-links d-none d-md-flex align-items-center">
             <a href="/"><i class="fas fa-home me-1"></i> Beranda</a>
             <a href="/cek-status"><i class="fas fa-search me-1"></i> Cek Status</a>
-            <a href="/admin/login" style="color:rgba(255,255,255,0.5);font-size:12px">Admin</a>
-        </div>
+            <a href="/mahasiswa/login"><i class="fas fa-user me-1"></i> Mahasiswa</a>
+            </div>
         <button class="cart-btn" onclick="bukaModalPinjam()" id="cartBtn" style="display:none">
             <i class="fas fa-book-open"></i>
             <span id="cartLabel">Pinjam Buku</span>
