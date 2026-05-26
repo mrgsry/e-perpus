@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\Mahasiswa;
+use App\Services\NineRouterService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ChatController extends Controller
@@ -24,24 +26,6 @@ class ChatController extends Controller
                 'success' => false,
                 'message' => 'NIM tidak terdaftar. Silakan daftarkan NIM anda pada bagian register.',
             ], 404);
-        }
-
-        // Check if mahasiswa status is pending
-        if ($mahasiswa->status === 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'NIM anda belum disetujui oleh Admin, harap tunggu',
-                'status' => 'pending',
-            ], 403);
-        }
-
-        // Check if mahasiswa status is rejected
-        if ($mahasiswa->status === 'rejected') {
-            return response()->json([
-                'success' => false,
-                'message' => 'NIM anda telah ditolak oleh Admin. Silakan hubungi admin untuk informasi lebih lanjut.',
-                'status' => 'rejected',
-            ], 403);
         }
 
         // Only allow approved mahasiswa to use chat
@@ -107,20 +91,35 @@ class ChatController extends Controller
         ]);
 
         // Auto-connect to admin if 3 or more user messages
-        if ($userMessageCount + 1 >= 3) {
-            $session->is_connected_to_admin = true;
-            $session->save();
-        }
-
-        // Auto-connect to admin if bot fails 3 times
-        if ($session->bot_fail_count >= 3) {
+        if ($userMessageCount + 1 >= 6) {
             $session->is_connected_to_admin = true;
             $session->save();
         }
 
         $botResponse = null;
         if (!$session->is_connected_to_admin) {
-            $botResponse = $this->getIntelligentResponse($message);
+            // Get conversation history for context (last 5 messages)
+            $history = ChatMessage::where('session_id', $sessionId)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get()
+                ->reverse()
+                ->map(function ($msg) {
+                    return [
+                        'role' => $msg->sender_type === 'bot' ? 'assistant' : ($msg->sender_type === 'user' ? 'user' : 'assistant'),
+                        'content' => $msg->message,
+                    ];
+                })->toArray();
+
+            // Try to get AI response
+            $aiService = new NineRouterService();
+            $botResponse = $aiService->chat($message, $history);
+
+            // Fallback to keyword if AI fails
+            if (!$botResponse) {
+                Log::warning('AI failed to respond, falling back to keywords');
+                $botResponse = $this->getIntelligentResponse($message);
+            }
 
             $isDefaultResponse = in_array($botResponse, [
                 'Maaf, saya tidak mengerti pertanyaan Anda. Bisa dijelaskan lebih detail?',
@@ -157,6 +156,42 @@ class ChatController extends Controller
             'is_connected_to_admin' => $session->is_connected_to_admin,
             'bot_fail_count' => $session->bot_fail_count,
         ]);
+    }
+
+    public function connectToAdmin(Request $request)
+    {
+        $sessionId = $request->input('session_id');
+
+        if (!$sessionId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Session ID tidak ditemukan',
+            ], 400);
+        }
+
+        $session = ChatSession::where('session_id', $sessionId)->first();
+
+        if ($session) {
+            $session->is_connected_to_admin = true;
+            $session->save();
+
+            // Add system message indicating manual connection
+            ChatMessage::create([
+                'session_id' => $sessionId,
+                'sender_type' => 'bot',
+                'message' => 'Mohon tunggu sebentar, Anda sedang dialihkan ke Admin kami...',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil terhubung ke admin',
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Sesi chat tidak ditemukan',
+        ], 404);
     }
 
     public function getMessages(Request $request)
@@ -198,6 +233,7 @@ class ChatController extends Controller
     {
         $message = strtolower(trim($message));
 
+        // Library-related keywords
         $keywords = [
             'halo' => 'Halo! Ada yang bisa saya bantu hari ini?',
             'hii' => 'Halo! Selamat datang! Ada yang bisa saya bantu?',
@@ -219,7 +255,7 @@ class ChatController extends Controller
             'kontak' => 'Anda dapat menghubungi kami di email: support@sipusaka.com atau telepon: (021) 1234567.',
             'email' => 'Email kami adalah support@sipusaka.com. Kami akan merespons secepat mungkin.',
             'telepon' => 'Silakan hubungi kami di (021) 1234567 pada jam operasional.',
-            'cara meminjam' => 'Cara meminjam buku: 1) Cari buku di katalog, 2) Klik Pinjam, 3) Isi formulir dengan NIM Anda, 4) Tunggu konfirmasi admin.',
+            'cara pinjam buku' => 'Cara meminjam buku: 1) Cari buku di katalog, 2) Klik Pinjam, 3) Isi formulir dengan NIM Anda, 4) Tunggu konfirmasi admin.',
             'total buku' => 'Anda dapat melihat daftar buku yang tersedia di halaman Katalog Buku.',
             'kategori' => 'Kategori buku yang tersedia meliputi fiksi, non-fiksi, pelajaran, dan referensi akademik.',
         ];
@@ -230,14 +266,41 @@ class ChatController extends Controller
             }
         }
 
-        // Decline unrelated topics politely
-        $unrelated = [
-            'basket', 'bola', 'sepak', 'game', 'main', 'film', 'nonton', 'lagu', 'musik',
-            'makanan', 'resep', 'masak', 'travel', 'wisata', 'liburan', 'joke', 'lucu',
-            'gombal', 'curhat', 'pacar', 'jodoh', 'politik', 'berita', 'prediksi',
-            'togel', 'jud', 'saham', 'crypto', 'bitcoin', 'ramal',
+        // Filter unrelated topics
+        $unrelatedTopics = [
+            'basket',
+            'bola',
+            'sepak',
+            'game',
+            'main',
+            'film',
+            'nonton',
+            'lagu',
+            'musik',
+            'makanan',
+            'resep',
+            'masak',
+            'travel',
+            'wisata',
+            'liburan',
+            'joke',
+            'lucu',
+            'gombal',
+            'curhat',
+            'pacar',
+            'jodoh',
+            'politik',
+            'berita',
+            'prediksi',
+            'togel',
+            'jud',
+            'saham',
+            'crypto',
+            'bitcoin',
+            'ramal',
         ];
-        foreach ($unrelated as $word) {
+
+        foreach ($unrelatedTopics as $word) {
             if (str_contains($message, $word)) {
                 return 'Maaf, saya tidak bisa membahas topik tersebut. Saya adalah asisten perpustakaan. Ada yang bisa saya bantu terkait layanan perpustakaan?';
             }

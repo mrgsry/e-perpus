@@ -79,66 +79,292 @@
         }
 
         /* CHAT WIDGET STYLES */
-        .chat-widget-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .chat-widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
         .chat-toggle {
-            width: 60px; height: 60px; border-radius: 50%; background: var(--brand-primary);
-            border: none; color: white; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); transition: all 0.3s ease;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s ease;
         }
-        .chat-toggle:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5); }
-        .chat-toggle svg { width: 28px; height: 28px; }
+        
+        .chat-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+        }
+        
+        .chat-toggle svg {
+            width: 28px;
+            height: 28px;
+        }
+        
         .chat-badge {
-            position: absolute; top: 0; right: 0; width: 20px; height: 20px; background: #ef4444;
-            border-radius: 50%; font-size: 11px; display: flex; align-items: center;
-            justify-content: center; color: white; font-weight: 600;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            border-radius: 50%;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
         }
+        
         .chat-box {
-            position: absolute; bottom: 75px; right: 0; width: 350px; height: 450px;
-            background: white; border-radius: var(--radius-lg); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            width: 350px;
+            height: 450px;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border);
         }
-        .chat-box.open { display: flex; }
+        
+        .chat-box.open {
+            display: flex;
+        }
+        
         .chat-header {
-            padding: 1rem; background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
-            color: white; display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .chat-title { font-weight: 600; font-size: 0.95rem; }
+        
+        .chat-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .chat-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chat-connect-admin {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 999px;
+            padding: 0.32rem 0.65rem;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        
+        .chat-connect-admin:hover {
+            background: rgba(255, 255, 255, 0.28);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .chat-connect-admin[disabled] {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
         .chat-close {
-            background: none; border: none; color: white; cursor: pointer; width: 28px; height: 28px;
-            display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
         }
-        .chat-close:hover { background: rgba(255, 255, 255, 0.2); }
-        .chat-close svg { width: 18px; height: 18px; }
-        .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background: #f8fafc; }
-        .chat-message { max-width: 80%; display: flex; flex-direction: column; gap: 0.25rem; }
-        .chat-message.user { align-self: flex-end; }
-        .chat-message.bot, .chat-message.admin { align-self: flex-start; }
-        .chat-message-text { padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; }
-        .chat-message.user .chat-message-text { background: var(--brand-primary); color: white; border-bottom-right-radius: 4px; }
-        .chat-message.bot .chat-message-text, .chat-message.admin .chat-message-text { background: white; color: var(--text-primary); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-        .chat-message-time { font-size: 0.7rem; color: var(--text-light); margin-top: 0.25rem; }
-        .chat-message.user .chat-message-time { text-align: right; }
-        .chat-status { padding: 0.5rem 1rem; background: #ecfdf5; border-top: 1px solid var(--border); display: none; }
-        .status-badge { font-size: 0.75rem; color: #059669; font-weight: 500; }
-        .chat-form { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; background: white; }
+        
+        .chat-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .chat-close svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: #f8fafc;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .chat-message.user {
+            align-self: flex-end;
+        }
+        
+        .chat-message.bot,
+        .chat-message.admin {
+            align-self: flex-start;
+        }
+        
+        .chat-message-text {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        .chat-message.user .chat-message-text {
+            background: var(--brand-primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .chat-message.bot .chat-message-text,
+        .chat-message.admin .chat-message-text {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .chat-message-time {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+        
+        .chat-message.user .chat-message-time {
+            text-align: right;
+        }
+        
+        .chat-status {
+            padding: 0.5rem 1rem;
+            background: #ecfdf5;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+        
+        .status-badge {
+            font-size: 0.75rem;
+            color: #059669;
+            font-weight: 500;
+        }
+        
+        .chat-form {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+        }
+        
         .chat-form input[type="text"] {
-            flex: 1; padding: 0.625rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md);
-            font-size: 0.875rem; font-family: var(--font); outline: none; transition: border-color 0.2s;
+            flex: 1;
+            padding: 0.625rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-family: var(--font);
+            outline: none;
+            transition: border-color 0.2s;
         }
-        .chat-form input[type="text"]:focus { border-color: var(--brand-primary); }
+        
+        .chat-form input[type="text"]:focus {
+            border-color: var(--brand-primary);
+        }
+        
         .chat-form button {
-            width: 40px; height: 40px; border: none; background: var(--brand-primary); color: white;
-            border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center;
-            justify-content: center; transition: background 0.2s;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--brand-primary);
+            color: white;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
         }
-        .chat-form button:hover { background: var(--brand-dark); }
-        .chat-form button svg { width: 18px; height: 18px; }
-        .chat-typing { display: flex; gap: 0.25rem; padding: 0.75rem 1rem; }
-        .chat-typing span { width: 8px; height: 8px; background: var(--text-light); border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
-        .chat-typing span:nth-child(1) { animation-delay: -0.32s; }
-        .chat-typing span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        @media (max-width: 480px) { .chat-box { width: calc(100vw - 40px); height: 60vh; } }
+        
+        .chat-form button:hover {
+            background: var(--brand-dark);
+        }
+        
+        .chat-form button svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .chat-typing {
+            display: flex;
+            gap: 0.25rem;
+            padding: 0.75rem 1rem;
+        }
+        
+        .chat-typing span {
+            width: 8px;
+            height: 8px;
+            background: var(--text-light);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+        
+        .chat-typing span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        
+        .chat-typing span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+        
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chat-box {
+                width: calc(100vw - 40px);
+                height: 60vh;
+            }
+        }
     </style>
     @stack('head_styles')
 </head>
@@ -204,12 +430,15 @@
         <div class="chat-box" id="chatBox">
             <div class="chat-header">
                 <span class="chat-title">&#x1F4AC; SIPUSAKA Assistant</span>
-                <button class="chat-close" id="chatClose" aria-label="Tutup chat">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                <div class="chat-header-actions">
+                    <button type="button" class="chat-connect-admin" id="connectAdminBtn">Hubungi Admin</button>
+                    <button class="chat-close" id="chatClose" aria-label="Tutup chat">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="chat-messages" id="chatMessages">
                 <!-- Messages will be added here -->
@@ -239,6 +468,7 @@
         // Elements
         var chatToggle = document.getElementById('chatToggle');
         var chatClose = document.getElementById('chatClose');
+        var connectAdminBtn = document.getElementById('connectAdminBtn');
         var chatBox = document.getElementById('chatBox');
         var chatForm = document.getElementById('chatForm');
         var chatInput = document.getElementById('chatInput');
@@ -254,6 +484,10 @@
         var pollInterval = null;
         var isVerified = false;
         var awaitingNimInput = false;
+        var isSending = false;
+        var lastBotMessageId = 0;
+        var hasShownWelcomeMessage = false;
+        var hasShownAdminConnectedMessage = false;
 
         // CSRF Token
         var csrfToken = document.querySelector('input[name="_token"]') ? document.querySelector('input[name="_token"]').value : '';
@@ -266,16 +500,20 @@
         function openChat() {
             isChatOpen = true;
             chatBox.classList.add('open');
-            
-            // Show welcome message if first time opening
-            if (chatMessages.children.length === 0) {
+
+            if (!hasShownWelcomeMessage && chatMessages.children.length === 0) {
+                hasShownWelcomeMessage = true;
                 addMessage('bot', 'Halo! Selamat datang di SIPUSAKA Assistant. 👋');
                 setTimeout(function() {
                     addMessage('bot', 'Untuk memulai, silakan masukkan NIM Anda.');
                     awaitingNimInput = true;
                 }, 500);
             }
-            
+
+            if (isVerified) {
+                startPolling();
+            }
+
             chatInput.focus();
         }
 
@@ -360,6 +598,12 @@
 
         // Send message
         function sendMessage(message) {
+            if (isSending) return;
+            isSending = true;
+            chatInput.disabled = true;
+            var sendBtn = chatForm.querySelector('button[type="submit"]');
+            if (sendBtn) sendBtn.disabled = true;
+
             addMessage('user', message);
             chatInput.value = '';
             showTyping();
@@ -379,6 +623,10 @@
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 hideTyping();
+                isSending = false;
+                chatInput.disabled = false;
+                if (sendBtn) sendBtn.disabled = false;
+                chatInput.focus();
 
                 if (data.session_id) {
                     chatSessionId.value = data.session_id;
@@ -387,20 +635,95 @@
                 if (data.is_connected_to_admin && !isConnectedToAdmin) {
                     isConnectedToAdmin = true;
                     chatStatus.style.display = 'block';
-                    addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
+                    if (connectAdminBtn) {
+                        connectAdminBtn.textContent = 'Terhubung Admin';
+                        connectAdminBtn.disabled = true;
+                    }
+                    if (!hasShownAdminConnectedMessage) {
+                        hasShownAdminConnectedMessage = true;
+                        addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
+                    }
                 }
 
                 if (data.message) {
                     addMessage('bot', data.message);
+                    lastBotMessageId = -1;
                 }
             })
             .catch(function(err) {
                 hideTyping();
+                isSending = false;
+                chatInput.disabled = false;
+                if (sendBtn) sendBtn.disabled = false;
+                chatInput.focus();
                 console.error('Error:', err);
             });
         }
 
-        // Polling for new messages
+        function connectToAdmin() {
+            if (!isVerified) {
+                addMessage('bot', 'Silakan verifikasi NIM terlebih dahulu sebelum menghubungi admin.');
+                return;
+            }
+
+            if (!chatSessionId.value) {
+                addMessage('bot', 'Kirim satu pesan dulu agar sesi chat dibuat, lalu tekan "Hubungi Admin".');
+                return;
+            }
+
+            if (isConnectedToAdmin) {
+                addMessage('bot', 'Anda sudah terhubung dengan Admin.');
+                return;
+            }
+
+            if (connectAdminBtn) {
+                connectAdminBtn.disabled = true;
+                connectAdminBtn.textContent = 'Menghubungkan...';
+            }
+
+            fetch('{{ route("chat.connect-admin") }}', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    session_id: chatSessionId.value
+                })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    isConnectedToAdmin = true;
+                    chatStatus.style.display = 'block';
+                    if (!hasShownAdminConnectedMessage) {
+                        hasShownAdminConnectedMessage = true;
+                        addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
+                    }
+                    if (connectAdminBtn) {
+                        connectAdminBtn.textContent = 'Terhubung Admin';
+                        connectAdminBtn.disabled = true;
+                    }
+                } else {
+                    addMessage('bot', '❌ ' + (data.message || 'Gagal menghubungkan ke admin.'));
+                    if (connectAdminBtn) {
+                        connectAdminBtn.textContent = 'Hubungi Admin';
+                        connectAdminBtn.disabled = false;
+                    }
+                }
+            })
+            .catch(function(err) {
+                console.error('Error connect admin:', err);
+                addMessage('bot', '❌ Gagal menghubungkan ke admin. Silakan coba lagi.');
+                if (connectAdminBtn) {
+                    connectAdminBtn.textContent = 'Hubungi Admin';
+                    connectAdminBtn.disabled = false;
+                }
+            });
+        }
+
+        // Polling for new messages (only admin messages, not bot - bot is handled by sendMessage response)
         function pollMessages() {
             if (!chatSessionId.value) return;
 
@@ -411,10 +734,10 @@
             .then(function(data) {
                 if (data.messages && data.messages.length > 0) {
                     data.messages.forEach(function(msg) {
+                        // Only show admin messages via polling
+                        // Bot messages are already shown by sendMessage response
                         if (msg.sender_type === 'admin') {
                             addMessage('admin', msg.message);
-                        } else if (msg.sender_type === 'bot') {
-                            addMessage('bot', msg.message);
                         }
                         if (msg.id > lastMessageId.value) {
                             lastMessageId.value = msg.id;
@@ -425,7 +748,14 @@
                 if (data.is_connected_to_admin && !isConnectedToAdmin) {
                     isConnectedToAdmin = true;
                     chatStatus.style.display = 'block';
-                    addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
+                    if (connectAdminBtn) {
+                        connectAdminBtn.textContent = 'Terhubung Admin';
+                        connectAdminBtn.disabled = true;
+                    }
+                    if (!hasShownAdminConnectedMessage) {
+                        hasShownAdminConnectedMessage = true;
+                        addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
+                    }
                 }
             })
             .catch(function(err) {
@@ -434,6 +764,10 @@
         }
 
         function startPolling() {
+            if (pollInterval) {
+                return;
+            }
+
             pollMessages();
             pollInterval = setInterval(pollMessages, 3000);
         }
@@ -448,9 +782,13 @@
         // Event Listeners
         chatToggle.addEventListener('click', toggleChat);
         chatClose.addEventListener('click', closeChat);
+        if (connectAdminBtn) {
+            connectAdminBtn.addEventListener('click', connectToAdmin);
+        }
 
         chatForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            if (isSending) return;
             var message = chatInput.value.trim();
             if (!message) return;
             

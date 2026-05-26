@@ -121,4 +121,5 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
 // =====================
 Route::post('/chat/verify-nim', [PublicChatController::class, 'verifyNim'])->name('chat.verify-nim');
 Route::post('/chat/send-message', [PublicChatController::class, 'sendMessage'])->name('chat.send');
+Route::post('/chat/connect-admin', [PublicChatController::class, 'connectToAdmin'])->name('chat.connect-admin');
 Route::get('/chat/messages', [PublicChatController::class, 'getMessages'])->name('chat.messages');

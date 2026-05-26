@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'ninerouter' => [
+        'base_url' => env('NINEROUTER_BASE_URL'),
+        'api_key' => env('NINEROUTER_API_KEY'),
+        'model' => env('NINEROUTER_MODEL', 'FreeTier'),
+        'timeout' => env('NINEROUTER_TIMEOUT', 30),
+        'max_tokens' => env('NINEROUTER_MAX_TOKENS', 500),
+        'temperature' => env('NINEROUTER_TEMPERATURE', 0.2),
+        'app_url' => env('APP_URL', 'http://localhost'),
+    ],
+
 ];

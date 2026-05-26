@@ -21,7 +21,35 @@ class Buku extends Model
         'borrow_count',
     ];
 
-    public function pinjamans() {
+    /**
+     * The "booted" method of the model.
+     * Auto-regenerate JSON index on book modifications.
+     */
+    protected static function booted()
+    {
+        static::saved(function ($book) {
+            try {
+                \Illuminate\Support\Facades\Artisan::queue('books:generate-index');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to regenerate book index on saved', [
+                    'message' => $e->getMessage()
+                ]);
+            }
+        });
+
+        static::deleted(function ($book) {
+            try {
+                \Illuminate\Support\Facades\Artisan::queue('books:generate-index');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to regenerate book index on deleted', [
+                    'message' => $e->getMessage()
+                ]);
+            }
+        });
+    }
+
+    public function pinjamans()
+    {
         return $this->hasMany(Peminjaman::class);
     }
 
