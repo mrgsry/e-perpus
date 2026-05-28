@@ -1,1104 +1,1995 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Katalog Buku | SiPusaka</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        :root {
-            --navy: #0f2444;
-            --navy-mid: #1a3c6b;
-            --gold: #c9930a;
-            --gold-light: #f0b429;
-            --cream: #faf8f3;
-            --text: #1e293b;
-            --muted: #64748b;
-            --border: #e2e8f0;
-            --green: #059669;
-            --red: #dc2626;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--cream);
-            color: var(--text);
-            margin: 0;
-        }
+    :root {
+        --ink: #0d1117;
+        --ink-mid: #1c2a3a;
+        --paper: #f7f5f0;
+        --paper-dark: #eeebe3;
+        --amber: #d97706;
+        --amber-lt: #fbbf24;
+        --teal: #0d9488;
+        --teal-lt: #2dd4bf;
+        --red: #dc2626;
+        --muted: #6b7280;
+        --border: #e5e0d8;
+        --white: #ffffff;
+        --radius-lg: 20px;
+        --radius-md: 12px;
+        --shadow-card: 0 2px 16px rgba(13, 17, 23, .07);
+        --shadow-hover: 0 12px 40px rgba(13, 17, 23, .14);
+    }
 
-        /* NAVBAR */
-        .navbar-sipusaka {
-            background: var(--navy);
-            padding: 14px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 24px rgba(15,36,68,0.25);
-        }
-        .navbar-brand-custom {
-            font-family: 'Fraunces', serif;
-            font-size: 1.6rem;
-            font-weight: 900;
-            color: white;
-            text-decoration: none;
-        }
-        .navbar-brand-custom span { color: var(--gold-light); }
-        .nav-links a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            font-size: 14px;
-            margin-left: 24px;
-            transition: color 0.2s;
-        }
-        .nav-links a:hover { color: var(--gold-light); }
-        .cart-btn {
-            background: var(--gold);
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            position: relative;
-        }
-        .cart-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
-        .cart-count {
-            background: var(--red);
-            color: white;
-            width: 20px; height: 20px;
-            border-radius: 50%;
-            font-size: 11px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-        /* HERO */
-        .hero-section {
-            background: linear-gradient(135deg, var(--navy) 0%, #1a3c6b 50%, #0d3460 100%);
-            padding: 64px 0 80px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* AUTO-SLIDE HERO TEXT */
-        .hero-title-container {
-            position: relative;
-            height: auto;
-            overflow: hidden;
-        }
-        .hero-title-slide {
-            position: absolute;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease;
-            font-family: 'Fraunces', serif;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 900;
-            color: white;
-            line-height: 1.15;
-            margin-bottom: 16px;
-            width: 100%;
-        }
-        .hero-title-slide.active {
-            opacity: 1;
-            transform: translateY(0);
-            position: relative;
-        }
-        .hero-title-slide span {
-            color: var(--gold-light);
-            font-style: italic;
-        }
-        
-        .hero-sub-container {
-            position: relative;
-            height: auto;
-            overflow: hidden;
-        }
-        .hero-sub-slide {
-            position: absolute;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease;
-            color: rgba(255,255,255,0.65);
-            font-size: 16px;
-            max-width: 480px;
-        }
-        .hero-sub-slide.active {
-            opacity: 1;
-            transform: translateY(0);
-            position: relative;
-        }
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -100px; right: -100px;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(201,147,10,0.12) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-        .hero-title {
-            font-family: 'Fraunces', serif;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 900;
-            color: white;
-            line-height: 1.15;
-            margin-bottom: 16px;
-        }
-        .hero-title span { color: var(--gold-light); font-style: italic; }
-        .hero-sub { color: rgba(255,255,255,0.65); font-size: 16px; max-width: 480px; }
-        .hero-stats {
-            display: flex;
-            gap: 32px;
-            margin-top: 32px;
-        }
-        .hero-stat strong {
-            display: block;
-            font-family: 'Fraunces', serif;
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--gold-light);
-        }
-        .hero-stat span { color: rgba(255,255,255,0.6); font-size: 13px; }
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        min-height: 100vh;
+    }
 
-        /* SEARCH & FILTER */
-        .filter-bar {
-            background: white;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 63px;
-            z-index: 90;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-        }
-        .search-input {
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 16px 10px 42px;
-            font-size: 14px;
-            width: 100%;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .search-input:focus { border-color: var(--navy-mid); }
-        .search-wrap { position: relative; }
-        .search-icon {
-            position: absolute;
-            left: 14px; top: 50%;
-            transform: translateY(-50%);
-            color: var(--muted);
-            font-size: 14px;
-        }
-        .filter-chip {
-            padding: 7px 16px;
-            border-radius: 20px;
-            border: 1.5px solid var(--border);
-            background: white;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .filter-chip:hover, .filter-chip.active {
-            background: var(--navy);
-            color: white;
-            border-color: var(--navy);
-        }
-        .filter-chips { display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
-        .filter-chips::-webkit-scrollbar { display: none; }
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
 
-        /* BOOK GRID */
-        .catalog-section { padding: 40px 0 80px; }
-        .section-header {
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
-            margin-bottom: 28px;
-        }
-        .section-title {
-            font-family: 'Fraunces', serif;
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-        .section-count { color: var(--muted); font-size: 14px; }
-        .books-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-        /* BOOK CARD */
-        .book-card-link { text-decoration: none; color: inherit; display: block; }
-        .book-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(15,36,68,0.06);
-            border: 2px solid transparent;
-            transition: all 0.25s;
-            cursor: pointer;
-            position: relative;
-        }
-        .book-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(15,36,68,0.14);
-            border-color: var(--navy-mid);
-        }
-        .book-card.selected {
-            border-color: var(--gold);
-            box-shadow: 0 8px 28px rgba(201,147,10,0.2);
-        }
-        .book-card.out-of-stock {
-            opacity: 0.65;
-            cursor: not-allowed;
-        }
-        .book-card.out-of-stock:hover { transform: none; box-shadow: none; border-color: transparent; }
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 99px;
+    }
 
-        .book-cover {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            display: block;
-        }
-        .book-cover-placeholder {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-        }
-        .book-info { padding: 14px; }
-        .book-jenis {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--navy-mid);
-            background: rgba(26,60,107,0.08);
-            padding: 2px 8px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-bottom: 8px;
-        }
-        .book-title {
-            font-family: 'Fraunces', serif;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1.4;
-            margin-bottom: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .book-penerbit {
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 10px;
-        }
-        .book-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .stok-badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 6px;
-        }
-        .stok-ada { background: #d1fae5; color: #065f46; }
-        .stok-sedikit { background: #fef3c7; color: #92400e; }
-        .stok-habis { background: #fee2e2; color: #991b1b; }
-        .pick-btn {
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            border: 2px solid var(--navy);
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: var(--navy);
-            transition: all 0.2s;
-            cursor: pointer;
-            z-index: 2;
-        }
-        .book-card.selected .pick-btn {
-            background: var(--gold);
-            border-color: var(--gold);
-            color: white;
-        }
-        .selected-badge {
-            position: absolute;
-            top: 10px; right: 10px;
-            background: var(--gold);
-            color: white;
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(201,147,10,0.4);
-        }
-        .book-card.selected .selected-badge { display: flex; }
+    /* ─── NAVBAR ─── */
+    .nav-wrap {
+        background: var(--ink);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+        backdrop-filter: blur(12px);
+    }
 
-        /* FLOATING CART */
-        .floating-cart {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-        background: var(--navy);
-        color: white;
+    .nav-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .brand {
+        font-family: 'Lora', serif;
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #fff;
+        text-decoration: none;
+        letter-spacing: -.5px;
+    }
+
+    .brand em {
+        color: var(--amber-lt);
+        font-style: italic;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+
+    .nav-links a {
+        color: rgba(255, 255, 255, .55);
+        font-size: 13.5px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all .18s;
+    }
+
+    .nav-links a:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, .08);
+    }
+
+    .cart-pill {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        background: var(--amber);
+        color: #fff;
+        border: none;
+        border-radius: 99px;
+        padding: 7px 18px 7px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+    .cart-pill:hover {
+        background: var(--amber-lt);
+        transform: scale(1.03);
+    }
+
+    .cart-pill .count {
+        background: #fff;
+        color: var(--amber);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        font-size: 11px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+        background: var(--ink);
+        padding: 72px 24px 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 60% 60% at 10% 20%, rgba(13, 148, 136, .22) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 70% at 90% 80%, rgba(217, 119, 6, .18) 0%, transparent 55%);
+        pointer-events: none;
+    }
+
+    .hero-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 48px;
+        align-items: center;
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(13, 148, 136, .18);
+        border: 1px solid rgba(13, 148, 136, .35);
+        color: var(--teal-lt);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 5px 14px;
+        border-radius: 99px;
+        margin-bottom: 22px;
+    }
+
+    .hero-title {
+        font-family: 'Lora', serif;
+        font-size: clamp(2.2rem, 5vw, 3.8rem);
+        font-weight: 700;
+        line-height: 1.12;
+        color: #fff;
+        margin-bottom: 18px;
+    }
+
+    .hero-title em {
+        color: var(--amber-lt);
+        font-style: italic;
+    }
+
+    .hero-desc {
+        color: rgba(255, 255, 255, .55);
+        font-size: 15px;
+        line-height: 1.7;
+        max-width: 500px;
+        margin-bottom: 36px;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 36px;
+    }
+
+    .stat-item strong {
+        display: block;
+        font-family: 'Lora', serif;
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: var(--amber-lt);
+        line-height: 1;
+    }
+
+    .stat-item span {
+        color: rgba(255, 255, 255, .45);
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .hero-art {
+        font-size: 9rem;
+        opacity: .06;
+        user-select: none;
+        line-height: 1;
+    }
+
+    /* ─── FILTER BAR ─── */
+    .filter-wrap {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 62px;
+        z-index: 90;
+        box-shadow: 0 1px 0 0 var(--border), 0 4px 16px rgba(13, 17, 23, .04);
+    }
+
+    .filter-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 14px 24px;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-box .icon {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        font-size: 13px;
+        pointer-events: none;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 9px 14px 9px 38px;
+        border: 1.5px solid var(--border);
+        border-radius: 99px;
+        font-size: 13.5px;
+        font-family: inherit;
+        background: var(--paper);
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .search-box input:focus {
+        border-color: var(--teal);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(13, 148, 136, .1);
+    }
+
+    .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+
+    .chips::-webkit-scrollbar {
+        display: none;
+    }
+
+    .chip {
+        padding: 6px 16px;
+        border-radius: 99px;
+        border: 1.5px solid var(--border);
+        background: var(--white);
+        color: var(--ink);
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all .18s;
+        user-select: none;
+    }
+
+    .chip:hover {
+        border-color: var(--ink);
+        background: var(--paper);
+    }
+
+    .chip.active {
+        background: var(--ink);
+        color: #fff;
+        border-color: var(--ink);
+    }
+
+    .chip.teal.active {
+        background: var(--teal);
+        border-color: var(--teal);
+    }
+
+    .chip.amber.active {
+        background: var(--amber);
+        border-color: var(--amber);
+    }
+
+    .chip-divider {
+        width: 1px;
+        background: var(--border);
+        margin: 0 2px;
+        align-self: stretch;
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    .main {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 40px 24px 100px;
+    }
+
+    /* ─── SECTION HEADING ─── */
+    .sec-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .sec-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .sec-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .sec-icon.physical {
+        background: rgba(13, 17, 23, .08);
+    }
+
+    .sec-icon.digital {
+        background: rgba(13, 148, 136, .1);
+    }
+
+    .sec-label {
+        font-family: 'Lora', serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
+    .sec-count {
+        background: var(--paper-dark);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 12px;
+        border-radius: 99px;
+    }
+
+    .sec-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 0 0 32px;
+        flex: 1;
+        margin-left: 16px;
+    }
+
+    /* ─── TAB SWITCHER ─── */
+    .tab-switch {
+        display: flex;
+        gap: 0;
+        background: var(--paper-dark);
+        border-radius: 99px;
+        padding: 4px;
+        margin-bottom: 36px;
+        width: fit-content;
+    }
+
+    .tab-btn {
+        padding: 8px 24px;
+        border-radius: 99px;
+        border: none;
+        font-size: 13.5px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all .22s;
+        color: var(--muted);
+        background: transparent;
+    }
+
+    .tab-btn.active {
+        background: var(--white);
+        color: var(--ink);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+    }
+
+    /* ─── BOOK GRID ─── */
+    .books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 20px;
+    }
+
+    /* ─── BOOK CARD ─── */
+    .book-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        border: 1.5px solid var(--border);
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform .22s, box-shadow .22s, border-color .22s;
+        position: relative;
+    }
+
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+        border-color: rgba(13, 17, 23, .18);
+    }
+
+    .book-card.selected {
+        border-color: var(--amber);
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, .15), var(--shadow-hover);
+    }
+
+    .book-card.out-of-stock {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+
+    .book-card.out-of-stock:hover {
+        transform: none;
+        box-shadow: var(--shadow-card);
+    }
+
+    .card-cover {
+        width: 100%;
+        height: 195px;
+        object-fit: cover;
+        display: block;
+        background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+    }
+
+    .card-cover-ph {
+        width: 100%;
+        height: 195px;
+        background: linear-gradient(135deg, #f3f4f6, #e9ecef);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 52px;
+        color: #9ca3af;
+    }
+
+    /* Ebook shimmer cover */
+    .card-cover-ebook {
+        width: 100%;
+        height: 195px;
+        background: linear-gradient(135deg, #0f4c75, #1b7daa, #0d9488);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 38px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-cover-ebook::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255, 255, 255, .03) 8px, rgba(255, 255, 255, .03) 16px);
+    }
+
+    .card-cover-ebook span.label {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, .6);
+        text-transform: uppercase;
+        font-family: inherit;
+    }
+
+    .selected-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--amber);
+        color: #fff;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 800;
+        box-shadow: 0 2px 8px rgba(217, 119, 6, .5);
+        z-index: 2;
+    }
+
+    .book-card.selected .selected-badge {
+        display: flex;
+    }
+
+    /* Digital badge */
+    .digital-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: var(--teal);
+        color: #fff;
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 3px 9px;
+        border-radius: 6px;
+        z-index: 2;
+    }
+
+    .card-body {
+        padding: 14px 15px 15px;
+    }
+
+    .card-jenis {
+        display: inline-block;
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--teal);
+        background: rgba(13, 148, 136, .1);
+        padding: 2px 9px;
+        border-radius: 5px;
+        margin-bottom: 8px;
+    }
+
+    .card-title {
+        font-family: 'Lora', serif;
+        font-size: 13.5px;
+        font-weight: 700;
+        line-height: 1.45;
+        color: var(--ink);
+        margin-bottom: 4px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .card-pub {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-bottom: 10px;
+    }
+
+    .card-meta {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .card-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--muted);
+    }
+
+    .card-stars {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        margin-bottom: 10px;
+    }
+
+    .stars {
+        color: #f59e0b;
+        font-size: 12px;
+        letter-spacing: .5px;
+    }
+
+    .rating-val {
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    .rating-cnt {
+        color: var(--muted);
+    }
+
+    .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .stok {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 6px;
+    }
+
+    .stok-ok {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .stok-low {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .stok-out {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .stok-ebook {
+        background: rgba(13, 148, 136, .12);
+        color: var(--teal);
+    }
+
+    .pick-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        background: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all .18s;
+        flex-shrink: 0;
+    }
+
+    .pick-btn:hover {
+        border-color: var(--amber);
+        color: var(--amber);
+    }
+
+    .book-card.selected .pick-btn {
+        background: var(--amber);
+        border-color: var(--amber);
+        color: #fff;
+    }
+
+    .read-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--teal);
+        color: #fff;
+        padding: 5px 13px;
+        border-radius: 8px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all .18s;
+    }
+
+    .read-btn:hover {
+        background: #0f766e;
+        color: #fff;
+        transform: scale(1.04);
+    }
+
+    /* ─── FLOATING CART ─── */
+    .float-cart {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        z-index: 200;
+        transform: translateX(-50%) translateY(120px);
+        background: var(--ink);
+        border: 1px solid rgba(255, 255, 255, .1);
         border-radius: 20px;
-        padding: 16px 28px;
+        padding: 14px 20px;
         display: flex;
         align-items: center;
         gap: 20px;
-        box-shadow: 0 20px 60px rgba(15,36,68,0.4);
-        z-index: 200;
-        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        min-width: 380px;
+        box-shadow: 0 20px 60px rgba(13, 17, 23, .45);
+        transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+        min-width: 360px;
     }
-    .floating-cart.show { transform: translateX(-50%) translateY(0); }
-    .cart-preview { display: flex; gap: 8px; flex: 1; overflow-x: auto; }
-    .cart-mini-cover {
-            width: 36px; height: 48px;
-            border-radius: 6px;
-            object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.2);
-        }
-        .cart-mini-placeholder {
-            width: 36px; height: 48px;
-            border-radius: 6px;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-        .cart-info strong { display: block; font-size: 14px; font-weight: 700; }
-        .cart-info span { font-size: 12px; color: rgba(255,255,255,0.6); }
-        .pinjam-btn {
-            background: var(--gold);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .pinjam-btn:hover { background: var(--gold-light); transform: scale(1.03); }
 
-        /* READ BUTTON */
-        .btn-primary {
-            background: var(--navy) !important;
-            border-color: var(--navy) !important;
-            color: white !important;
-            padding: 6px 12px !important;
-            font-size: 12px !important;
-            font-weight: 600 !important;
-            border-radius: 8px !important;
-            transition: all 0.2s !important;
-            z-index: 2;
-        }
-        .btn-primary:hover {
-            background: var(--navy-mid) !important;
-            transform: translateY(-1px) !important;
+    .float-cart.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .float-cart-info strong {
+        display: block;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .float-cart-info span {
+        color: rgba(255, 255, 255, .45);
+        font-size: 11.5px;
+    }
+
+    .float-cart-preview {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .mini-cover {
+        width: 34px;
+        height: 44px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 2px solid rgba(255, 255, 255, .15);
+    }
+
+    .mini-ph {
+        width: 34px;
+        height: 44px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, .08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    .submit-btn {
+        background: var(--amber);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 22px;
+        font-size: 13.5px;
+        font-weight: 800;
+        font-family: inherit;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all .2s;
+        flex-shrink: 0;
+    }
+
+    .submit-btn:hover {
+        background: var(--amber-lt);
+        transform: scale(1.04);
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty {
+        text-align: center;
+        padding: 80px 16px;
+        color: var(--muted);
+        grid-column: 1 / -1;
+    }
+
+    .empty-icon {
+        font-size: 60px;
+        margin-bottom: 16px;
+        opacity: .3;
+    }
+
+    /* ─── MODAL ─── */
+    .modal-content {
+        border-radius: var(--radius-lg);
+        border: none;
+    }
+
+    .modal-head {
+        background: var(--ink);
+        color: #fff;
+        padding: 24px 28px;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .modal-head-title {
+        font-family: 'Lora', serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .modal-head p {
+        color: rgba(255, 255, 255, .5);
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .modal-body {
+        padding: 28px;
+    }
+
+    .book-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .book-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--paper);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .book-chip img {
+        width: 30px;
+        height: 38px;
+        border-radius: 4px;
+        object-fit: cover;
+    }
+
+    .rm-chip {
+        width: 20px;
+        height: 20px;
+        background: #fee2e2;
+        color: var(--red);
+        border: none;
+        border-radius: 50%;
+        font-size: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-field {
+        margin-bottom: 16px;
+    }
+
+    .form-field label {
+        font-size: 13px;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 6px;
+        color: #374151;
+    }
+
+    .form-field input {
+        width: 100%;
+        padding: 11px 14px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border);
+        font-size: 14px;
+        font-family: inherit;
+        background: var(--paper);
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .form-field input:focus {
+        border-color: var(--teal);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(13, 148, 136, .1);
+    }
+
+    .info-box {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 12.5px;
+        color: #1e40af;
+        margin: 16px 0;
+    }
+
+    .big-btn {
+        width: 100%;
+        padding: 13px;
+        border-radius: 12px;
+        border: none;
+        background: var(--ink);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 800;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+    .big-btn:hover {
+        background: var(--ink-mid);
+        transform: translateY(-1px);
+    }
+
+    .big-btn:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ─── SUCCESS ─── */
+    .success-wrap {
+        text-align: center;
+        padding: 16px 0;
+    }
+
+    .success-circle {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: #dcfce7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin: 0 auto 16px;
+    }
+
+    .booking-codes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 12px;
+    }
+
+    .booking-code {
+        background: var(--paper-dark);
+        border: 1px solid var(--border);
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    /* ─── CHAT ─── */
+    .chat-wrap {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .chat-fab {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        border: none;
+        background: var(--teal);
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(13, 148, 136, .45);
+        transition: all .25s;
+        position: relative;
+    }
+
+    .chat-fab:hover {
+        transform: scale(1.08);
+    }
+
+    .chat-fab svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .chat-notif {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 18px;
+        height: 18px;
+        background: var(--red);
+        border: 2px solid var(--paper);
+        border-radius: 50%;
+        font-size: 10px;
+        color: #fff;
+        font-weight: 800;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chat-panel {
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        width: 340px;
+        height: 440px;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 16px 60px rgba(13, 17, 23, .18);
+        border: 1px solid var(--border);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .chat-panel.open {
+        display: flex;
+    }
+
+    .chat-panel-head {
+        background: var(--teal);
+        color: #fff;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .chat-panel-head strong {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .chat-panel-head small {
+        font-size: 11px;
+        opacity: .7;
+        display: block;
+        margin-top: 1px;
+    }
+
+    .chat-x {
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 6px;
+    }
+
+    .chat-x:hover {
+        background: rgba(255, 255, 255, .2);
+    }
+
+    .chat-msgs {
+        flex: 1;
+        padding: 14px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: #f8fafc;
+    }
+
+    .msg {
+        max-width: 78%;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .msg.user {
+        align-self: flex-end;
+    }
+
+    .msg.bot,
+    .msg.admin {
+        align-self: flex-start;
+    }
+
+    .msg-text {
+        padding: 10px 14px;
+        border-radius: 14px;
+        font-size: 13px;
+        line-height: 1.55;
+        word-wrap: break-word;
+    }
+
+    .msg.user .msg-text {
+        background: var(--teal);
+        color: #fff;
+        border-bottom-right-radius: 4px;
+    }
+
+    .msg.bot .msg-text,
+    .msg.admin .msg-text {
+        background: #fff;
+        color: var(--ink);
+        border: 1px solid var(--border);
+        border-bottom-left-radius: 4px;
+    }
+
+    .msg-time {
+        font-size: 10.5px;
+        color: var(--muted);
+    }
+
+    .msg.user .msg-time {
+        text-align: right;
+    }
+
+    .chat-input-wrap {
+        padding: 12px 14px;
+        border-top: 1px solid var(--border);
+        background: #fff;
+        display: flex;
+        gap: 8px;
+    }
+
+    .chat-input-wrap input {
+        flex: 1;
+        padding: 9px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 99px;
+        font-size: 13px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color .2s;
+    }
+
+    .chat-input-wrap input:focus {
+        border-color: var(--teal);
+    }
+
+    .chat-send {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 50%;
+        background: var(--teal);
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background .18s;
+        flex-shrink: 0;
+    }
+
+    .chat-send:hover {
+        background: #0f766e;
+    }
+
+    .chat-send svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .typing {
+        display: flex;
+        gap: 4px;
+        padding: 10px 14px;
+    }
+
+    .typing span {
+        width: 7px;
+        height: 7px;
+        background: var(--muted);
+        border-radius: 50%;
+        animation: t 1.3s infinite ease-in-out both;
+    }
+
+    .typing span:nth-child(1) {
+        animation-delay: -.28s;
+    }
+
+    .typing span:nth-child(2) {
+        animation-delay: -.14s;
+    }
+
+    @keyframes t {
+
+        0%,
+        80%,
+        100% {
+            transform: scale(0);
         }
 
-        /* MODAL */
-        .modal-content { border-radius: 20px; border: none; overflow: hidden; }
-        .modal-header-custom {
-            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
-            padding: 24px 28px;
-            color: white;
+        40% {
+            transform: scale(1);
         }
-        .modal-title-custom {
-            font-family: 'Fraunces', serif;
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-        .selected-books-list { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-        .selected-book-chip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f1f5f9;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        .selected-book-chip img {
-            width: 32px; height: 40px;
-            border-radius: 4px;
-            object-fit: cover;
-        }
-        .remove-chip {
-            width: 20px; height: 20px;
-            background: #fee2e2;
-            color: var(--red);
-            border: none;
-            border-radius: 50%;
-            font-size: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .form-label { font-weight: 600; font-size: 13.5px; color: #374151; }
-        .form-control {
-            border-radius: 10px;
-            border: 1.5px solid var(--border);
-            padding: 11px 14px;
-            font-size: 14px;
-        }
-        .form-control:focus {
-            border-color: var(--navy-mid);
-            box-shadow: 0 0 0 3px rgba(26,60,107,0.08);
-        }
-        .btn-submit {
-            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 13px 28px;
-            font-size: 15px;
-            font-weight: 700;
-            width: 100%;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    }
 
-        /* SUCCESS STATE */
-        .success-state { text-align: center; padding: 20px 0; }
-        .success-icon {
-            width: 72px; height: 72px;
-            background: #d1fae5;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 32px;
-        }
-        .booking-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
-        .booking-chip {
-            background: #f1f5f9;
-            border: 1px solid var(--border);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-family: monospace;
-            font-weight: 600;
-            color: var(--navy);
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+        .filter-inner {
+            grid-template-columns: 1fr;
+            gap: 10px;
         }
 
-        /* EMPTY STATE */
-        .empty-state { text-align: center; padding: 80px 0; color: var(--muted); }
-        .empty-state i { font-size: 64px; margin-bottom: 16px; color: #cbd5e1; }
-
-        /* PDF READER */
-        #pdf-viewer {
-            width: 100%;
-            height: 70vh;
-            overflow-y: auto;
-            background: #525659;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .pdf-page {
-            margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            max-width: 100%;
-        }
-        .reader-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border);
+        .books-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 576px) {
-            .books-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .floating-cart { min-width: calc(100vw - 32px); }
-            .hero-stats { gap: 20px; }
+        .float-cart {
+            min-width: calc(100vw - 32px);
         }
 
-        /* CHAT WIDGET STYLES */
-        .chat-widget-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-        .chat-toggle {
-            width: 60px; height: 60px; border-radius: 50%; background: var(--gold);
-            border: none; color: white; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; box-shadow: 0 4px 12px rgba(201, 147, 10, 0.4); transition: all 0.3s ease;
+        .hero-art {
+            display: none;
         }
-        .chat-toggle:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(201, 147, 10, 0.5); }
-        .chat-toggle svg { width: 28px; height: 28px; }
-        .chat-badge {
-            position: absolute; top: 0; right: 0; width: 20px; height: 20px; background: #dc2626;
-            border-radius: 50%; font-size: 11px; display: flex; align-items: center;
-            justify-content: center; color: white; font-weight: 600;
+
+        .hero-inner {
+            grid-template-columns: 1fr;
         }
-        .chat-box {
-            position: absolute; bottom: 75px; right: 0; width: 350px; height: 450px;
-            background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
+
+        .hero-stats {
+            gap: 24px;
         }
-        .chat-box.open { display: flex; }
-        .chat-header {
-            padding: 1rem; background: linear-gradient(135deg, var(--gold), var(--gold-light));
-            color: white; display: flex; align-items: center; justify-content: space-between;
+    }
+
+    @media (max-width: 480px) {
+        .chat-panel {
+            width: calc(100vw - 32px);
+            height: 55vh;
         }
-        .chat-title { font-weight: 600; font-size: 0.95rem; }
-        .chat-close {
-            background: none; border: none; color: white; cursor: pointer; width: 28px; height: 28px;
-            display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;
+    }
+
+    /* ─── SECTION SEPARATOR ─── */
+    .section-sep {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin: 52px 0 32px;
+    }
+
+    .sep-line {
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+
+    .sep-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        border-radius: 99px;
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .sep-badge.physical {
+        background: var(--paper-dark);
+        color: var(--ink-mid);
+        border: 1.5px solid var(--border);
+    }
+
+    .sep-badge.digital {
+        background: rgba(13, 148, 136, .12);
+        color: var(--teal);
+        border: 1.5px solid rgba(13, 148, 136, .25);
+    }
+
+    /* ─── TOAST ─── */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
         }
-        .chat-close:hover { background: rgba(255, 255, 255, 0.2); }
-        .chat-close svg { width: 18px; height: 18px; }
-        .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background: #f8fafc; }
-        .chat-message { max-width: 80%; display: flex; flex-direction: column; gap: 0.25rem; }
-        .chat-message.user { align-self: flex-end; }
-        .chat-message.bot, .chat-message.admin { align-self: flex-start; }
-        .chat-message-text { padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; }
-        .chat-message.user .chat-message-text { background: var(--gold); color: white; border-bottom-right-radius: 4px; }
-        .chat-message.bot .chat-message-text, .chat-message.admin .chat-message-text { background: white; color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-        .chat-message-time { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
-        .chat-message.user .chat-message-time { text-align: right; }
-        .chat-status { padding: 0.5rem 1rem; background: #ecfdf5; border-top: 1px solid var(--border); display: none; }
-        .status-badge { font-size: 0.75rem; color: #059669; font-weight: 500; }
-        .chat-form { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; background: white; }
-        .chat-form input[type="text"] {
-            flex: 1; padding: 0.625rem 1rem; border: 1px solid var(--border); border-radius: 12px;
-            font-size: 0.875rem; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
         }
-        .chat-form input[type="text"]:focus { border-color: var(--gold); }
-        .chat-form button {
-            width: 40px; height: 40px; border: none; background: var(--gold); color: white;
-            border-radius: 12px; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; transition: background 0.2s;
+    }
+
+    /* ─── ANIMASI HERO (TAMBAHAN PRABOWO) ─── */
+
+    /* 1. Animasi untuk Judul Utama */
+    .hero-title {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: heroReveal 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* 2. Animasi khusus untuk teks Emphasize (Favoritmu) */
+    .hero-title em {
+        display: inline-block;
+        position: relative;
+        animation: textPulse 2.5s ease-in-out infinite alternate;
+        animation-delay: 1s;
+        /* Mulai setelah judul muncul */
+    }
+
+    /* 3. Efek Staggered untuk Deskripsi agar muncul setelah Judul */
+    .hero-desc {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: heroReveal 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        animation-delay: 0.3s;
+    }
+
+    /* 4. Efek Staggered untuk Stats */
+    .hero-stats {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: heroReveal 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        animation-delay: 0.5s;
+    }
+
+    /* Keyframes */
+    @keyframes heroReveal {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
         }
-        .chat-form button:hover { background: var(--gold-light); }
-        .chat-form button svg { width: 18px; height: 18px; }
-        .chat-typing { display: flex; gap: 0.25rem; padding: 0.75rem 1rem; }
-        .chat-typing span { width: 8px; height: 8px; background: var(--muted); border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
-        .chat-typing span:nth-child(1) { animation-delay: -0.32s; }
-        .chat-typing span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        @media (max-width: 480px) { .chat-box { width: calc(100vw - 40px); height: 60vh; } }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes textPulse {
+        0% {
+            text-shadow: 0 0 0px transparent;
+            transform: scale(1);
+        }
+
+        50% {
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+            transform: scale(1.02);
+        }
+
+        100% {
+            text-shadow: 0 0 5px rgba(251, 191, 36, 0.1);
+            transform: scale(1);
+        }
+    }
+
+    .static-line {
+        display: block;
+    }
+
+    .rotating-wrap {
+        display: block;
+        height: 1.18em;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .rotating-word {
+        display: block;
+        font-style: italic;
+        color: var(--amber-lt);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    .rotating-word.active {
+        animation: rotateIn 0.55s cubic-bezier(.22, 1, .36, 1) forwards;
+    }
+
+    .rotating-word.exit {
+        animation: rotateOut 0.45s cubic-bezier(.55, 0, .45, 1) forwards;
+    }
+
+    @keyframes rotateIn {
+        from {
+            transform: translateY(60%);
+            opacity: 0;
+            filter: blur(6px);
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+            filter: blur(0);
+        }
+    }
+
+    @keyframes rotateOut {
+        from {
+            transform: translateY(0);
+            opacity: 1;
+            filter: blur(0);
+        }
+
+        to {
+            transform: translateY(-50%);
+            opacity: 0;
+            filter: blur(4px);
+        }
+    }
+
+    .cursor {
+        display: inline-block;
+        width: 3px;
+        height: 0.75em;
+        background: var(--amber-lt);
+        margin-left: 4px;
+        vertical-align: middle;
+        animation: blink 1s step-end infinite;
+        border-radius: 2px;
+    }
+
+    @keyframes blink {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+    }
     </style>
 </head>
+
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar-sipusaka">
-    <div class="container d-flex justify-content-between align-items-center">
-        <a href="/" class="navbar-brand-custom">📚 Si<span>Pusaka</span></a>
-        <div class="nav-links d-none d-md-flex align-items-center">
-            <a href="/"><i class="fas fa-home me-1"></i> Beranda</a>
-            <a href="/cek-status"><i class="fas fa-search me-1"></i> Cek Status</a>
-            <a href="/mahasiswa/login"><i class="fas fa-user me-1"></i> Mahasiswa</a>
+    {{-- ─── NAVBAR ─── --}}
+    <nav class="nav-wrap">
+        <div class="nav-inner">
+            <a href="/" class="brand">📚 Si<em>Pusaka</em></a>
+            <div class="nav-links d-none d-md-flex">
+                <a href="/"><i class="fas fa-home me-1"></i>Beranda</a>
+                <a href="/cek-status"><i class="fas fa-search me-1"></i>Cek Status</a>
+                <a href="/mahasiswa/login"><i class="fas fa-user me-1"></i>Mahasiswa</a>
             </div>
-        <button class="cart-btn" onclick="bukaModalPinjam()" id="cartBtn" style="display:none">
-            <i class="fas fa-book-open"></i>
-            <span id="cartLabel">Pinjam Buku</span>
-            <div class="cart-count" id="cartCount">0</div>
-        </button>
-    </div>
-</nav>
+            <button class="cart-pill" id="cartBtn" onclick="bukaModalPinjam()">
+                <i class="fas fa-book-open"></i>
+                <span id="cartLabel">Pinjam Buku</span>
+                <div class="count" id="cartCount">0</div>
+            </button>
+        </div>
+    </nav>
 
-<!-- HERO -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-7">
-                <div class="hero-title-container" id="heroTitleContainer">
-                    <div class="hero-title-slide active">Temukan Buku<br><span>Favoritmu</span> di Sini</div>
-                    <div class="hero-title-slide">Pinjam Buku<br><span>Mudah</span> dalam 1 Langkah</div>
-                    <div class="hero-title-slide">Akses E-Book<br><span>Digital</span> Kapan Saja</div>
+    {{-- ─── HERO ─── --}}
+    <section class="hero">
+        <div class="hero-inner">
+            <div>
+                <div class="hero-eyebrow">
+                    <i class="fas fa-sparkles" style="font-size:10px"></i> Perpustakaan Digital
                 </div>
-                <div class="hero-sub-container" id="heroSubContainer">
-                    <div class="hero-sub-slide active">Jelajahi koleksi buku perpustakaan digital kami. Pilih hingga 3 buku sekaligus dan ajukan peminjaman dalam satu langkah.</div>
-                    <div class="hero-sub-slide">Proses peminjaman cepat dan praktis. Cukup pilih buku, isi data diri, dan tunggu konfirmasi dari admin.</div>
-                    <div class="hero-sub-slide">Baca ribuan koleksi buku digital kami secara langsung melalui browser tanpa perlu download.</div>
-                </div>
+                <h1 class="hero-title">
+                    <span class="static-line">Temukan Buku</span>
+                    <span class="rotating-wrap" id="rotatingWrap">
+                        <span class="rotating-word active" id="rw-0">Favoritmu</span>
+                        <span class="rotating-word" id="rw-1">Terpopuler</span>
+                        <span class="rotating-word" id="rw-2">Terbaru</span>
+                        <span class="rotating-word" id="rw-3">Pilihanmu</span>
+                        <span class="cursor"></span>
+                    </span>
+                    <span class="static-line" style="font-style:normal">di Sini</span>
+                </h1>
+                <p class="hero-desc">
+                    Jelajahi koleksi buku fisik dan e-book perpustakaan kami. Pinjam hingga 3 buku sekaligus atau baca
+                    e-book langsung di browser — kapan saja, di mana saja.
+                </p>
                 <div class="hero-stats">
-                    <div class="hero-stat">
+                    <div class="stat-item">
                         <strong>{{ $bukus->count() }}</strong>
-                        <span>Total Buku</span>
+                        <span>Total Koleksi</span>
                     </div>
-                    <div class="hero-stat">
+                    <div class="stat-item">
                         <strong>{{ $bukus->where('stok_tersedia', '>', 0)->count() }}</strong>
                         <span>Tersedia</span>
                     </div>
-                    <div class="hero-stat">
+                    <div class="stat-item">
                         <strong>{{ $jenisBuku->count() }}</strong>
                         <span>Kategori</span>
                     </div>
-                </div>
-            </div>
-            <div class="col-lg-5 d-none d-lg-block text-end">
-                <div style="font-size:120px;opacity:0.15;line-height:1">📚</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- FILTER BAR -->
-<div class="filter-bar">
-    <div class="container">
-        <div class="row g-3 align-items-center">
-            <div class="col-md-4">
-                <div class="search-wrap">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" id="searchInput"
-                           placeholder="Cari judul buku atau penerbit...">
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div class="filter-chips">
-                    <button class="filter-chip active" onclick="filterJenis('semua', this)">
-                        Semua
-                    </button>
-                    @foreach($jenisBuku as $jenis)
-                    <button class="filter-chip" onclick="filterJenis('{{ $jenis }}', this)">
-                        {{ $jenis }}
-                    </button>
-                    @endforeach
-                    <button class="filter-chip" onclick="filterJenis('tersedia', this)" style="border-color:#059669;color:#059669">
-                        ✅ Tersedia
-                    </button>
-                    <div style="width: 1px; background: var(--border); margin: 0 4px;"></div>
-                    <button class="filter-chip" onclick="filterRating('semua', this)" id="rating-semua">
-                        ⭐ Semua Rating
-                    </button>
-                    <button class="filter-chip" onclick="filterRating('4', this)" id="rating-4">
-                        ⭐⭐⭐⭐ 4+
-                    </button>
-                    <button class="filter-chip" onclick="filterRating('3', this)" id="rating-3">
-                        ⭐⭐⭐ 3+
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- CATALOG -->
-<section class="catalog-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Koleksi Buku</h2>
-            <span class="section-count" id="bookCount">{{ $bukus->count() }} buku</span>
-        </div>
-
-        <div class="books-grid" id="booksGrid">
-             @forelse($bukus as $buku)
-              <div class="book-card {{ $buku->stok_tersedia < 1 ? 'out-of-stock' : '' }}"
-                   id="card-{{ $buku->id }}"
-                   data-id="{{ $buku->id }}"
-                   data-nama="{{ $buku->nama_buku }}"
-                   data-penerbit="{{ $buku->penerbit }}"
-                   data-jenis="{{ $buku->jenis_buku }}"
-                   data-genre="{{ $buku->genre_buku ?? 'Fisik' }}"
-                   data-stok="{{ $buku->stok_tersedia }}"
-                   data-sampul="{{ $buku->sampul_buku ? asset('storage/'.$buku->sampul_buku) : '' }}"
-                   data-ebook="{{ $buku->file_ebook ? route('publik.ebook.baca', ['id' => $buku->id]) : '' }}"
-                   onclick="window.location.href='{{ route('publik.buku.show', ['id' => $buku->id]) }}';">
-
-                <div class="selected-badge" id="badge-{{ $buku->id }}">✓</div>
-
-                @if($buku->sampul_buku)
-                    <img src="{{ asset('storage/'.$buku->sampul_buku) }}"
-                         alt="{{ $buku->nama_buku }}" class="book-cover"
-                         data-book-id="{{ $buku->id }}">
-                @else
-                    <div class="book-cover-placeholder" 
-                         data-book-id="{{ $buku->id }}">📖</div>
-                @endif
-
-                <div class="book-info">
-                    <span class="book-jenis">{{ $buku->jenis_buku }}</span>
-                    <div class="book-title">{{ $buku->nama_buku }}</div>
-                    <div class="book-penerbit">{{ $buku->penerbit }}</div>
-                    
-                    <!-- Stats: Views and Borrows -->
-                    <div style="display: flex; gap: 12px; margin: 8px 0; font-size: 11px; color: var(--muted);">
-                        <span title="Total dilihat">
-                            <i class="fas fa-eye" style="color: #3b82f6;"></i> {{ $buku->view_count ?? 0 }}
-                        </span>
-                        <span title="Total dipinjam">
-                            <i class="fas fa-book-open" style="color: #10b981;"></i> {{ $buku->borrow_count ?? 0 }}
-                        </span>
+                    <div class="stat-item">
+                        <strong>{{ $bukus->whereIn('genre_buku', ['Ebook','Hybrid'])->count() }}</strong>
+                        <span>E-Book</span>
                     </div>
-                    
-                    <!-- Rating Stars -->
-                    @if($buku->review_count > 0)
-                    <div style="display: flex; align-items: center; gap: 4px; margin: 4px 0; font-size: 11px;">
-                        <span style="color: #f59e0b; letter-spacing: 1px;">
-                            @for($i = 1; $i <= 5; $i++)
-                                @if($i <= round($buku->average_rating))
-                                    ★
-                                @else
-                                    ☆
-                                @endif
-                            @endfor
-                        </span>
-                        <span style="color: var(--muted); font-weight: 600;">
-                            {{ number_format($buku->average_rating, 1) }}
-                        </span>
-                        <span style="color: var(--muted);">
-                            ({{ $buku->review_count }})
-                        </span>
+                </div>
+            </div>
+            <div class="hero-art d-none d-lg-block">📚</div>
+        </div>
+    </section>
+
+    {{-- ─── FILTER BAR ─── --}}
+    <div class="filter-wrap">
+        <div class="filter-inner">
+            <div class="search-box">
+                <i class="fas fa-search icon"></i>
+                <input type="text" id="searchInput" placeholder="Cari judul atau penerbit…">
+            </div>
+            <div class="chips" id="filterChips">
+                <button class="chip active" onclick="filterJenis('semua', this)">Semua</button>
+                @foreach($jenisBuku as $jenis)
+                <button class="chip" onclick="filterJenis('{{ $jenis }}', this)">{{ $jenis }}</button>
+                @endforeach
+                <button class="chip teal" onclick="filterJenis('tersedia', this)">✅ Tersedia</button>
+                <div class="chip-divider"></div>
+                <button class="chip" id="r-semua" onclick="filterRating('semua',this)">⭐ Semua</button>
+                <button class="chip" id="r-4" onclick="filterRating('4',this)">⭐ 4+</button>
+                <button class="chip" id="r-3" onclick="filterRating('3',this)">⭐ 3+</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ─── MAIN CATALOG ─── --}}
+    <main class="main">
+
+        {{-- Tab Switcher --}}
+        <div class="tab-switch" id="tabSwitch">
+            <button class="tab-btn active" onclick="switchTab('semua', this)">📦 Semua</button>
+            <button class="tab-btn" onclick="switchTab('fisik', this)">📗 Buku Fisik</button>
+            <button class="tab-btn" onclick="switchTab('digital', this)">💻 E-Book</button>
+        </div>
+
+        {{-- ── BUKU FISIK SECTION ── --}}
+        <div id="sectionFisik">
+            <div class="section-sep">
+                <div class="sep-badge physical">
+                    <i class="fas fa-book"></i> Buku Fisik
+                </div>
+                <div class="sep-line"></div>
+                <span class="sec-count" id="countFisik">
+                    {{ $bukus->whereNotIn('genre_buku', ['Ebook','Hybrid'])->count() }} buku
+                </span>
+            </div>
+
+            <div class="books-grid" id="gridFisik">
+                @forelse($bukus->whereNotIn('genre_buku', ['Ebook','Hybrid']) as $buku)
+                <div class="book-card {{ $buku->stok_tersedia < 1 ? 'out-of-stock' : '' }}" id="card-{{ $buku->id }}"
+                    data-id="{{ $buku->id }}" data-nama="{{ $buku->nama_buku }}" data-penerbit="{{ $buku->penerbit }}"
+                    data-jenis="{{ $buku->jenis_buku }}" data-genre="Fisik" data-stok="{{ $buku->stok_tersedia }}"
+                    data-rating="{{ $buku->average_rating ?? 0 }}"
+                    data-sampul="{{ $buku->sampul_buku ? asset('storage/'.$buku->sampul_buku) : '' }}"
+                    onclick="window.location.href='{{ route('publik.buku.show', ['id' => $buku->id]) }}'">
+                    <div class="selected-badge" id="badge-{{ $buku->id }}">✓</div>
+                    @if($buku->sampul_buku)
+                    <img src="{{ asset('storage/'.$buku->sampul_buku) }}" alt="{{ $buku->nama_buku }}"
+                        class="card-cover">
+                    @else
+                    <div class="card-cover-ph">📖</div>
+                    @endif
+                    <div class="card-body">
+                        <span class="card-jenis">{{ $buku->jenis_buku }}</span>
+                        <div class="card-title">{{ $buku->nama_buku }}</div>
+                        <div class="card-pub">{{ $buku->penerbit }}</div>
+                        <div class="card-meta">
+                            <div class="card-meta-item">
+                                <i class="fas fa-eye" style="color:#3b82f6;font-size:10px"></i>
+                                {{ $buku->view_count ?? 0 }}
+                            </div>
+                            <div class="card-meta-item">
+                                <i class="fas fa-book-open" style="color:#10b981;font-size:10px"></i>
+                                {{ $buku->borrow_count ?? 0 }}
+                            </div>
+                        </div>
+                        @if($buku->review_count > 0)
+                        <div class="card-stars">
+                            <span
+                                class="stars">{{ str_repeat('★', round($buku->average_rating)) }}{{ str_repeat('☆', 5 - round($buku->average_rating)) }}</span>
+                            <span class="rating-val">{{ number_format($buku->average_rating, 1) }}</span>
+                            <span class="rating-cnt">({{ $buku->review_count }})</span>
+                        </div>
+                        @endif
+                        <div class="card-footer">
+                            @if($buku->stok_tersedia < 1) <span class="stok stok-out">Habis</span>
+                                @elseif($buku->stok_tersedia <= 3) <span class="stok stok-low">Sisa
+                                    {{ $buku->stok_tersedia }}</span>
+                                    @else
+                                    <span class="stok stok-ok">Tersedia {{ $buku->stok_tersedia }}</span>
+                                    @endif
+                                    @if($buku->stok_tersedia > 0)
+                                    <div class="pick-btn" id="pickbtn-{{ $buku->id }}"
+                                        onclick="event.stopPropagation(); togglePilih(document.getElementById('card-{{ $buku->id }}'))">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    @endif
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="empty" style="grid-column:1/-1">
+                    <div class="empty-icon">📚</div>
+                    <p style="font-weight:600;margin-bottom:4px">Belum ada buku fisik</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- ── E-BOOK SECTION ── --}}
+        <div id="sectionDigital">
+            <div class="section-sep">
+                <div class="sep-badge digital">
+                    <i class="fas fa-laptop-code"></i> E-Book Digital
+                </div>
+                <div class="sep-line"></div>
+                <span class="sec-count" id="countDigital">
+                    {{ $bukus->whereIn('genre_buku', ['Ebook','Hybrid'])->count() }} buku
+                </span>
+            </div>
+
+            <div class="books-grid" id="gridDigital">
+                @forelse($bukus->whereIn('genre_buku', ['Ebook','Hybrid']) as $buku)
+                <div class="book-card" id="card-{{ $buku->id }}" data-id="{{ $buku->id }}"
+                    data-nama="{{ $buku->nama_buku }}" data-penerbit="{{ $buku->penerbit }}"
+                    data-jenis="{{ $buku->jenis_buku }}" data-genre="{{ $buku->genre_buku }}" data-stok="99"
+                    data-rating="{{ $buku->average_rating ?? 0 }}"
+                    data-sampul="{{ $buku->sampul_buku ? asset('storage/'.$buku->sampul_buku) : '' }}"
+                    onclick="window.location.href='{{ route('publik.buku.show', ['id' => $buku->id]) }}'">
+                    <span class="digital-badge">E-Book</span>
+                    @if($buku->sampul_buku)
+                    <img src="{{ asset('storage/'.$buku->sampul_buku) }}" alt="{{ $buku->nama_buku }}"
+                        class="card-cover">
+                    @else
+                    <div class="card-cover-ebook">
+                        <span>📱</span>
+                        <span class="label">Digital</span>
                     </div>
                     @endif
-                    
-                    <div class="book-footer">
-                        @if($buku->genre_buku == 'Ebook' || $buku->genre_buku == 'Hybrid')
-                            <span class="stok-badge stok-ada">E-Book</span>
-                        @else
-                            @if($buku->stok_tersedia < 1)
-                                <span class="stok-badge stok-habis">Stok Habis</span>
-                            @elseif($buku->stok_tersedia <= 3)
-                                <span class="stok-badge stok-sedikit">Sisa {{ $buku->stok_tersedia }}</span>
-                            @else
-                                <span class="stok-badge stok-ada">Tersedia {{ $buku->stok_tersedia }}</span>
-                            @endif
-                        @endif
-                        
-                        @if($buku->genre_buku == 'Ebook' || $buku->genre_buku == 'Hybrid')
-                            <a href="{{ route('publik.ebook.baca', ['id' => $buku->id]) }}" class="btn btn-sm btn-primary" id="readbtn-{{ $buku->id }}" target="_blank">
-                                <i class="fas fa-book-reader me-1"></i>Baca
-                            </a>
-                        @elseif($buku->stok_tersedia > 0)
-                            <div class="pick-btn" id="pickbtn-{{ $buku->id }}" onclick="event.stopPropagation(); togglePilih(document.getElementById('card-{{ $buku->id }}'))">
-                                <i class="fas fa-plus"></i>
+                    <div class="card-body">
+                        <span class="card-jenis" style="color:var(--teal)">{{ $buku->jenis_buku }}</span>
+                        <div class="card-title">{{ $buku->nama_buku }}</div>
+                        <div class="card-pub">{{ $buku->penerbit }}</div>
+                        <div class="card-meta">
+                            <div class="card-meta-item">
+                                <i class="fas fa-eye" style="color:#3b82f6;font-size:10px"></i>
+                                {{ $buku->view_count ?? 0 }}
                             </div>
-                        @endif
-                    </div>
-                 </div>
-             </div>
-             @empty
-            <div class="empty-state" style="grid-column:1/-1">
-                <i class="fas fa-book-open"></i>
-                <p>Belum ada buku tersedia</p>
-            </div>
-            @endforelse
-        </div>
-    </div>
-</section>
-
-<!-- FLOATING CART -->
-<div class="floating-cart" id="floatingCart">
-    <div>
-        <div class="cart-info">
-            <strong id="floatTitle">0 Buku Dipilih</strong>
-            <span>Maks. 3 buku per peminjaman</span>
-        </div>
-        <div class="cart-preview mt-2" id="cartPreview"></div>
-    </div>
-    <button class="pinjam-btn" onclick="bukaModalPinjam()">
-        <i class="fas fa-paper-plane me-2"></i>Ajukan Pinjam
-    </button>
-</div>
-
-<!-- MODAL EBOOK READER -->
-<div class="modal fade" id="modalEbook" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content">
-            <div class="modal-header bg-navy text-white py-2">
-                <h5 class="modal-title" id="ebookTitle">Baca E-Book</h5>
-                <div class="d-flex align-items-center gap-3">
-                    <span id="pageCount" class="badge bg-light text-navy">Hal: 0/0</span>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeEbook()"></button>
-                </div>
-            </div>
-            <div class="reader-controls">
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-secondary" onclick="prevPage()"><i class="fas fa-chevron-left"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="nextPage()"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                <div class="text-muted small" id="accessStatus">Akses: Preview (25%)</div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-gold" id="btnVerifyReader" onclick="showVerifyModal()">
-                        <i class="fas fa-unlock me-1"></i>Buka Akses Full
-                    </button>
-                </div>
-            </div>
-            <div class="modal-body p-0">
-                <div id="pdf-viewer">
-                    <div id="pdf-loader" class="text-white mt-5">
-                        <i class="fas fa-circle-notch fa-spin fa-2x"></i>
-                        <p class="mt-2">Memuat dokumen...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL VERIFIKASI NIM READER -->
-<div class="modal fade" id="modalVerifyReader" tabindex="-1" style="z-index: 1060;">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content shadow-lg">
-            <div class="modal-body p-4 text-center">
-                <div class="mb-3 text-gold">
-                    <i class="fas fa-lock fa-3x"></i>
-                </div>
-                <h5 class="fw-bold">Akses Terbatas</h5>
-                <p class="text-muted small">Silakan verifikasi NIM Anda untuk membaca buku ini secara lengkap.</p>
-                <div class="mb-3">
-                    <input type="text" id="reader_nim" class="form-control text-center" placeholder="Masukkan NIM Anda">
-                </div>
-                <div id="verifyError" class="text-danger small mb-2" style="display:none">NIM tidak terdaftar!</div>
-                <button class="btn btn-navy w-100 py-2" onclick="verifyReaderNim()">Verifikasi NIM</button>
-                <button class="btn btn-link btn-sm mt-2 text-muted text-decoration-none" data-bs-dismiss="modal">Nanti Saja</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL FORM PEMINJAMAN -->
-<div class="modal fade" id="modalPinjam" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header-custom">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="modal-title-custom">📋 Form Peminjaman Buku</div>
-                        <div style="color:rgba(255,255,255,0.65);font-size:13px;margin-top:4px">
-                            Isi data diri untuk mengajukan peminjaman
+                            <div class="card-meta-item">
+                                <i class="fas fa-book-open" style="color:#10b981;font-size:10px"></i>
+                                {{ $buku->borrow_count ?? 0 }}
+                            </div>
                         </div>
+                        @if($buku->review_count > 0)
+                        <div class="card-stars">
+                            <span
+                                class="stars">{{ str_repeat('★', round($buku->average_rating)) }}{{ str_repeat('☆', 5 - round($buku->average_rating)) }}</span>
+                            <span class="rating-val">{{ number_format($buku->average_rating, 1) }}</span>
+                            <span class="rating-cnt">({{ $buku->review_count }})</span>
+                        </div>
+                        @endif
+                        <div class="card-footer">
+                            <span class="stok stok-ebook">E-Book</span>
+                            <a href="{{ route('publik.ebook.baca', ['id' => $buku->id]) }}" class="read-btn"
+                                onclick="event.stopPropagation()" target="_blank">
+                                <i class="fas fa-book-reader" style="font-size:10px"></i>Baca
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="empty" style="grid-column:1/-1">
+                    <div class="empty-icon">💻</div>
+                    <p style="font-weight:600;margin-bottom:4px">Belum ada e-book</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+    </main>
+
+    {{-- ─── FLOATING CART ─── --}}
+    <div class="float-cart" id="floatCart">
+        <div style="flex:1">
+            <div class="float-cart-info">
+                <strong id="floatTitle">0 Buku Dipilih</strong>
+                <span>Maks. 3 buku fisik per peminjaman</span>
+            </div>
+            <div class="float-cart-preview" id="cartPreview"></div>
+        </div>
+        <button class="submit-btn" onclick="bukaModalPinjam()">
+            <i class="fas fa-paper-plane me-2"></i>Ajukan Pinjam
+        </button>
+    </div>
+
+    {{-- ─── MODAL PEMINJAMAN ─── --}}
+    <div class="modal fade" id="modalPinjam" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-head">
+                    <div>
+                        <div class="modal-head-title">📋 Form Peminjaman Buku</div>
+                        <p>Isi data diri untuk mengajukan peminjaman</p>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-            <div class="modal-body p-4">
-
-                <!-- Form State -->
-                <div id="formState">
-                    <!-- Buku Dipilih -->
-                    <div class="mb-4">
-                        <label class="form-label mb-2">
-                            <i class="fas fa-book me-2 text-navy"></i>Buku yang Dipilih
+                <div class="modal-body">
+                    <div id="formState">
+                        <label style="font-size:13px;font-weight:700;display:block;margin-bottom:10px">
+                            <i class="fas fa-book me-2" style="color:var(--teal)"></i>Buku yang Dipilih
                         </label>
-                        <div class="selected-books-list" id="selectedBooksList"></div>
-                    </div>
-
-                    <div id="alertPinjam"></div>
-
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                            <input type="text" id="f_nama" class="form-control" placeholder="Masukkan nama lengkap">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">NIM <span class="text-danger">*</span></label>
-                            <input type="text" id="f_nim" class="form-control" placeholder="Nomor Induk Mahasiswa" oninput="fetchMahasiswaForModal(this.value)">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Jurusan <span class="text-danger">*</span></label>
-                            <input type="text" id="f_jurusan" class="form-control" placeholder="Program studi / jurusan">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">No. Telepon <span class="text-danger">*</span></label>
-                            <input type="text" id="f_telepon" class="form-control" placeholder="08xx-xxxx-xxxx">
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Kode Referral <span class="text-danger">*</span></label>
-                            <input type="text" id="f_referral_token" class="form-control" placeholder="Masukkan kode referral (6 digit)" maxlength="6" oninput="validateReferralTokenModal(this)" style="text-transform: uppercase;">
-                            <small class="text-muted">Wajib diisi untuk mengakses ebook setelah persetujuan.</small>
-                            <div id="referral_token_error" class="text-danger small mt-1" style="display:none;">Token referral tidak valid.</div>
-                        </div>
-                    </div>
-
-                    <!-- Alert for referral token validation -->
-                    <div class="alert alert-danger d-flex align-items-center mt-3" role="alert" id="referral-alert-modal" style="display: none; border-radius: 10px; font-size: 13px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
-                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                        </svg>
-                        <div id="referral-alert-text-modal">Token referral tidak valid atau tidak ditemukan.</div>
-                    </div>
-
-                    <div class="alert alert-info mt-3 d-flex gap-2 align-items-start" style="border-radius:12px;font-size:13px">
-                        <i class="fas fa-info-circle mt-1"></i>
-                        <div>
-                            <strong>Informasi:</strong> NIM harus sudah terdaftar di sistem.
-                            Batas peminjaman <strong>7 hari</strong>. Keterlambatan dikenakan denda
-                            <strong>Rp10.000/hari</strong>.
-                        </div>
-                    </div>
-
-                    <button class="btn-submit mt-3" id="btnSubmit" onclick="submitPinjam()">
-                        <i class="fas fa-paper-plane me-2"></i>Ajukan Peminjaman
-                    </button>
-                </div>
-
-                <!-- Success State -->
-                <div id="successState" style="display:none">
-                    <div class="success-state">
-                        <div class="success-icon">✅</div>
-                        <h5 style="font-family:'Fraunces',serif;font-weight:700;margin-bottom:8px">
-                            Peminjaman Berhasil Diajukan!
-                        </h5>
-                        <p style="color:var(--muted);font-size:14px">
-                            Permintaan peminjaman kamu sudah diterima. Tunggu konfirmasi dan QR Code dari admin.
-                        </p>
-                        <div style="background:#f8fafc;border-radius:12px;padding:16px;margin:16px 0;text-align:left">
-                            <div style="font-size:12px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600">
-                                Booking ID kamu:
+                        <div class="book-chips" id="selectedBooksList"></div>
+                        <div id="alertPinjam"></div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-field">
+                                    <label>Nama Lengkap <span style="color:var(--red)">*</span></label>
+                                    <input type="text" id="f_nama" placeholder="Masukkan nama lengkap">
+                                </div>
                             </div>
-                            <div class="booking-chips" id="bookingChips"></div>
+                            <div class="col-md-6">
+                                <div class="form-field">
+                                    <label>NIM <span style="color:var(--red)">*</span></label>
+                                    <input type="text" id="f_nim" placeholder="Nomor Induk Mahasiswa"
+                                        oninput="fetchMahasiswaForModal(this.value)">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-field">
+                                    <label>Jurusan <span style="color:var(--red)">*</span></label>
+                                    <input type="text" id="f_jurusan" placeholder="Program studi / jurusan">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-field">
+                                    <label>No. Telepon <span style="color:var(--red)">*</span></label>
+                                    <input type="text" id="f_telepon" placeholder="08xx-xxxx-xxxx">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-field">
+                                    <label>Kode Referral <span style="color:var(--red)">*</span></label>
+                                    <input type="text" id="f_referral_token" placeholder="6 digit kode referral"
+                                        maxlength="6" oninput="validateReferralTokenModal(this)"
+                                        style="text-transform:uppercase;letter-spacing:2px">
+                                    <small style="color:var(--muted);font-size:12px;display:block;margin-top:4px">
+                                        Wajib diisi untuk mengakses e-book setelah persetujuan.
+                                    </small>
+                                    <div id="referral_token_error"
+                                        style="display:none;color:var(--red);font-size:12px;margin-top:4px">
+                                        Token referral tidak valid.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <p style="font-size:12px;color:var(--muted)">
-                            Simpan Booking ID di atas untuk cek status peminjaman
-                        </p>
-                        <button class="btn btn-primary mt-2" onclick="resetForm()" style="border-radius:10px">
-                            <i class="fas fa-redo me-2"></i>Pinjam Buku Lagi
+                        <div class="info-box">
+                            <i class="fas fa-info-circle me-2"></i>
+                            NIM harus sudah terdaftar di sistem. Batas peminjaman <strong>7 hari</strong>.
+                            Keterlambatan dikenakan denda <strong>Rp10.000/hari</strong>.
+                        </div>
+                        <button class="big-btn" id="btnSubmit" onclick="submitPinjam()">
+                            <i class="fas fa-paper-plane me-2"></i>Ajukan Peminjaman
                         </button>
                     </div>
+                    <div id="successState" style="display:none">
+                        <div class="success-wrap">
+                            <div class="success-circle">✅</div>
+                            <h5 style="font-family:'Lora',serif;font-weight:700;margin-bottom:8px">Peminjaman Berhasil
+                                Diajukan!</h5>
+                            <p style="color:var(--muted);font-size:14px">
+                                Permintaan kamu sudah diterima. Tunggu konfirmasi dan QR Code dari admin.
+                            </p>
+                            <div
+                                style="background:var(--paper);border-radius:12px;padding:16px;margin:16px 0;text-align:left">
+                                <div
+                                    style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:700">
+                                    Booking ID kamu:
+                                </div>
+                                <div class="booking-codes" id="bookingChips"></div>
+                            </div>
+                            <p style="font-size:12px;color:var(--muted)">Simpan Booking ID untuk cek status peminjaman.
+                            </p>
+                            <button onclick="resetForm()"
+                                style="margin-top:12px;padding:10px 24px;border-radius:10px;border:1.5px solid var(--border);background:var(--paper);font-weight:700;cursor:pointer;font-family:inherit">
+                                <i class="fas fa-redo me-2"></i>Pinjam Lagi
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-    // Set PDF.js worker source immediately after library loads
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    {{-- ─── CHAT WIDGET ─── --}}
+    <div class="chat-wrap">
+        <button class="chat-fab" id="chatToggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <div class="chat-notif" id="chatBadge"></div>
+        </button>
+        <div class="chat-panel" id="chatBox">
+            <div class="chat-panel-head">
+                <div>
+                    <strong>💬 SIPUSAKA Assistant</strong>
+                    <small>Tanya apa saja tentang koleksi kami</small>
+                </div>
+                <button class="chat-x" id="chatClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:16px;height:16px">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <div class="chat-msgs" id="chatMessages"></div>
+            <form class="chat-input-wrap" id="chatForm">
+                @csrf
+                <input type="hidden" id="chatSessionId" value="">
+                <input type="hidden" id="lastMessageId" value="0">
+                <input type="text" id="chatInput" placeholder="Ketik pesan…" autocomplete="off" required>
+                <button type="submit" class="chat-send">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
 
-    // State management
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    /* ─── STATE ─── */
     let selectedBooks = [];
-    const MAX_BOOKS = 3;
-    
-    // PDF Reader State
-    let pdfDoc = null;
-    let pageNum = 1;
-    let pageRendering = false;
-    let pageNumPending = null;
-    let scale = 1.5;
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    let isFullAccess = false;
-    let currentEbookUrl = '';
-    let maxPages = 0;
+    const MAX = 3;
+    let currentRating = 'semua';
+    let currentTab = 'semua';
 
+    /* ─── PICK / UNPICK ─── */
     function togglePilih(card) {
         const id = parseInt(card.dataset.id);
         const idx = selectedBooks.findIndex(b => b.id === id);
-
         if (idx > -1) {
-            // Unselect
             selectedBooks.splice(idx, 1);
             card.classList.remove('selected');
         } else {
-            if (selectedBooks.length >= MAX_BOOKS) {
-                showToast('Maksimal 3 buku yang bisa dipilih sekaligus!', 'warning');
-                card.classList.add('shake');
-                setTimeout(() => card.classList.remove('shake'), 400);
+            if (selectedBooks.length >= MAX) {
+                showToast('Maksimal 3 buku yang bisa dipilih!', 'warn');
                 return;
             }
-            // Select
             selectedBooks.push({
-                id: id,
+                id,
                 nama: card.dataset.nama,
                 penerbit: card.dataset.penerbit,
-                sampul: card.dataset.sampul,
+                sampul: card.dataset.sampul
             });
             card.classList.add('selected');
         }
-
         updateCartUI();
     }
 
     function updateCartUI() {
-        const count = selectedBooks.length;
+        const n = selectedBooks.length;
+        const btn = document.getElementById('cartBtn');
+        document.getElementById('cartCount').textContent = n;
+        document.getElementById('cartLabel').textContent = n === 1 ? '1 Dipilih' : n + ' Dipilih';
+        btn.style.display = n > 0 ? 'flex' : 'none';
 
-        // Update navbar btn
-        const cartBtn = document.getElementById('cartBtn');
-        const cartCount = document.getElementById('cartCount');
-        const cartLabel = document.getElementById('cartLabel');
-        if (count > 0) {
-            cartBtn.style.display = 'flex';
-            cartCount.textContent = count;
-            cartLabel.textContent = count === 1 ? '1 Dipilih' : count + ' Dipilih';
+        const fc = document.getElementById('floatCart');
+        document.getElementById('floatTitle').textContent = n + ' Buku Dipilih';
+        document.getElementById('cartPreview').innerHTML = selectedBooks.map(b =>
+            b.sampul ?
+            `<img src="${b.sampul}" class="mini-cover" title="${b.nama}">` :
+            `<div class="mini-ph" title="${b.nama}">📖</div>`
+        ).join('');
+        n > 0 ? fc.classList.add('show') : fc.classList.remove('show');
+    }
+
+    /* ─── TAB SWITCH ─── */
+    function switchTab(tab, btn) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const sf = document.getElementById('sectionFisik');
+        const sd = document.getElementById('sectionDigital');
+
+        if (tab === 'semua') {
+            sf.style.display = '';
+            sd.style.display = '';
+        } else if (tab === 'fisik') {
+            sf.style.display = '';
+            sd.style.display = 'none';
         } else {
-            cartBtn.style.display = 'none';
-        }
-
-        // Update floating cart
-        const floatingCart = document.getElementById('floatingCart');
-        const floatTitle = document.getElementById('floatTitle');
-        const cartPreview = document.getElementById('cartPreview');
-
-        if (count > 0) {
-            floatingCart.classList.add('show');
-            floatTitle.textContent = count + ' Buku Dipilih';
-
-            cartPreview.innerHTML = selectedBooks.map(b => `
-                <div title="${b.nama}">
-                    ${b.sampul
-                        ? `<img src="${b.sampul}" class="cart-mini-cover" alt="${b.nama}">`
-                        : `<div class="cart-mini-placeholder">📖</div>`
-                    }
-                </div>
-            `).join('');
-        } else {
-            floatingCart.classList.remove('show');
+            sf.style.display = 'none';
+            sd.style.display = '';
         }
     }
 
+    /* ─── FILTER ─── */
+    function filterJenis(jenis, btn) {
+        document.querySelectorAll('#filterChips .chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters(jenis);
+    }
+
+    function filterRating(r, btn) {
+        document.querySelectorAll('#r-semua,#r-4,#r-3').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        currentRating = r;
+        applyFilters();
+    }
+
+    function applyFilters(jenis) {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const activeChip = document.querySelector('#filterChips .chip.active');
+        const activeJenis = jenis || (activeChip ? activeChip.textContent.trim() : 'Semua');
+
+        document.querySelectorAll('.book-card').forEach(card => {
+            const matchName = card.dataset.nama.toLowerCase().includes(search) || card.dataset.penerbit
+                .toLowerCase().includes(search);
+            const matchJenis = activeJenis === 'Semua' || activeJenis === 'semua' ?
+                true : activeJenis === '✅ Tersedia' ?
+                parseInt(card.dataset.stok) > 0 :
+                card.dataset.jenis === activeJenis;
+            const cardRating = parseFloat(card.dataset.rating) || 0;
+            const matchRating = currentRating === 'semua' ? true : cardRating >= parseFloat(currentRating);
+            card.style.display = (matchName && matchJenis && matchRating) ? '' : 'none';
+        });
+        updateCounts();
+    }
+
+    function updateCounts() {
+        const vf = [...document.querySelectorAll('#gridFisik .book-card')].filter(c => c.style.display !== 'none')
+            .length;
+        const vd = [...document.querySelectorAll('#gridDigital .book-card')].filter(c => c.style.display !== 'none')
+            .length;
+        document.getElementById('countFisik').textContent = vf + ' buku';
+        document.getElementById('countDigital').textContent = vd + ' buku';
+    }
+    document.getElementById('searchInput').addEventListener('input', () => applyFilters());
+
+    /* ─── MODAL PINJAM ─── */
     function bukaModalPinjam() {
-        if (selectedBooks.length === 0) return;
-        renderSelectedBooksList();
-        const modal = new bootstrap.Modal(document.getElementById('modalPinjam'));
-        modal.show();
+        if (!selectedBooks.length) return;
+        renderChips();
+        new bootstrap.Modal(document.getElementById('modalPinjam')).show();
     }
 
-    function renderSelectedBooksList() {
-        const container = document.getElementById('selectedBooksList');
-        container.innerHTML = selectedBooks.map((b, i) => `
-            <div class="selected-book-chip" id="chip-${b.id}">
-                ${b.sampul
-                    ? `<img src="${b.sampul}" alt="${b.nama}">`
-                    : `<div style="width:32px;height:40px;background:#e2e8f0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px">📖</div>`
-                }
-                <div>
-                    <div style="font-weight:600;font-size:13px">${b.nama}</div>
-                    <div style="font-size:11px;color:var(--muted)">${b.penerbit}</div>
-                </div>
-                <button class="remove-chip" onclick="removeFromCart(${b.id})" title="Hapus">✕</button>
-            </div>
-        `).join('');
+    function renderChips() {
+        document.getElementById('selectedBooksList').innerHTML = selectedBooks.map(b => `
+        <div class="book-chip" id="chip-${b.id}">
+            ${b.sampul ? `<img src="${b.sampul}" alt="${b.nama}">` : '<div style="width:30px;height:38px;background:#e5e7eb;border-radius:4px;display:flex;align-items:center;justify-content:center">📖</div>'}
+            <div><div style="font-weight:700;font-size:13px">${b.nama}</div><div style="font-size:11px;color:var(--muted)">${b.penerbit}</div></div>
+            <button class="rm-chip" onclick="removeFromCart(${b.id})">✕</button>
+        </div>`).join('');
     }
 
     function removeFromCart(id) {
@@ -1106,199 +1997,87 @@
         if (card) card.classList.remove('selected');
         selectedBooks = selectedBooks.filter(b => b.id !== id);
         updateCartUI();
-        renderSelectedBooksList();
-        if (selectedBooks.length === 0) {
-            bootstrap.Modal.getInstance(document.getElementById('modalPinjam')).hide();
-        }
+        renderChips();
+        if (!selectedBooks.length) bootstrap.Modal.getInstance(document.getElementById('modalPinjam'))?.hide();
     }
 
-    function filterJenis(jenis, btn) {
-        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-
-        const cards = document.querySelectorAll('.book-card');
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        let visible = 0;
-
-        cards.forEach(card => {
-            const matchJenis = jenis === 'semua'
-                ? true
-                : jenis === 'tersedia'
-                ? parseInt(card.dataset.stok) > 0
-                : card.dataset.jenis === jenis;
-            const matchSearch = card.dataset.nama.toLowerCase().includes(search)
-                || card.dataset.penerbit.toLowerCase().includes(search);
-
-            if (matchJenis && matchSearch) {
-                card.style.display = '';
-                visible++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        document.getElementById('bookCount').textContent = visible + ' buku';
-    }
-
-    // State untuk filter rating
-    let currentRatingFilter = 'semua';
-
-    function filterRating(rating, btn) {
-        // Update active state
-        document.querySelectorAll('#rating-semua, #rating-4, #rating-3').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        currentRatingFilter = rating;
-
-        applyAllFilters();
-    }
-
-    function applyAllFilters() {
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const cards = document.querySelectorAll('.book-card');
-        let visible = 0;
-
-        cards.forEach(card => {
-            const matchSearch = card.dataset.nama.toLowerCase().includes(search)
-                || card.dataset.penerbit.toLowerCase().includes(search);
-
-            // Get rating from card
-            let cardRating = 0;
-            const ratingText = card.querySelector('[style*="color: #f59e0b"]');
-            if (ratingText) {
-                const ratingMatch = card.textContent.match(/(\d+\.\d+)\s*\(/);
-                if (ratingMatch) {
-                    cardRating = parseFloat(ratingMatch[1]);
-                }
-            }
-
-            // Check rating filter
-            let matchRating = true;
-            if (currentRatingFilter === '4') {
-                matchRating = cardRating >= 4;
-            } else if (currentRatingFilter === '3') {
-                matchRating = cardRating >= 3;
-            }
-
-            if (matchSearch && matchRating) {
-                card.style.display = '';
-                visible++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        document.getElementById('bookCount').textContent = visible + ' buku';
-    }
-
-    // Listen to search input and apply all filters
-    document.getElementById('searchInput').addEventListener('input', function() {
-        applyAllFilters();
-    });
-
-    // Validation function for referral token in modal
+    /* ─── VALIDATE TOKEN ─── */
     function validateReferralTokenModal(input) {
         const token = input.value.trim().toUpperCase();
         input.value = token;
-        
-        const errorDiv = document.getElementById('referral_token_error');
-        const alertDiv = document.getElementById('referral-alert-modal');
-        
-        if (token.length === 6) {
-            // Validate token via AJAX
-            fetch(`{{ route('publik.validate-token') }}?token=${token}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.valid) {
-                        errorDiv.style.display = 'none';
-                        alertDiv.style.display = 'none';
-                        input.style.borderColor = '#059669';
-                    } else {
-                        errorDiv.style.display = 'block';
-                        alertDiv.style.display = 'flex';
-                        document.getElementById('referral-alert-text-modal').textContent = 'Token referral tidak valid atau tidak ditemukan.';
-                        input.style.borderColor = '#dc2626';
-                    }
-                })
-                .catch(() => {
-                    errorDiv.style.display = 'block';
-                    alertDiv.style.display = 'flex';
-                    input.style.borderColor = '#dc2626';
-                });
-        } else {
-            errorDiv.style.display = 'none';
-            alertDiv.style.display = 'none';
+        if (token.length !== 6) {
+            document.getElementById('referral_token_error').style.display = 'none';
             input.style.borderColor = '';
+            return;
         }
+        fetch(`{{ route('publik.validate-token') }}?token=${token}`)
+            .then(r => r.json())
+            .then(d => {
+                const err = document.getElementById('referral_token_error');
+                if (d.valid) {
+                    err.style.display = 'none';
+                    input.style.borderColor = 'var(--teal)';
+                } else {
+                    err.style.display = 'block';
+                    input.style.borderColor = 'var(--red)';
+                }
+            }).catch(() => {
+                document.getElementById('referral_token_error').style.display = 'block';
+            });
     }
 
+    /* ─── SUBMIT PINJAM ─── */
     function submitPinjam() {
-        const nama     = document.getElementById('f_nama').value.trim();
-        const nim      = document.getElementById('f_nim').value.trim();
-        const jurusan  = document.getElementById('f_jurusan').value.trim();
-        const telepon  = document.getElementById('f_telepon').value.trim();
-        const referralToken = document.getElementById('f_referral_token').value.trim().toUpperCase();
-
-        if (!nama || !nim || !jurusan || !telepon || !referralToken) {
-            document.getElementById('alertPinjam').innerHTML =
-                '<div class="alert alert-danger" style="border-radius:10px"><i class="fas fa-exclamation-circle me-2"></i>Semua field wajib diisi!</div>';
+        const v = id => document.getElementById(id).value.trim();
+        const [nama, nim, jurusan, telepon, ref] = ['f_nama', 'f_nim', 'f_jurusan', 'f_telepon', 'f_referral_token'].map
+            (v);
+        const alert = document.getElementById('alertPinjam');
+        if (!nama || !nim || !jurusan || !telepon || !ref) {
+            alert.innerHTML =
+                '<div style="background:#fee2e2;border-radius:10px;padding:12px;font-size:13px;color:#b91c1c;margin-bottom:12px"><i class="fas fa-exclamation-circle me-2"></i>Semua field wajib diisi!</div>';
             return;
         }
-
-        if (referralToken.length !== 6) {
-            document.getElementById('alertPinjam').innerHTML =
-                '<div class="alert alert-danger" style="border-radius:10px"><i class="fas fa-exclamation-circle me-2"></i>Token referral harus 6 digit!</div>';
+        if (ref.length !== 6) {
+            alert.innerHTML =
+                '<div style="background:#fee2e2;border-radius:10px;padding:12px;font-size:13px;color:#b91c1c;margin-bottom:12px"><i class="fas fa-exclamation-circle me-2"></i>Token referral harus 6 digit!</div>';
             return;
         }
-
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
-
-        const data = {
-            nama, nim, jurusan,
-            no_telepon: telepon,
-            referral_token: referralToken,
-            buku_ids: selectedBooks.map(b => b.id),
-        };
-
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses…';
         fetch('{{ route("publik.pinjam") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify(data)
-        })
-        .then(r => r.json())
-        .then(res => {
+            body: JSON.stringify({
+                nama,
+                nim,
+                jurusan,
+                no_telepon: telepon,
+                referral_token: ref,
+                buku_ids: selectedBooks.map(b => b.id)
+            })
+        }).then(r => r.json()).then(res => {
             if (res.success) {
-                // Tampilkan success state
                 document.getElementById('formState').style.display = 'none';
                 document.getElementById('successState').style.display = 'block';
-
-                // Tampilkan booking IDs
-                const chips = res.booking_ids.map(id =>
-                    `<div class="booking-chip">${id}</div>`
-                ).join('');
-                document.getElementById('bookingChips').innerHTML = chips;
-
-                // Reset selected books
-                selectedBooks.forEach(b => {
-                    const card = document.getElementById('card-' + b.id);
-                    if (card) card.classList.remove('selected');
-                });
+                document.getElementById('bookingChips').innerHTML = res.booking_ids.map(id =>
+                    `<div class="booking-code">${id}</div>`).join('');
+                selectedBooks.forEach(b => document.getElementById('card-' + b.id)?.classList.remove(
+                    'selected'));
                 selectedBooks = [];
                 updateCartUI();
             } else {
-                document.getElementById('alertPinjam').innerHTML =
-                    `<div class="alert alert-danger" style="border-radius:10px"><i class="fas fa-exclamation-circle me-2"></i>${res.message}</div>`;
+                alert.innerHTML =
+                    `<div style="background:#fee2e2;border-radius:10px;padding:12px;font-size:13px;color:#b91c1c;margin-bottom:12px">${res.message}</div>`;
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Ajukan Peminjaman';
             }
-        })
-        .catch(() => {
-            document.getElementById('alertPinjam').innerHTML =
-                '<div class="alert alert-danger" style="border-radius:10px">Terjadi kesalahan jaringan. Coba lagi.</div>';
+        }).catch(() => {
+            alert.innerHTML =
+                '<div style="background:#fee2e2;border-radius:10px;padding:12px;font-size:13px;color:#b91c1c;margin-bottom:12px">Terjadi kesalahan jaringan.</div>';
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Ajukan Peminjaman';
         });
@@ -1307,377 +2086,256 @@
     function resetForm() {
         document.getElementById('formState').style.display = 'block';
         document.getElementById('successState').style.display = 'none';
-        document.getElementById('f_nama').value = '';
-        document.getElementById('f_nim').value = '';
-        document.getElementById('f_jurusan').value = '';
-        document.getElementById('f_telepon').value = '';
+        ['f_nama', 'f_nim', 'f_jurusan', 'f_telepon', 'f_referral_token'].forEach(id => document.getElementById(id)
+            .value = '');
         document.getElementById('alertPinjam').innerHTML = '';
-        document.getElementById('btnSubmit').disabled = false;
-        document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-paper-plane me-2"></i>Ajukan Peminjaman';
-        bootstrap.Modal.getInstance(document.getElementById('modalPinjam')).hide();
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Ajukan Peminjaman';
+        bootstrap.Modal.getInstance(document.getElementById('modalPinjam'))?.hide();
     }
 
-    function showToast(msg, type) {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position:fixed;top:80px;right:20px;z-index:9999;
-            background:${type === 'warning' ? '#fef3c7' : '#d1fae5'};
-            color:${type === 'warning' ? '#92400e' : '#065f46'};
-            border:1px solid ${type === 'warning' ? '#fde68a' : '#a7f3d0'};
-            padding:12px 20px;border-radius:12px;font-size:14px;
-            font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.1);
-            animation:slideIn 0.3s ease;
-        `;
-        toast.textContent = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
+    /* ─── AUTO-FILL NIM ─── */
+    let nimTimer;
 
-    // Auto-fill NIM for modal
-    let nimModalTimer;
     function fetchMahasiswaForModal(nim) {
-        clearTimeout(nimModalTimer);
-        const cleanedNim = nim.trim().replace(/\D/g, ''); // Remove non-digits
-
-        if (cleanedNim.length < 5) { // Start fetching after 5 digits
-            resetModalMahasiswaFields();
+        clearTimeout(nimTimer);
+        if (nim.replace(/\D/g, '').length < 5) {
+            resetMhsFields();
             return;
         }
+        nimTimer = setTimeout(() => {
+            fetch(`/pinjam/get-mahasiswa/${nim.trim().replace(/\D/g,'')}`)
+                .then(r => r.json()).then(d => {
+                    if (d.success) {
+                        document.getElementById('f_nama').value = d.data.nama;
+                        document.getElementById('f_jurusan').value = d.data.jurusan;
+                        document.getElementById('f_telepon').value = d.data.no_telepon || '';
+                        ['f_nama', 'f_jurusan', 'f_telepon'].forEach(id => document.getElementById(id)
+                            .readOnly = true);
+                    } else resetMhsFields();
+                }).catch(resetMhsFields);
+        }, 400);
+    }
 
-        nimModalTimer = setTimeout(() => {
-            fetch(`/pinjam/get-mahasiswa/${cleanedNim}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('f_nama').value = data.data.nama;
-                        document.getElementById('f_jurusan').value = data.data.jurusan;
-                        document.getElementById('f_telepon').value = data.data.no_telepon || '';
-                        
-                        document.getElementById('f_nama').readOnly = true;
-                        document.getElementById('f_jurusan').readOnly = true;
-                        document.getElementById('f_telepon').readOnly = true;
-                    } else {
-                        resetModalMahasiswaFields();
-                    }
+    function resetMhsFields() {
+        ['f_nama', 'f_jurusan', 'f_telepon'].forEach(id => {
+            document.getElementById(id).value = '';
+            document.getElementById(id).readOnly = false;
+        });
+    }
+
+    /* ─── TOAST ─── */
+    function showToast(msg, type) {
+        const t = document.createElement('div');
+        t.style.cssText =
+            `position:fixed;top:76px;right:20px;z-index:9999;background:${type==='warn'?'#fef3c7':'#dcfce7'};color:${type==='warn'?'#92400e':'#15803d'};border:1px solid ${type==='warn'?'#fde68a':'#86efac'};padding:11px 20px;border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.1);animation:slideIn .28s ease;`;
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    /* ─── CHAT ─── */
+    (function() {
+        const toggle = document.getElementById('chatToggle');
+        const close = document.getElementById('chatClose');
+        const box = document.getElementById('chatBox');
+        const form = document.getElementById('chatForm');
+        const input = document.getElementById('chatInput');
+        const msgs = document.getElementById('chatMessages');
+        const sessId = document.getElementById('chatSessionId');
+        const lastId = document.getElementById('lastMessageId');
+        let open = false,
+            verified = false,
+            awaitNim = false,
+            pollTimer = null,
+            adminConnected = false;
+        const csrf = '{{ csrf_token() }}';
+
+        function addMsg(sender, text) {
+            const d = document.createElement('div');
+            d.className = 'msg ' + sender;
+            const time = new Date().toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const esc = document.createElement('div');
+            esc.textContent = text;
+            d.innerHTML = `<div class="msg-text">${esc.innerHTML}</div><div class="msg-time">${time}</div>`;
+            msgs.appendChild(d);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function showTyping() {
+            const t = document.createElement('div');
+            t.className = 'msg bot';
+            t.id = 'typing';
+            t.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+            msgs.appendChild(t);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function hideTyping() {
+            document.getElementById('typing')?.remove();
+        }
+
+        function openChat() {
+            open = true;
+            box.classList.add('open');
+            if (!msgs.children.length) {
+                addMsg('bot', 'Halo! Selamat datang di SIPUSAKA Assistant. 👋');
+                setTimeout(() => {
+                    addMsg('bot', 'Untuk memulai, silakan masukkan NIM Anda.');
+                    awaitNim = true;
+                }, 500);
+            }
+            input.focus();
+        }
+
+        function closeChat() {
+            open = false;
+            box.classList.remove('open');
+            stopPoll();
+        }
+
+        function verifyNim(nim) {
+            showTyping();
+            fetch('{{ route("chat.verify-nim") }}', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf
+                    },
+                    body: JSON.stringify({
+                        nim
+                    })
                 })
-                .catch(err => {
-                    console.error('Error fetching mahasiswa data:', err);
-                    resetModalMahasiswaFields();
-                });
-        }, 400); // Debounce to prevent too many requests
-    }
-
-    function resetModalMahasiswaFields() {
-        document.getElementById('f_nama').value = '';
-        document.getElementById('f_jurusan').value = '';
-        document.getElementById('f_telepon').value = '';
-        document.getElementById('f_nama').readOnly = false;
-        document.getElementById('f_jurusan').readOnly = false;
-        document.getElementById('f_telepon').readOnly = false;
-    }
-
-    // HERO AUTO-SLIDE
-    let heroIndex = 0;
-    const titleSlides = document.querySelectorAll('.hero-title-slide');
-    const subSlides = document.querySelectorAll('.hero-sub-slide');
-    
-    function showNextHeroSlide() {
-        titleSlides.forEach((slide, i) => {
-            if (i === heroIndex) {
-                slide.classList.add('active');
-                subSlides[i].classList.add('active');
-            } else {
-                slide.classList.remove('active');
-                subSlides[i].classList.remove('active');
-            }
-        });
-        
-        heroIndex = (heroIndex + 1) % titleSlides.length;
-    }
-    
-    let heroInterval = setInterval(showNextHeroSlide, 4000);
-    
-    const heroContainer = document.querySelector('.hero-section');
-    heroContainer.addEventListener('mouseenter', () => clearInterval(heroInterval));
-    heroContainer.addEventListener('mouseleave', () => heroInterval = setInterval(showNextHeroSlide, 4000));
-</script>
-
-<!-- CHAT WIDGET -->
-<div class="chat-widget-container">
-    <button class="chat-toggle" id="chatToggle" aria-label="Buka chat">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-        <span class="chat-badge" id="chatBadge" style="display: none;"></span>
-    </button>
-    <div class="chat-box" id="chatBox">
-        <div class="chat-header">
-            <span class="chat-title">💬 SIPUSAKA Assistant</span>
-            <button class="chat-close" id="chatClose" aria-label="Tutup chat">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <!-- Messages will be added here -->
-        </div>
-        <div class="chat-status" id="chatStatus">
-            <span class="status-badge">🟢 Terhubung dengan Admin</span>
-        </div>
-        <form class="chat-form" id="chatForm">
-            @csrf
-            <input type="hidden" id="chatSessionId" name="session_id" value="">
-            <input type="hidden" id="lastMessageId" value="0">
-            <input type="text" id="chatInput" name="message" placeholder="Ketik pesan Anda..." autocomplete="off" required>
-            <button type="submit" aria-label="Kirim">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-            </button>
-        </form>
-    </div>
-</div>
-
-<script>
-(function() {
-    'use strict';
-
-    // Elements
-    var chatToggle = document.getElementById('chatToggle');
-    var chatClose = document.getElementById('chatClose');
-    var chatBox = document.getElementById('chatBox');
-    var chatForm = document.getElementById('chatForm');
-    var chatInput = document.getElementById('chatInput');
-    var chatMessages = document.getElementById('chatMessages');
-    var chatSessionId = document.getElementById('chatSessionId');
-    var lastMessageId = document.getElementById('lastMessageId');
-    var chatStatus = document.getElementById('chatStatus');
-    var chatBadge = document.getElementById('chatBadge');
-
-    // State
-    var isChatOpen = false;
-    var isConnectedToAdmin = false;
-    var pollInterval = null;
-    var isVerified = false;
-    var awaitingNimInput = false;
-
-    // CSRF Token
-    var csrfToken = document.querySelector('input[name="_token"]') ? document.querySelector('input[name="_token"]').value : '';
-
-    // Toggle chat open/close
-    function toggleChat() {
-        openChat();
-    }
-
-    function openChat() {
-        isChatOpen = true;
-        chatBox.classList.add('open');
-        
-        // Show welcome message if first time opening
-        if (chatMessages.children.length === 0) {
-            addMessage('bot', 'Halo! Selamat datang di SIPUSAKA Assistant. 👋');
-            setTimeout(function() {
-                addMessage('bot', 'Untuk memulai, silakan masukkan NIM Anda.');
-                awaitingNimInput = true;
-            }, 500);
-        }
-        
-        chatInput.focus();
-    }
-
-    function closeChat() {
-        isChatOpen = false;
-        chatBox.classList.remove('open');
-        stopPolling();
-    }
-
-    // Verify NIM
-    function verifyNim(nim) {
-        showTyping();
-        
-        fetch('{{ route("chat.verify-nim") }}', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({ nim: nim })
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            hideTyping();
-            
-            if (data.success) {
-                isVerified = true;
-                awaitingNimInput = false;
-                addMessage('bot', 'Terima kasih! Anda terdaftar sebagai ' + data.mahasiswa.nama + ' ✓');
-                setTimeout(function() {
-                    addMessage('bot', 'Ada yang bisa saya bantu hari ini?');
-                    startPolling();
-                }, 800);
-            } else {
-                addMessage('bot', '❌ ' + (data.message || 'NIM tidak terdaftar. Silakan coba lagi atau hubungi admin.'));
-                awaitingNimInput = true;
-            }
-        })
-        .catch(function(err) {
-            hideTyping();
-            addMessage('bot', '❌ Terjadi kesalahan. Silakan coba lagi.');
-            awaitingNimInput = true;
-        });
-    }
-
-    // Add message to chat
-    function addMessage(sender, text) {
-        var messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message ' + sender;
-        var time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        var escapedText = escapeHtml(text);
-        messageDiv.innerHTML = '<div class="chat-message-text">' + escapedText + '</div><div class="chat-message-time">' + time + '</div>';
-        chatMessages.appendChild(messageDiv);
-        scrollToBottom();
-    }
-
-    function scrollToBottom() {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function escapeHtml(text) {
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    // Show/hide typing indicator
-    function showTyping() {
-        var typingDiv = document.createElement('div');
-        typingDiv.className = 'chat-message bot chat-typing';
-        typingDiv.id = 'typingIndicator';
-        typingDiv.innerHTML = '<span></span><span></span><span></span>';
-        chatMessages.appendChild(typingDiv);
-        scrollToBottom();
-    }
-
-    function hideTyping() {
-        var typing = document.getElementById('typingIndicator');
-        if (typing) typing.remove();
-    }
-
-    // Send message
-    function sendMessage(message) {
-        addMessage('user', message);
-        chatInput.value = '';
-        showTyping();
-
-        fetch('{{ route("chat.send") }}', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({
-                session_id: chatSessionId.value || null,
-                message: message
-            })
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            hideTyping();
-
-            if (data.session_id) {
-                chatSessionId.value = data.session_id;
-            }
-
-            if (data.is_connected_to_admin && !isConnectedToAdmin) {
-                isConnectedToAdmin = true;
-                chatStatus.style.display = 'block';
-                addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
-            }
-
-            if (data.message) {
-                addMessage('bot', data.message);
-            }
-        })
-        .catch(function(err) {
-            hideTyping();
-            console.error('Error:', err);
-        });
-    }
-
-    // Polling for new messages
-    function pollMessages() {
-        if (!chatSessionId.value) return;
-
-        fetch('{{ route("chat.messages") }}?session_id=' + encodeURIComponent(chatSessionId.value) + '&last_message_id=' + encodeURIComponent(lastMessageId.value), {
-            credentials: 'same-origin'
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.messages && data.messages.length > 0) {
-                data.messages.forEach(function(msg) {
-                    if (msg.sender_type === 'admin') {
-                        addMessage('admin', msg.message);
-                    } else if (msg.sender_type === 'bot') {
-                        addMessage('bot', msg.message);
+                .then(r => r.json()).then(d => {
+                    hideTyping();
+                    if (d.success) {
+                        verified = true;
+                        awaitNim = false;
+                        addMsg('bot', 'Terima kasih! Anda terdaftar sebagai ' + d.mahasiswa.nama + ' ✓');
+                        setTimeout(() => {
+                            addMsg('bot', 'Ada yang bisa saya bantu?');
+                            startPoll();
+                        }, 700);
+                    } else {
+                        addMsg('bot', '❌ ' + (d.message || 'NIM tidak terdaftar.'));
+                        awaitNim = true;
                     }
-                    if (msg.id > lastMessageId.value) {
-                        lastMessageId.value = msg.id;
-                    }
+                }).catch(() => {
+                    hideTyping();
+                    addMsg('bot', '❌ Terjadi kesalahan.');
+                    awaitNim = true;
                 });
-            }
+        }
 
-            if (data.is_connected_to_admin && !isConnectedToAdmin) {
-                isConnectedToAdmin = true;
-                chatStatus.style.display = 'block';
-                addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
+        function sendMsg(message) {
+            addMsg('user', message);
+            input.value = '';
+            showTyping();
+            fetch('{{ route("chat.send") }}', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf
+                    },
+                    body: JSON.stringify({
+                        session_id: sessId.value || null,
+                        message
+                    })
+                })
+                .then(r => r.json()).then(d => {
+                    hideTyping();
+                    if (d.session_id) sessId.value = d.session_id;
+                    if (d.is_connected_to_admin && !adminConnected) {
+                        adminConnected = true;
+                        addMsg('bot', '🟢 Anda terhubung dengan Admin.');
+                    }
+                    if (d.message) {
+                        addMsg('bot', d.message);
+                        // Update lastId to prevent duplicate messages from polling
+                        if (d.message_id) {
+                            lastId.value = d.message_id;
+                        }
+                    }
+                }).catch(() => hideTyping());
+        }
+
+        function poll() {
+            if (!sessId.value) return;
+            fetch(`{{ route("chat.messages") }}?session_id=${encodeURIComponent(sessId.value)}&last_message_id=${lastId.value}`, {
+                    credentials: 'same-origin'
+                })
+                .then(r => r.json()).then(d => {
+                    (d.messages || []).forEach(m => {
+                        if (m.sender_type === 'admin' || m.sender_type === 'bot') addMsg(m.sender_type,
+                            m.message);
+                        if (m.id > lastId.value) lastId.value = m.id;
+                    });
+                    if (d.is_connected_to_admin && !adminConnected) {
+                        adminConnected = true;
+                        addMsg('bot', '🟢 Anda terhubung dengan Admin.');
+                    }
+                }).catch(() => {});
+        }
+
+        function startPoll() {
+            poll();
+            pollTimer = setInterval(poll, 3000);
+        }
+
+        function stopPoll() {
+            clearInterval(pollTimer);
+            pollTimer = null;
+        }
+
+        toggle.addEventListener('click', openChat);
+        close.addEventListener('click', closeChat);
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const msg = input.value.trim();
+            if (!msg) return;
+            if (awaitNim && !verified) {
+                addMsg('user', msg);
+                input.value = '';
+                verifyNim(msg);
+            } else if (verified) sendMsg(msg);
+            else {
+                addMsg('user', msg);
+                input.value = '';
+                addMsg('bot', 'Silakan masukkan NIM Anda terlebih dahulu.');
             }
-        })
-        .catch(function(err) {
-            console.error("Error polling:", err);
         });
-    }
+    })();
+    (function() {
+        const words = ['Favoritmu', 'Terpopuler', 'Terbaru', 'Pilihanmu'];
+        let current = 0;
 
-    function startPolling() {
-        pollMessages();
-        pollInterval = setInterval(pollMessages, 3000);
-    }
-
-    function stopPolling() {
-        if (pollInterval) {
-            clearInterval(pollInterval);
-            pollInterval = null;
+        function goTo(next) {
+            if (next === current) return;
+            const prev = current;
+            current = next;
+            const elPrev = document.getElementById('rw-' + prev);
+            const elNext = document.getElementById('rw-' + next);
+            elPrev.classList.remove('active');
+            elPrev.classList.add('exit');
+            elPrev.addEventListener('animationend', () => {
+                elPrev.classList.remove('exit');
+                elPrev.style.opacity = '0';
+            }, {
+                once: true
+            });
+            elNext.style.opacity = '';
+            elNext.classList.add('active');
         }
-    }
 
-    // Event Listeners
-    chatToggle.addEventListener('click', toggleChat);
-    chatClose.addEventListener('click', closeChat);
-
-    chatForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        var message = chatInput.value.trim();
-        if (!message) return;
-        
-        // If awaiting NIM input, verify NIM instead of sending message
-        if (awaitingNimInput && !isVerified) {
-            addMessage('user', message);
-            chatInput.value = '';
-            verifyNim(message);
-        } else if (isVerified) {
-            sendMessage(message);
-        } else {
-            addMessage('user', message);
-            chatInput.value = '';
-            addMessage('bot', 'Silakan masukkan NIM Anda terlebih dahulu.');
-        }
-    });
-})();
-</script>
-
+        setInterval(() => goTo((current + 1) % words.length), 2800);
+    })();
+    </script>
 </body>
+
 </html>

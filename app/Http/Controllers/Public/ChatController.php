@@ -138,8 +138,9 @@ class ChatController extends Controller
         }
 
         $responseMessage = null;
+        $botMessage = null;
         if (!$session->is_connected_to_admin && $botResponse) {
-            ChatMessage::create([
+            $botMessage = ChatMessage::create([
                 'session_id' => $sessionId,
                 'sender_type' => 'bot',
                 'message' => $botResponse,
@@ -153,6 +154,7 @@ class ChatController extends Controller
             'status' => $status,
             'session_id' => $sessionId,
             'message' => $responseMessage,
+            'message_id' => $botMessage ? $botMessage->id : null,
             'is_connected_to_admin' => $session->is_connected_to_admin,
             'bot_fail_count' => $session->bot_fail_count,
         ]);

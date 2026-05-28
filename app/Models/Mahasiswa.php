@@ -20,6 +20,11 @@ class Mahasiswa extends Model
         'email',
         'status',
         'referral_token',
+        'pending_updates',
+    ];
+
+    protected $casts = [
+        'pending_updates' => 'array',
     ];
 
     public function pinjamans() {

@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class AdminSeeder extends Seeder
 {
@@ -14,16 +14,25 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // Check if admin user already exists
-        $admin = User::where('email', 'admin@sipusaka.ac.id')->first();
-        
-        if (!$admin) {
-            User::create([
-                'name'     => 'Administrator',
-                'email'    => 'admin@sipusaka.ac.id',
-                'password' => Hash::make('Admin@123'),
-                'role'     => 'admin',
-            ]);
-        }
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $staffRole = Role::firstOrCreate(['name' => 'Staff']);
+
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@sipusaka.com'],
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('password123'),
+            ]
+        );
+        $admin->syncRoles([$adminRole]);
+
+        $staff = User::updateOrCreate(
+            ['email' => 'staff@sipusaka.com'],
+            [
+                'name' => 'Staff Perpustakaan',
+                'password' => Hash::make('password123'),
+            ]
+        );
+        $staff->syncRoles([$staffRole]);
     }
 }

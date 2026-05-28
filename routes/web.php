@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PeminjamanController;
 use App\Http\Controllers\Admin\PengembalianController;
 use App\Http\Controllers\Admin\DendaController;
 use App\Http\Controllers\Admin\HistoryController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Public\ChatController as PublicChatController;
 use App\Http\Controllers\Admin\ChatController as AdminChatController;
 
@@ -53,6 +54,7 @@ Route::get('/mahasiswa/login', [App\Http\Controllers\Publik\AuthMahasiswaControl
 Route::post('/mahasiswa/login', [App\Http\Controllers\Publik\AuthMahasiswaController::class, 'login'])->name('mahasiswa.login.submit');
 Route::get('/mahasiswa/dashboard', [App\Http\Controllers\Publik\AuthMahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
 Route::post('/mahasiswa/logout', [App\Http\Controllers\Publik\AuthMahasiswaController::class, 'logout'])->name('mahasiswa.logout');
+Route::post('/mahasiswa/update-request', [App\Http\Controllers\Publik\AuthMahasiswaController::class, 'updateRequest'])->name('mahasiswa.update-request');
 Route::post('/admin/login', [AuthController::class, 'login'])->name('admin.login.post');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
@@ -80,6 +82,7 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::post('/mahasiswa/{id}/approve', [MahasiswaController::class, 'approve'])->name('admin.mahasiswa.approve');
     Route::post('/mahasiswa/{id}/reject', [MahasiswaController::class, 'reject'])->name('admin.mahasiswa.reject');
     Route::post('/mahasiswa/{id}/resend-email', [MahasiswaController::class, 'resendEmail'])->name('admin.mahasiswa.resend-email');
+    Route::post('/mahasiswa/{id}/process-update', [MahasiswaController::class, 'processUpdate'])->name('admin.mahasiswa.process-update');
 
     // Peminjaman
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('admin.peminjaman.index');
@@ -114,6 +117,14 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::post('/chat/send', [AdminChatController::class, 'sendMessage'])->name('admin.chat.send');
     Route::post('/chat/{sessionId}/close', [AdminChatController::class, 'closeSession'])->name('admin.chat.close');
     Route::get('/chat/{sessionId}/messages', [AdminChatController::class, 'getNewMessages'])->name('admin.chat.messages');
+
+    // User Management (Admin only)
+    Route::middleware('permission:manage users')->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+        Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    });
 });
 
 // =====================

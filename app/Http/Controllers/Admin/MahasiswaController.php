@@ -4,8 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Mahasiswa;
+use App\Models\Peminjaman;
+use App\Models\Buku;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Notifications\MahasiswaApproved;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class MahasiswaController extends Controller
 {
@@ -15,7 +20,40 @@ class MahasiswaController extends Controller
     public function index()
     {
         $mahasiswas = Mahasiswa::latest()->get();
-        return view('admin.mahasiswa.index', compact('mahasiswas'));
+        
+        // Total peminjaman per judul buku (top 5)
+        $peminjamanPerJudul = Buku::select('bukus.nama_buku as buku_judul', DB::raw('count(p.id) as total'))
+            ->join('pinjamans as p', 'p.buku_id', '=', 'bukus.id')
+            ->where('p.status', '!=', 'cancelled')
+            ->groupBy('bukus.id', 'bukus.nama_buku')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // Session login per hari selama 7 hari terakhir berdasarkan tanggal realtime aplikasi
+        $timezone = config('app.timezone', 'Asia/Jakarta');
+        $today = Carbon::now($timezone)->startOfDay();
+        $startDate = $today->copy()->subDays(6);
+
+        $sessionCounts = DB::table('sessions')
+            ->where('last_activity', '>=', $startDate->copy()->timestamp)
+            ->pluck('last_activity')
+            ->map(function ($lastActivity) use ($timezone) {
+                return Carbon::createFromTimestamp((int) $lastActivity, $timezone)->format('Y-m-d');
+            })
+            ->countBy();
+
+        // Fill missing dates with 0 for chart, termasuk tanggal hari ini
+        $login7Hari = collect();
+        for ($i = 6; $i >= 0; $i--) {
+            $date = $today->copy()->subDays($i)->format('Y-m-d');
+            $login7Hari->push((object)[
+                'date' => Carbon::parse($date, $timezone)->format('d M'),
+                'total' => $sessionCounts->get($date, 0),
+            ]);
+        }
+        
+        return view('admin.mahasiswa.index', compact('mahasiswas', 'peminjamanPerJudul', 'login7Hari'));
     }
 
     /**
@@ -26,7 +64,7 @@ class MahasiswaController extends Controller
         $request->validate([
             'nama'       => 'required|string|max:100',
             'nim'        => 'required|string|unique:mahasiswas,nim',
-            'jurusan'    => 'required|string',
+            'jurusan'    => 'required|in:Teknik Informatika (TI),Sistem Informatika (SI),Desain Komunikasi Visual (DKV),Teknik Sipil (TS)',
             'no_telepon' => 'required|string',
         ]);
 
@@ -51,7 +89,7 @@ class MahasiswaController extends Controller
         $request->validate([
             'nama'       => 'required|string|max:100',
             'nim'        => 'required|string|unique:mahasiswas,nim,' . $id,
-            'jurusan'    => 'required|string',
+            'jurusan'    => 'required|in:Teknik Informatika (TI),Sistem Informatika (SI),Desain Komunikasi Visual (DKV),Teknik Sipil (TS)',
             'no_telepon' => 'required|string',
         ]);
 
@@ -115,7 +153,36 @@ class MahasiswaController extends Controller
         return response()->json(['success' => true, 'message' => 'Mahasiswa ditolak!']);
     }
 
-   
+    /**
+     * Process pending update request from mahasiswa
+     */
+    public function processUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'action' => 'required|in:approve,reject'
+        ]);
+
+        $mahasiswa = Mahasiswa::findOrFail($id);
+        $action = $request->action;
+
+        if ($action === 'approve') {
+            if ($mahasiswa->pending_updates) {
+                $mahasiswa->update($mahasiswa->pending_updates);
+                $mahasiswa->update(['pending_updates' => null]);
+            }
+            return response()->json([
+                'success' => true, 
+                'message' => 'Update data mahasiswa berhasil disetujui.'
+            ]);
+        } else {
+            $mahasiswa->update(['pending_updates' => null]);
+            return response()->json([
+                'success' => true, 
+                'message' => 'Update data mahasiswa ditolak.'
+            ]);
+        }
+    }
+
     public function resendEmail($id)
     {
         $mahasiswa = Mahasiswa::findOrFail($id);

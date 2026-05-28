@@ -26,7 +26,7 @@ class HistoryController extends Controller
                 $terlambatCount = $peminjaman->where('status', 'terlambat')->count();
                 $kreditSkor = max(0, 100 - ($terlambatCount * 10));
 
-                return view('publik.history', [
+                return view('publik.mahasiswa.history', [
                     'mahasiswa'  => $mahasiswa,
                     'peminjaman' => $peminjaman,
                     'kreditSkor' => $kreditSkor,
@@ -36,7 +36,7 @@ class HistoryController extends Controller
             Session::forget('mahasiswa_id');
         }
 
-        return view('publik.history');
+        return view('publik.mahasiswa.history');
     }
 
     public function show(Request $request)
@@ -67,7 +67,7 @@ class HistoryController extends Controller
         $terlambatCount = $peminjaman->where('status', 'terlambat')->count();
         $kreditSkor = max(0, 100 - ($terlambatCount * 10));
 
-        return view('publik.history', [
+        return view('publik.mahasiswa.history', [
             'mahasiswa'   => $mahasiswa,
             'peminjaman'  => $peminjaman,
             'kreditSkor'  => $kreditSkor,

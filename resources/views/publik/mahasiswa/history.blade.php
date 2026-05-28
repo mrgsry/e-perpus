@@ -208,11 +208,9 @@
                         <i class="fas fa-bars"></i>
                     </a>
                 </li>
-                @isset($mahasiswa)
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link">Dashboard</a>
                 </li>
-                @endisset
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="{{ route('publik.katalog') }}" class="nav-link">Katalog Buku</a>
                 </li>
@@ -249,7 +247,7 @@
         </nav>
 
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
-            <a href="{{ route('publik.katalog') }}" class="brand-link text-center">
+            <a href="{{ route('mahasiswa.dashboard') }}" class="brand-link text-center">
                 <span class="brand-text font-weight-bold">
                     <i class="fas fa-book-reader mr-2"></i>Sipusaka
                 </span>
@@ -258,32 +256,26 @@
             <div class="sidebar">
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
                     <div class="image">
-                        <img src="{{ asset('adminlte/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
-                            alt="Mahasiswa">
+                        <span class="img-circle elevation-2 d-inline-flex align-items-center justify-content-center"
+                            style="width:34px;height:34px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;">
+                            <i class="fas fa-user-graduate"></i>
+                        </span>
                     </div>
                     <div class="info">
-                        @isset($mahasiswa)
-                        <a href="{{ route('mahasiswa.dashboard') }}"
-                            class="d-block font-weight-semibold">{{ $mahasiswa->nama }}</a>
-                        <small class="text-white-50">{{ $mahasiswa->nim }}</small>
-                        @else
-                        <a href="{{ route('mahasiswa.login') }}" class="d-block font-weight-semibold">Mahasiswa</a>
-                        <small class="text-white-50">Cek riwayat peminjaman</small>
-                        @endisset
+                        <a href="#" class="d-block font-weight-semibold">{{ $mahasiswa->nama ?? 'Mahasiswa' }}</a>
+                        <small class="text-white-50">{{ $mahasiswa->nim ?? '-' }}</small>
                     </div>
                 </div>
 
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
                         <li class="nav-header text-white-50">MENU MAHASISWA</li>
-                        @isset($mahasiswa)
                         <li class="nav-item">
                             <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>Dashboard</p>
                             </a>
                         </li>
-                        @endisset
                         <li class="nav-item">
                             <a href="{{ route('publik.katalog') }}" class="nav-link">
                                 <i class="nav-icon fas fa-book"></i>
@@ -293,7 +285,7 @@
                         <li class="nav-item">
                             <a href="{{ route('publik.history.form') }}" class="nav-link active">
                                 <i class="nav-icon fas fa-history"></i>
-                                <p>History</p>
+                                <p>Cek History Publik</p>
                             </a>
                         </li>
 
@@ -327,7 +319,7 @@
                     <div class="row mb-2 align-items-center">
                         <div class="col-sm-6">
                             <h1 class="m-0 font-weight-bold">History Mahasiswa</h1>
-                            <small class="text-muted">Cek riwayat peminjaman dengan tampilan panel AdminLTE.</small>
+
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">

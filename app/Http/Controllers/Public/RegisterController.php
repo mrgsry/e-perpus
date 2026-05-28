@@ -24,7 +24,7 @@ class RegisterController extends Controller
         $request->validate([
             'nama'       => 'required|string|max:100',
             'nim'        => 'required|string|unique:mahasiswas,nim',
-            'jurusan'    => 'required|string',
+            'jurusan'    => 'required|in:Teknik Informatika (TI),Sistem Informatika (SI),Desain Komunikasi Visual (DKV),Teknik Sipil (TS)',
             'no_telepon' => 'nullable|string|max:255',
             'email'      => 'required|string|email|unique:mahasiswas,email',
         ]);
