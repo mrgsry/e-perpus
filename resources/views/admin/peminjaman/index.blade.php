@@ -16,7 +16,7 @@
                 <a class="nav-link active" data-bs-toggle="tab" href="#tabPending">
                     Pending
                     @if($pending->count() > 0)
-                        <span class="badge bg-warning text-dark ms-1">{{ $pending->count() }}</span>
+                    <span class="badge bg-warning text-dark ms-1">{{ $pending->count() }}</span>
                     @endif
                 </a>
             </li>
@@ -67,12 +67,12 @@
                                     <td>{{ $p->buku->nama_buku ?? '-' }}</td>
                                     <td>{{ $p->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
-                                        <button onclick="approvePinjam({{ $p->id }}, '{{ $p->booking_id }}', '{{ $p->mahasiswa->nama ?? '' }}', '{{ addslashes($p->buku->nama_buku ?? '') }}')"
-                                                class="btn btn-success btn-xs">
+                                        <button
+                                            onclick="approvePinjam({{ $p->id }}, '{{ $p->booking_id }}', '{{ $p->mahasiswa->nama ?? '' }}', '{{ addslashes($p->buku->nama_buku ?? '') }}')"
+                                            class="btn btn-success btn-xs">
                                             <i class="fas fa-check"></i> Approve
                                         </button>
-                                        <button onclick="tolakPinjam({{ $p->id }})"
-                                                class="btn btn-danger btn-xs">
+                                        <button onclick="tolakPinjam({{ $p->id }})" class="btn btn-danger btn-xs">
                                             <i class="fas fa-times"></i> Tolak
                                         </button>
                                     </td>
@@ -115,44 +115,48 @@
                             <tbody>
                                 @forelse($aktif as $i => $p)
                                 @php
-                                    $batas = \Carbon\Carbon::parse($p->tanggal_kembali_rencana);
-                                    $sisaHari = (int) now()->diffInDays($batas, false);
+                                $batas = \Carbon\Carbon::parse($p->tanggal_kembali_rencana);
+                                $sisaHari = (int) now()->diffInDays($batas, false);
                                 @endphp
-                                <tr class="{{ $sisaHari < 0 ? 'table-danger' : ($sisaHari <= 2 ? 'table-warning' : '') }}">
+                                <tr
+                                    class="{{ $sisaHari < 0 ? 'table-danger' : ($sisaHari <= 2 ? 'table-warning' : '') }}">
                                     <td>{{ $i+1 }}</td>
                                     <td><code>{{ $p->booking_id }}</code></td>
                                     <td>{{ $p->mahasiswa->nama ?? '-' }}</td>
                                     <td>{{ $p->buku->nama_buku ?? '-' }}</td>
-                                    <td>{{ $p->tanggal_pinjam ? \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ $p->tanggal_pinjam ? \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') : '-' }}
+                                    </td>
                                     <td>{{ $batas->format('d/m/Y') }}</td>
                                     <td>
-                                        @if($sisaHari < 0)
-                                            <span class="badge bg-danger">Terlambat {{ abs($sisaHari) }} hari</span>
-                                        @elseif($sisaHari == 0)
+                                        @if($sisaHari < 0) <span class="badge bg-danger">Terlambat {{ abs($sisaHari) }}
+                                            hari</span>
+                                            @elseif($sisaHari == 0)
                                             <span class="badge bg-warning text-dark">Hari ini</span>
-                                        @else
+                                            @else
                                             <span class="badge bg-success">{{ $sisaHari }} hari lagi</span>
-                                        @endif
+                                            @endif
                                     </td>
                                     <td>
-                                      {{-- Di tabAktif, bagian kolom QR --}}
-@if($p->qr_code_path)
-    {{-- Pastikan asset path benar --}}
-    <button onclick="lihatQR('{{ asset('storage/'.$p->qr_code_path) }}', '{{ $p->booking_id }}')" class="btn btn-info btn-xs">
-        <i class="fas fa-qrcode"></i> QR
-    </button>
-@else
-    <span class="text-muted">-</span>
-@endif
-                                    </td>
-                                    <td>
-                                        @if($sisaHari < 0) {{-- Only show email button if late --}}
-                                            <button onclick="sendReminderEmail({{ $p->id }})" class="btn btn-warning btn-xs">
-                                                <i class="fas fa-envelope"></i> Email
-                                            </button>
+                                        {{-- Di tabAktif, bagian kolom QR --}}
+                                        @if($p->qr_code_path)
+                                        {{-- Pastikan asset path benar --}}
+                                        <button
+                                            onclick="lihatQR('{{ asset('storage/'.$p->qr_code_path) }}', '{{ $p->booking_id }}')"
+                                            class="btn btn-info btn-xs">
+                                            <i class="fas fa-qrcode"></i> QR
+                                        </button>
                                         @else
-                                            <span class="text-muted">-</span>
+                                        <span class="text-muted">-</span>
                                         @endif
+                                    </td>
+                                    <td>
+                                        @if($sisaHari < 0) {{-- Only show email button if late --}} <button
+                                            onclick="sendReminderEmail({{ $p->id }})" class="btn btn-warning btn-xs">
+                                            <i class="fas fa-envelope"></i> Email
+                                            </button>
+                                            @else
+                                            <span class="text-muted">-</span>
+                                            @endif
                                     </td>
                                 </tr>
                                 @empty
@@ -253,13 +257,81 @@
             <div class="modal-body text-center">
                 <p class="text-muted mb-2" id="qr_booking_label"></p>
                 <img id="qr_image" src="" alt="QR Code"
-                     style="width:220px;height:220px;border:1px solid #e2e8f0;border-radius:8px;padding:8px">
+                    style="width:220px;height:220px;border:1px solid #e2e8f0;border-radius:8px;padding:8px">
             </div>
             <div class="modal-footer justify-content-center">
                 <a id="qr_download" href="" download class="btn btn-primary">
                     <i class="fas fa-download me-1"></i>Download QR
                 </a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Success Notification --}}
+<div class="modal fade" id="modalSuccess" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-body p-0">
+                <div class="text-center p-5">
+                    <div class="mx-auto d-flex align-items-center justify-content-center mb-4"
+                        style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);">
+                        <i class="fas fa-check-circle text-white" style="font-size: 40px;"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3" style="color: #1e293b; font-size: 1.5rem;">
+                        Peminjaman Berhasil Diapprove!
+                    </h4>
+                    <p class="text-muted mb-4" style="font-size: 15px; line-height: 1.6;">
+                        QR Code telah dibuat dan email notifikasi telah dikirim ke mahasiswa.
+                    </p>
+
+                    <div class="d-flex align-items-center justify-content-center gap-2 p-3 mb-4 rounded-3"
+                        style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                        <i class="fas fa-envelope text-success"></i>
+                        <span class="text-success fw-semibold" style="font-size: 14px;">Email berhasil dikirim</span>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-center gap-2 p-3 mb-4 rounded-3"
+                        style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                        <i class="fas fa-qrcode text-primary"></i>
+                        <span class="text-primary fw-semibold" style="font-size: 14px;">QR Code tersedia untuk
+                            mahasiswa</span>
+                    </div>
+
+                    <button type="button" class="btn btn-primary px-5 py-3 fw-bold shadow-sm"
+                        onclick="location.reload()"
+                        style="border-radius: 12px; font-size: 15px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none;">
+                        <i class="fas fa-sync-alt me-2"></i>Muat Ulang Halaman
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Email Success --}}
+<div class="modal fade" id="modalEmailSuccess" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-body p-0">
+                <div class="text-center p-5">
+                    <div class="mx-auto d-flex align-items-center justify-content-center mb-4"
+                        style="width: 80px; height: 80px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);">
+                        <i class="fas fa-envelope text-white" style="font-size: 40px;"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3" style="color: #1e293b; font-size: 1.5rem;">
+                        Email Berhasil Dikirim!
+                    </h4>
+                    <p class="text-muted mb-4" style="font-size: 15px; line-height: 1.6;" id="emailSuccessMessage">
+                        Email peringatan keterlambatan berhasil dikirim ke mahasiswa.
+                    </p>
+
+                    <button type="button" class="btn btn-primary px-5 py-3 fw-bold shadow-sm" data-bs-dismiss="modal"
+                        style="border-radius: 12px; font-size: 15px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
+                        <i class="fas fa-check me-2"></i>OK, Mengerti
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -275,7 +347,7 @@ $(document).ready(function() {
     }
 
     // Inisialisasi DataTable saat tab diklik
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
         var target = $(e.target).attr("href");
         if (target === '#tabPending' && !$.fn.DataTable.isDataTable('#tablePending')) {
             $('#tablePending').DataTable();
@@ -291,18 +363,21 @@ function sendReminderEmail(id) {
         $.ajax({
             url: '/admin/peminjaman/' + id + '/send-reminder-email',
             method: 'POST',
-            data: { _token: '{{ csrf_token() }}' },
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
             success: function(res) {
                 if (res.success) {
-                    alert(res.message);
+                    $('#emailSuccessMessage').text(res.message);
+                    $('#modalEmailSuccess').modal('show');
                 } else {
                     alert('Gagal mengirim email: ' + res.message);
                 }
             },
             error: function(xhr) {
-                let message = xhr.responseJSON && xhr.responseJSON.message
-                    ? xhr.responseJSON.message
-                    : 'Terjadi kesalahan saat mengirim email.';
+                let message = xhr.responseJSON && xhr.responseJSON.message ?
+                    xhr.responseJSON.message :
+                    'Terjadi kesalahan saat mengirim email.';
                 alert(message);
             }
         });
@@ -322,12 +397,13 @@ function konfirmasiApprove() {
     $.ajax({
         url: '/admin/peminjaman/' + id + '/approve',
         method: 'POST',
-        data: { _token: '{{ csrf_token() }}' },
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
         success: function(res) {
             if (res.success) {
                 $('#modalApprove').modal('hide');
-                alert(res.message);
-                location.reload();
+                $('#modalSuccess').modal('show');
             }
         },
         error: function(xhr) {
@@ -346,7 +422,9 @@ function konfirmasiTolak() {
     $.ajax({
         url: '/admin/peminjaman/' + id + '/tolak',
         method: 'POST',
-        data: { _token: '{{ csrf_token() }}' },
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
         success: function(res) {
             if (res.success) location.reload();
         }

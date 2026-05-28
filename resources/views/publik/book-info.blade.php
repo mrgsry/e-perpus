@@ -945,28 +945,40 @@
 
                     <!-- Success State -->
                     <div id="successState" style="display:none">
-                        <div class="success-state">
-                            <div class="success-icon">✅</div>
-                            <h5 style="font-family:'Fraunces',serif;font-weight:700;margin-bottom:8px">
-                                Peminjaman Berhasil Diajukan!
-                            </h5>
-                            <p style="color:var(--muted);font-size:14px">
-                                Permintaan peminjaman kamu sudah diterima. Tunggu konfirmasi dan QR Code dari admin.
-                            </p>
-                            <div
-                                style="background:#f8fafc;border-radius:12px;padding:16px;margin:16px 0;text-align:left">
-                                <div
-                                    style="font-size:12px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600">
-                                    Booking ID kamu:
+                        <div class="card border-0 shadow-sm"
+                            style="border-radius: 20px; overflow: hidden; background: #fff;">
+                            <div class="p-4 text-center">
+                                <div class="mx-auto d-flex align-items-center justify-content-center mb-3"
+                                    style="width: 72px; height: 72px; background: #d1fae5; color: #065f46; border-radius: 50%; font-size: 32px;">
+                                    <i class="fas fa-check-circle"></i>
                                 </div>
-                                <div class="booking-chips" id="bookingChips"></div>
+                                <h5 class="fw-bold mb-2"
+                                    style="font-family: 'Fraunces', serif; color: var(--navy); font-size: 1.25rem;">
+                                    Peminjaman Berhasil!
+                                </h5>
+                                <p class="text-muted small mb-4">
+                                    Peminjaman berhasil di-approve! QR Code telah dibuat dan email notifikasi telah
+                                    dikirim.
+                                </p>
+
+                                <div class="bg-light p-3 rounded-3 text-start mb-4 border border-dashed"
+                                    style="background-color: #f8fafc !important;">
+                                    <div class="text-uppercase fw-bold text-muted mb-2"
+                                        style="font-size: 10px; letter-spacing: 1.2px;">BOOKING ID ANDA:</div>
+                                    <div class="booking-chips d-flex flex-wrap gap-2" id="bookingChips"></div>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-center p-3 mb-4 rounded-3"
+                                    style="background: #eff6ff; color: #1d4ed8; font-size: 13px;">
+                                    <i class="fas fa-qrcode me-2"></i>
+                                    <span>QR Code tersedia di email & history</span>
+                                </div>
+
+                                <button class="btn btn-primary w-100 py-3 fw-bold shadow-sm" onclick="resetForm()"
+                                    style="border-radius: 12px; background: var(--navy); border: none; transition: all 0.2s;">
+                                    Tutup & Kembali
+                                </button>
                             </div>
-                            <p style="font-size:12px;color:var(--muted)">
-                                Simpan Booking ID di atas untuk cek status peminjaman
-                            </p>
-                            <button class="btn btn-primary mt-2" onclick="resetForm()" style="border-radius:10px">
-                                <i class="fas fa-redo me-2"></i>Tutup
-                            </button>
                         </div>
                     </div>
 
