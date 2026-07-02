@@ -2,5 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/sipusaka/public_html/
-    - /usr/bin/rsync -av --exclude='index.php' /home/sipusaka/root/app/ $DEPLOYPATH
-    # - /usr/bin/rsync -av --exclude='index.php' /home/sipusaka/root/public/ $DEPLOYPATH
+    - /usr/bin/rsync -av --exclude=index.php /home/sipusaka/root/public/ $DEPLOYPATH
