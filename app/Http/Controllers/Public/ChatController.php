@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\Mahasiswa;
-use App\Services\NineRouterService;
+use App\Services\GeminiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -111,9 +111,10 @@ class ChatController extends Controller
                     ];
                 })->toArray();
 
-            // Try to get AI response
-            $aiService = new NineRouterService();
-            $botResponse = $aiService->chat($message, $history);
+            // Try to get AI response using Gemini Service
+            $aiService = new GeminiService();
+            $aiResult = $aiService->generateResponse($message, $history);
+            $botResponse = $aiResult['response'] ?? null;
 
             // Fallback to keyword if AI fails
             if (!$botResponse) {

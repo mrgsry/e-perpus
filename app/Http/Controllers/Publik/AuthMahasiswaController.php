@@ -44,6 +44,12 @@ class AuthMahasiswaController extends Controller
 
         Session::put('mahasiswa_id', $mahasiswa->id);
 
+        // Record the login session/log
+        LoginLog::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'logged_in_at' => Carbon::now(config('app.timezone', 'Asia/Jakarta')),
+        ]);
+
         return redirect()
             ->route('mahasiswa.dashboard')
             ->with('login_success', 'Login berhasil. Selamat datang, ' . $mahasiswa->nama . '!');
@@ -78,13 +84,21 @@ class AuthMahasiswaController extends Controller
         $timezone = config('app.timezone', 'Asia/Jakarta');
         $today = Carbon::now($timezone)->startOfDay();
 
+        $login7HariMap = LoginLog::where('mahasiswa_id', $mahasiswa->id)
+            ->whereDate('logged_in_at', '>=', $today->copy()->subDays(6)->toDateString())
+            ->get()
+            ->groupBy(function ($item) use ($timezone) {
+                return Carbon::parse($item->logged_in_at, $timezone)->format('Y-m-d');
+            })
+            ->map(fn($items) => $items->count());
+
         $login7Hari = collect();
         for ($i = 6; $i >= 0; $i--) {
             $date = $today->copy()->subDays($i)->format('Y-m-d');
 
             $login7Hari->push((object)[
                 'date' => Carbon::parse($date, $timezone)->format('d M'),
-                'total' => 0, // Placeholder - will show 0 until login tracking is implemented
+                'total' => $login7HariMap->get($date, 0),
             ]);
         }
 

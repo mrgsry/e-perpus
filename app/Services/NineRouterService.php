@@ -112,7 +112,14 @@ class NineRouterService
                 }
             }
 
-            return 'Maaf, layanan AI sedang lambat/tidak tersedia. Silakan coba lagi beberapa saat. Untuk pertanyaan data buku, gunakan format seperti: "stok buku kalkulus", "cari buku algoritma", "buku apa saja yang tersedia", atau "statistik total buku".';
+            // Enhanced fallback for general questions
+            $generalFallback = $this->handleGeneralQuestionFallback($userMessage);
+            if ($generalFallback !== null) {
+                Log::info('Fallback to general question handling successful', ['question' => $userMessage]);
+                return $generalFallback;
+            }
+
+            return "Maaf, layanan AI sedang lambat/tidak tersedia. Berikut beberapa pertanyaan yang dapat saya jawab:\n• \"buku apa saja yang tersedia\"\n• \"statistik total buku\"\n• \"cari buku [kata kunci]\"\n• \"stok buku [nama buku]\"\n• \"buku populer\"\n• \"buku kategori [jenis]\"\n• Informasi tentang registrasi, login, peminjaman, pengembalian, atau denda";
         } catch (\Exception $e) {
             Log::error('9router AI Unexpected Error', [
                 'message' => $e->getMessage(),
@@ -156,23 +163,29 @@ class NineRouterService
     {
         $bookContext = $this->getBookIndexContext();
 
-        $prompt = "Anda adalah asisten virtual perpustakaan SIPUSAKA.
+        $prompt = "Anda adalah asisten virtual cerdas untuk Perpustakaan Digital SIPUSAKA.
 
 TUGAS UTAMA:
-- Menjawab pertanyaan tentang ketersediaan buku, stok, dan layanan perpustakaan.
-- Memberikan informasi berdasarkan data berikut yang sudah tersedia.
+- Menjawab pertanyaan tentang seluruh aspek perpustakaan: katalog buku, ketersediaan stok, prosedur registrasi mahasiswa, cara login, aturan peminjaman, durasi peminjaman, pengembalian, dan denda.
+- Menjadi representasi resmi dari sistem SIPUSAKA.
+
+INFORMASI PENTING TENTANG WEBSITE:
+- Registrasi: Mahasiswa dapat melakukan registrasi di halaman pendaftaran dengan memasukkan NIM yang valid. Akun akan melalui proses validasi.
+- Login: Mahasiswa login menggunakan NIM dan password yang telah didaftarkan.
+- Peminjaman: Mahasiswa dapat meminjam buku melalui katalog jika stok tersedia. Cek status peminjaman di menu 'Cek Status Peminjaman'.
+- Pengembalian: Buku harus dikembalikan tepat waktu. Keterlambatan akan dikenakan denda.
+- Denda: Denda dihitung berdasarkan durasi keterlambatan.
 
 ATURAN KERJA (WAJIB DIIKUTI):
-1. JIKA USER BERTANYA TENTANG BUKU/STOK: Gunakan DATA BUKU di bawah ini untuk menjawab. Data ini adalah real-time dari database.
-2. JIKA DATA TIDAK DITEMUKAN di index: Katakan dengan sopan bahwa buku tidak ditemukan dan sarankan untuk mencari dengan kata kunci lain.
-3. JANGAN PERNAH:
-   - Mengatakan 'Saya tidak memiliki akses ke database'.
-   - Memberikan jawaban spekulatif yang tidak berdasarkan data.
-   - Membahas topik di luar perpustakaan.
-4. FORMAT JAWABAN:
-   - Langsung berikan jawaban final berdasarkan data yang tersedia.
+1. JIKA USER BERTANYA TENTANG BUKU/STOK: Gunakan DATA BUKU di bawah ini sebagai referensi utama.
+2. JIKA USER BERTANYA TENTANG PROSEDUR: Jelaskan dengan jelas dan langkah-langkah yang mudah dipahami.
+3. BERSIKAP PROFESIONAL: Gunakan bahasa Indonesia yang ramah, sopan, dan membantu.
+4. JANGAN PERNAH:
+   - Memberikan informasi palsu atau spekulatif di luar konteks perpustakaan.
+   - Mengatakan Anda tidak memiliki akses ke informasi website.
+5. FORMAT JAWABAN:
    - Ringkas, informatif, dan profesional.
-   - Jika ada daftar buku, gunakan format list (bullet points).";
+   - Gunakan bullet points untuk daftar atau langkah-langkah agar mudah dibaca.";
 
         if ($bookContext !== '') {
             $prompt .= "\n\n" . $bookContext;
@@ -242,14 +255,42 @@ ATURAN KERJA (WAJIB DIIKUTI):
         $message = trim($userMessage);
         $lowerMessage = mb_strtolower($message);
 
+        // Handle registration questions
+        if (preg_match('/\b(registrasi|daftar|mendaftar|pendaftaran)\b/u', $lowerMessage)) {
+            return "Anda dapat melakukan registrasi melalui halaman pendaftaran di website SIPUSAKA. Pastikan Anda memasukkan NIM yang valid, dan akun Anda akan melalui proses validasi.";
+        }
+
+        // Handle login questions
+        if (preg_match('/\b(login|masuk|akses|autentikasi)\b/u', $lowerMessage)) {
+            return "Anda dapat login menggunakan NIM dan password yang telah didaftarkan di sistem. Jika lupa password, silakan hubungi admin perpustakaan.";
+        }
+
+        // Handle borrowing questions
+        if (preg_match('/\b(peminjaman|meminjam|pinjam|borrow)\b/u', $lowerMessage)) {
+            return "Anda dapat meminjam buku melalui katalog jika stok tersedia. Cek status peminjaman di menu 'Cek Status Peminjaman' setelah login.";
+        }
+
+        // Handle return questions
+        if (preg_match('/\b(pengembalian|kembali|return|dikembalikan)\b/u', $lowerMessage)) {
+            return "Buku harus dikembalikan tepat waktu. Keterlambatan akan dikenakan denda sesuai dengan kebijakan perpustakaan.";
+        }
+
+        // Handle fine/penalty questions
+        if (preg_match('/\b(denda|penalty|keterlambatan|late|fee)\b/u', $lowerMessage)) {
+            return "Denda dihitung berdasarkan durasi keterlambatan pengembalian buku. Silakan hubungi admin untuk informasi detail denda.";
+        }
+
+        // Handle statistics questions
         if (preg_match('/\b(total|jumlah|statistik)\b.*\b(buku|stok|koleksi)\b/u', $lowerMessage)) {
             return $this->formatTotalBooksStats($this->getTotalBooksStats());
         }
 
+        // Handle available books questions
         if (preg_match('/\b(buku tersedia|buku yang tersedia|bisa dipinjam|tersedia apa saja|daftar buku)\b/u', $lowerMessage)) {
             return $this->formatBookList($this->getAvailableBooks(10), 'Berikut beberapa buku yang tersedia untuk dipinjam:');
         }
 
+        // Handle popular books questions
         if (preg_match('/\b(populer|rekomendasi|sering dipinjam|paling banyak dipinjam)\b/u', $lowerMessage)) {
             return $this->formatBookList($this->getPopularBooks(5), 'Berikut rekomendasi buku populer di SIPUSAKA:');
         }
@@ -279,6 +320,7 @@ ATURAN KERJA (WAJIB DIIKUTI):
             }
         }
 
+        // Handle stock/availability questions
         if (preg_match('/\b(stok|tersedia|ada|ketersediaan|cari|carikan|apakah|cek|check|lihat)\b/u', $lowerMessage)) {
             $keyword = $this->extractBookKeyword($message);
 
@@ -297,6 +339,55 @@ ATURAN KERJA (WAJIB DIIKUTI):
 
                 return "Maaf, buku dengan kata kunci \"{$keyword}\" belum ditemukan di database SIPUSAKA. Silakan coba kata kunci lain atau hubungi admin.";
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Handle general website-related questions as a fallback
+     * when the AI service is unavailable.
+     *
+     * @param string $userMessage
+     * @return string|null
+     */
+    protected function handleGeneralQuestionFallback(string $userMessage): ?string
+    {
+        $lowerMessage = mb_strtolower(trim($userMessage));
+
+        // Greeting patterns
+        if (preg_match('/\b(halo|hai|hello|hi|selamat|assalamualaikum|p)\b/u', $lowerMessage)) {
+            return "Halo! 👋 Selamat datang di SIPUSAKA (Sistem Perpustakaan Digital). Ada yang bisa saya bantu?\n\nSaya bisa membantu Anda dengan:\n• Informasi katalog dan stok buku\n• Cara registrasi dan login\n• Prosedur peminjaman dan pengembalian\n• Informasi denda";
+        }
+
+        // How are you
+        if (preg_match('/\b(apa kabar|bagaimana kabar|how are you)\b/u', $lowerMessage)) {
+            return "Saya baik-baik saja, terima kasih sudah bertanya! 😊 Bagaimana dengan Anda? Ada yang bisa saya bantu seputar perpustakaan SIPUSAKA?";
+        }
+
+        // Thanks
+        if (preg_match('/\b(terima kasih|thanks|makasih|tengkyu)\b/u', $lowerMessage)) {
+            return "Sama-sama! 😊 Senang bisa membantu. Jangan ragu untuk bertanya lagi jika ada hal lain yang ingin Anda ketahui.";
+        }
+
+        // Help/What can you do
+        if (preg_match('/\b(bantuan|bisa apa|apa saja|fitur|menu|help|tolong)\b/u', $lowerMessage)) {
+            return "Saya adalah asisten virtual SIPUSAKA. Berikut yang bisa saya bantu:\n\n📚 **Informasi Buku:**\n• Cari buku berdasarkan judul/kata kunci\n• Cek stok dan ketersediaan buku\n• Lihat buku populer dan rekomendasi\n• Statistik koleksi perpustakaan\n\nℹ️ **Informasi Layanan:**\n• Cara registrasi akun mahasiswa\n• Cara login ke sistem\n• Prosedur peminjaman buku\n• Aturan pengembalian dan denda\n\nSilakan ajukan pertanyaan Anda!";
+        }
+
+        // Contact admin
+        if (preg_match('/\b(kontak|hubungi|admin|email|telepon|whatsapp|wa)\b/u', $lowerMessage)) {
+            return "Untuk menghubungi admin perpustakaan SIPUSAKA, Anda dapat:\n• Mengunjungi loket perpustakaan langsung\n• Menghubungi melalui email atau kontak yang tersedia di halaman utama\n\nSilakan login terlebih dahulu jika Anda membutuhkan bantuan terkait akun atau peminjaman.";
+        }
+
+        // Location/Address
+        if (preg_match('/\b(lokasi|alamat|dimana|lokasi perpustakaan|address)\b/u', $lowerMessage)) {
+            return "Perpustakaan SIPUSAKA dapat diakses secara online melalui website ini. Untuk kunjungan fisik, silakan hubungi admin untuk informasi alamat dan jam operasional.";
+        }
+
+        // Operating hours
+        if (preg_match('/\b(jam buka|jam operasional|jam layanan|buka|tutup)\b/u', $lowerMessage)) {
+            return "Layanan perpustakaan digital SIPUSAKA dapat diakses 24 jam melalui website ini. Untuk layanan offline, silakan hubungi admin untuk informasi jam operasional.";
         }
 
         return null;
