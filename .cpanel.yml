@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/sipusaka/public_html/
+    - /usr/bin/rsync -av --exclude='index.php' /home/sipusaka/root/public/ $DEPLOYPATH
