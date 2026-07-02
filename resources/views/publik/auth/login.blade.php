@@ -109,7 +109,7 @@
                 <div class="brand-icon">
                     <i class="fas fa-user-graduate"></i>
                 </div>
-                <h3 class="mb-1 font-weight-bold">Sipusaka Mahasiswa</h3>
+                <h3 class="mb-1 font-weight-bold">Sipusaka Mahasiswa v.2.1</h3>
                 <p class="mb-0">Panel riwayat peminjaman perpustakaan</p>
             </div>
 
