@@ -64,7 +64,7 @@
 
     <div class="card">
         <div class="card-body">
-            <h5 class="text-center mb-4 fw-bold" style="color:#0f2444">Login Guys</h5>
+            <h5 class="text-center mb-4 fw-bold" style="color:#0f2444">Login Administrator</h5>
 
             @if(session('error'))
                 <div class="alert alert-danger d-flex align-items-center gap-2">
