@@ -59,7 +59,7 @@
 <div class="login-wrapper">
     <div class="text-center mb-4">
         <div class="brand-title">📚 Si<span>Pusaka</span></div>
-        <p class="text-white-50 mt-1" style="font-size:14px">Sistem Informasi Perpustakaan Digital</p>
+        <p class="text-white-50 mt-1" style="font-size:14px">Sistem Informasi Perpustakaan Digital v.2</p>
     </div>
 
     <div class="card">
