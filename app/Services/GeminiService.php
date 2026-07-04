@@ -48,6 +48,7 @@ INTENT yang tersedia:
 - filter_by_genre: Filter berdasarkan genre (contoh: "buku genre romance", "novel thriller")
 - check_availability: Cek ketersediaan buku (contoh: "stok buku", "buku tersedia?")
 - borrowing_info: Info peminjaman (contoh: "cara pinjam", "aturan peminjaman")
+- member_registration: Pengguna ingin mendaftar menjadi anggota/member perpustakaan (contoh: "cara daftar member", "gimana caranya jadi anggota?", "daftar akun")
 - general_info: Pertanyaan umum tentang perpustakaan
 
 FORMAT OUTPUT HARUS JSON:
@@ -58,12 +59,15 @@ FORMAT OUTPUT HARUS JSON:
         "category": "kategori buku (jika ada)",
         "genre": "genre buku (jika ada)"
     },
-    "response_text": "Respons santai dan ramah dalam bahasa Indonesia"
+    "response_text": "Respons santai dan ramah dalam bahasa Indonesia. JANGAN mengulang daftar buku atau langkah-langkah pendaftaran secara detail di sini, karena itu akan ditambahkan otomatis oleh sistem. Cukup berikan kalimat pembuka singkat."
 }
 
 Contoh:
 User: "ada buku apa aja?"
-Output: {"intent": "list_all_books", "query_params": {}, "response_text": "Saya akan menampilkan daftar buku yang tersedia di perpustakaan kami!"}';
+Output: {"intent": "list_all_books", "query_params": {}, "response_text": "Saya akan menampilkan daftar buku yang tersedia di perpustakaan kami!"}
+
+User: "gimana caranya jadi anggota?"
+Output: {"intent": "member_registration", "query_params": {}, "response_text": "Tentu, saya akan bantu jelaskan cara mendaftar menjadi anggota e-perpus kami. Prosesnya mudah kok!"}';
 
             $response = $this->callGeminiAPI($systemPrompt, $userMessage);
 
@@ -179,6 +183,20 @@ Output: {"intent": "list_all_books", "query_params": {}, "response_text": "Saya 
                     }
                     break;
 
+                case 'member_registration':
+                    // No database query needed, just provide the step-by-step guide
+                    $registrationSteps = [
+                        'Klik menu "Mahasiswa" yang berada di pojok kanan atas header website',
+                        'Pilih opsi "Register" atau "Daftar" yang tersedia',
+                        'Isi formulir pendaftaran dengan data diri Anda (Nama, NIM, Email, dll)',
+                        'Setelah submit formulir, tunggu sampai akun Anda diapprove oleh admin',
+                        'Jika akun sudah diapprove, Anda akan menerima email berisi informasi login dan akses Anda',
+                    ];
+                    $result['registration_steps'] = $registrationSteps;
+                    $result['registration_url'] = 'https://sipusaka.net/mahasiswa/register';
+                    $result['login_url'] = 'https://sipusaka.net/mahasiswa/login';
+                    break;
+
                 default:
                     // General info, no database query needed
                     break;
@@ -204,38 +222,38 @@ Output: {"intent": "list_all_books", "query_params": {}, "response_text": "Saya 
 
             // Step 3: Format books data for response
             $booksFormatted = '';
-            
+
             // Intents that require book search results
             $bookSearchIntents = ['list_all_books', 'search_books', 'filter_by_category', 'filter_by_genre', 'check_availability'];
-            
+
             if (in_array($intentData['intent'], $bookSearchIntents)) {
                 if (!empty($result['books'])) {
                     $booksFormatted = "\n\n📚 **Daftar Buku Tersedia di Perpustakaan e-perpus** 📚\n\n";
                     $booksFormatted .= "Berikut adalah daftar buku yang tersedia:\n\n";
-                    
+
                     foreach ($result['books'] as $index => $book) {
                         $num = $index + 1;
                         $namaBuku = $book['nama_buku'];
                         $booksFormatted .= "📖 **{$num}. {$namaBuku}**\n";
-                        $booksFormatted .= "   🏷️ *Penerbit: " . $book['penerbit'] . "*\n";
-                        $booksFormatted .= "   📂 Kategori: " . $book['jenis_buku'] . " | 🎭 Genre: " . $book['genre_buku'] . "\n";
-                        
+                        $booksFormatted .= "🏷️ Penerbit: " . $book['penerbit'] . "\n";
+                        $booksFormatted .= "📂 Kategori: " . $book['jenis_buku'] . " | 🎭 Genre: " . $book['genre_buku'] . "\n";
+
                         if (isset($book['stok_tersedia'])) {
-                            $stok = (int)$book['stok_tersedia'];
+                            $stok = (int) $book['stok_tersedia'];
                             if ($stok > 5) {
-                                $booksFormatted .= "   ✅ Stok Tersedia: {$stok} (Banyak)\n";
+                                $booksFormatted .= "✅ Stok Tersedia: {$stok} (Banyak)\n";
                             } elseif ($stok > 0) {
-                                $booksFormatted .= "   ⚠️ Stok Tersedia: {$stok} (Terbatas)\n";
+                                $booksFormatted .= "⚠️ Stok Tersedia: {$stok} (Terbatas)\n";
                             } else {
-                                $booksFormatted .= "   ❌ Stok Tersedia: 0 (Kosong)\n";
+                                $booksFormatted .= "❌ Stok Tersedia: 0 (Kosong)\n";
                             }
                         }
-                        
+
                         $booksFormatted .= "\n";
                     }
-                    
+
                     $totalBooks = count($result['books']);
-                    $booksFormatted .= "📝 *Total buku: {$totalBooks} buku tersedia*\n";
+                    $booksFormatted .= "📝 Total buku: {$totalBooks} buku tersedia\n";
                 } else {
                     $booksFormatted = "\n\n📚 **Pencarian Buku** 📚\n\n";
                     $booksFormatted .= "Maaf, tidak ditemukan buku yang sesuai dengan pencarian Anda. 😔\n";
@@ -243,14 +261,37 @@ Output: {"intent": "list_all_books", "query_params": {}, "response_text": "Saya 
                 }
             }
 
-            // Step 4: Combine AI text with book data
-            $finalResponse = $result['response_text'] . $booksFormatted;
+            // Step 4: Format registration steps if needed
+            $registrationFormatted = '';
+            if ($intentData['intent'] === 'member_registration' && isset($result['registration_steps'])) {
+                $registrationFormatted = "\n\n📝 **Cara Mendaftar Member Perpustakaan** 📝\n\n";
+
+                foreach ($result['registration_steps'] as $i => $step) {
+                    $stepNum = $i + 1;
+                    $registrationFormatted .= "👉 {$stepNum}. " . $step . "\n";
+                }
+
+                $registrationFormatted .= "\n🔗 Pendaftaran: https://sipusaka.net/mahasiswa/login\n";
+                $registrationFormatted .= "🔗 Login: https://sipusaka.net/mahasiswa/login\n\n";
+                $registrationFormatted .= "Jika Anda sudah memiliki akun, silakan login menggunakan link di atas. Jika ada pertanyaan lain, jangan ragu untuk bertanya! 😊";
+            }
+
+            // Step 5: Combine AI text with book data and registration steps
+            $rawResponse = trim($result['response_text'] . $booksFormatted . $registrationFormatted);
+
+            // Step 6: Clean up markdown-lite bold markers into plain text.
+            // IMPORTANT: the chat widget inserts this as plain text (.text()), not HTML —
+            // so we must NOT emit <br>/<strong> or htmlspecialchars() output here.
+            // Real newlines are kept as-is; the bubble's CSS needs `white-space: pre-line`
+            // for them to actually show as line breaks (see note below).
+            $finalResponse = $this->cleanPlainText($rawResponse);
 
             return [
                 'success' => true,
                 'intent' => $intentData['intent'],
                 'response' => $finalResponse,
                 'books_data' => $result['books'],
+                'registration_steps' => $result['registration_steps'] ?? [],
             ];
 
         } catch (\Exception $e) {
@@ -261,6 +302,24 @@ Output: {"intent": "list_all_books", "query_params": {}, "response_text": "Saya 
                 'books_data' => [],
             ];
         }
+    }
+
+    /**
+     * Strip markdown-lite bold markers (**text**) since the frontend renders this
+     * as plain text (not HTML) — bold can't be displayed there anyway, so we just
+     * remove the asterisks instead of leaving them visible. Real newline characters
+     * (\n) are left untouched; they only become visible line breaks if the chat
+     * bubble element has `white-space: pre-line` (or `pre-wrap`) in its CSS.
+     */
+    protected function cleanPlainText(string $text): string
+    {
+        // **bold** -> bold (drop the asterisks, keep the text)
+        $text = preg_replace('/\*\*(.+?)\*\*/s', '$1', $text);
+
+        // Normalize Windows-style line endings just in case.
+        $text = str_replace("\r\n", "\n", $text);
+
+        return $text;
     }
 
     /**

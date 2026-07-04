@@ -18,217 +18,224 @@
     body {
         font-family: 'Inter', sans-serif;
         min-height: 100vh;
-        background: linear-gradient(135deg, #373461 0%, #7C3AED 100%);
+        background: linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 50%, #DBEAFE 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        padding: 40px 20px;
+        margin: 0;
+    }
+
+    /* Outer wrapper creates the soft colorful glow around the card */
+    .auth-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 1000px;
+    }
+
+    .auth-wrapper::before {
+        content: "";
+        position: absolute;
+        inset: -18px;
+        border-radius: 40px;
+        background: linear-gradient(120deg, #C7B6FF 0%, #FBC7E0 45%, #BFDBFE 100%);
+        filter: blur(18px);
+        opacity: 0.75;
+        z-index: 0;
     }
 
     .login-container {
+        position: relative;
+        z-index: 1;
         width: 100%;
-        max-width: 1200px;
-        min-height: 600px;
-        max-height: 90vh;
-        background: white;
-        border-radius: 24px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        min-height: 560px;
+        background: #ffffff;
+        border-radius: 28px;
+        box-shadow: 0 25px 60px rgba(79, 70, 229, 0.18);
         overflow: hidden;
         display: flex;
     }
 
     .login-left {
         flex: 1;
-        padding: 60px;
+        padding: 56px 64px;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        overflow-y: auto;
-        max-height: 90vh;
+        justify-content: center;
     }
 
     .login-right {
         flex: 1;
-        background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
         position: relative;
+        background: radial-gradient(circle at 30% 50%, #3B57D9 0%, #2E3F9E 60%, #1E2A73 100%);
+        border-radius: 0 28px 28px 0;
+        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .login-right svg {
+        width: 92%;
+        height: auto;
+        position: relative;
+        z-index: 1;
     }
 
     .form-title {
-        font-size: 32px;
+        font-size: 22px;
         font-weight: 700;
         color: #1F2937;
-        margin-bottom: 12px;
+        margin-bottom: 28px;
     }
 
     .form-subtitle {
-        font-size: 16px;
+        font-size: 13.5px;
         color: #6B7280;
-        margin-bottom: 30px;
+        margin-bottom: 22px;
+        line-height: 1.5;
     }
 
-    /* Toggle Tabs */
-    .auth-tabs {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 30px;
-        background: #F3F4F6;
-        padding: 6px;
-        border-radius: 12px;
-    }
-
-    .tab-btn {
-        flex: 1;
-        padding: 12px 20px;
-        border: none;
-        background: transparent;
-        color: #6B7280;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .tab-btn.active {
-        background: white;
-        color: #4F46E5;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .tab-btn:hover:not(.active) {
-        color: #374151;
-    }
-
-    /* Form Containers */
-    .form-container {
-        display: none;
-    }
-
-    .form-container.active {
-        display: block;
-    }
-
-    /* Login Form Styles */
     .form-group {
         margin-bottom: 20px;
     }
 
+    .form-label-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 7px;
+    }
+
     .form-label {
         display: block;
-        font-size: 14px;
-        font-weight: 500;
+        font-size: 13px;
+        font-weight: 600;
         color: #374151;
-        margin-bottom: 8px;
+    }
+
+    .input-wrap {
+        position: relative;
     }
 
     .form-input {
         width: 100%;
-        padding: 14px 20px;
+        padding: 12px 16px;
         border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        font-size: 16px;
-        transition: all 0.3s ease;
+        border-radius: 10px;
+        font-size: 14.5px;
+        transition: all 0.2s ease;
         font-family: 'Inter', sans-serif;
+        min-height: 46px;
+        background: #F9FAFB;
     }
 
     .form-input:focus {
         outline: none;
         border-color: #4F46E5;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .input-wrap .form-input.has-toggle {
+        padding-right: 44px;
+    }
+
+    .toggle-visibility {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #9CA3AF;
+        cursor: pointer;
+        font-size: 15px;
+        padding: 4px;
+        line-height: 1;
+    }
+
+    .toggle-visibility:hover {
+        color: #4F46E5;
+    }
+
+    .remember-row {
+        margin: 6px 0 24px;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #4B5563;
+        font-size: 13.5px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .remember-me input {
+        width: 16px;
+        height: 16px;
+        accent-color: #4F46E5;
+        cursor: pointer;
+    }
+
+    .forgot-link {
+        color: #4F46E5;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 12.5px;
+    }
+
+    .forgot-link:hover {
+        text-decoration: underline;
     }
 
     .login-button {
         width: 100%;
-        padding: 14px 20px;
+        padding: 13px 20px;
         background: linear-gradient(135deg, #4F46E5, #6366F1);
         color: white;
         border: none;
-        border-radius: 12px;
-        font-size: 16px;
+        border-radius: 10px;
+        font-size: 14.5px;
         font-weight: 600;
+        letter-spacing: 0.02em;
         cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 12px;
+        transition: all 0.2s ease;
+        min-height: 48px;
     }
 
     .login-button:hover {
-        background: linear-gradient(135deg, #4338CA, #5B4FE0);
-        transform: translateY(-2px);
+        transform: translateY(-1px);
         box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
     }
 
-    /* Register Form Styles */
-    .register-form-label {
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #475569;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin-bottom: 8px;
+    .switch-form-text {
+        text-align: left;
+        margin-top: 18px;
+        font-size: 13px;
+        color: #6B7280;
     }
 
-    .register-input {
-        width: 100%;
-        padding: 14px 20px;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        font-size: 15px;
-        font-weight: 500;
-        font-family: 'Inter', sans-serif;
-        transition: all 0.3s ease;
-    }
-
-    .register-input:focus {
-        outline: none;
-        border-color: #4F46E5;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    .register-button {
-        width: 100%;
-        padding: 14px 20px;
-        background: linear-gradient(135deg, #4F46E5, #6366F1);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-size: 16px;
+    .switch-form-text a {
+        color: #4F46E5;
         font-weight: 600;
+        text-decoration: none;
         cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
     }
 
-    .register-button:hover {
-        background: linear-gradient(135deg, #4338CA, #5B4FE0);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
-    }
-
-    .illustration {
-        width: 80%;
-        height: 80%;
-        opacity: 0.9;
+    .switch-form-text a:hover {
+        text-decoration: underline;
     }
 
     .error-message {
         background: #FEE2E2;
         color: #DC2626;
-        padding: 12px 16px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        font-size: 14px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        margin-bottom: 18px;
+        font-size: 13px;
         display: none;
     }
 
@@ -236,329 +243,429 @@
         display: block;
     }
 
+    .form-panel {
+        display: none;
+    }
+
+    .form-panel.active {
+        display: block;
+    }
+
     .register-info {
         display: flex;
-        gap: 10px;
+        gap: 9px;
         align-items: flex-start;
         background: #EFF6FF;
-        border-radius: 12px;
-        padding: 16px;
-        margin-top: 20px;
+        border-radius: 10px;
+        padding: 13px 14px;
+        margin-top: 16px;
     }
 
     .register-info i {
         flex-shrink: 0;
-        width: 18px;
-        height: 18px;
         color: #2563EB;
         margin-top: 2px;
+        font-size: 13px;
     }
 
     .register-info p {
-        font-size: 13px;
+        font-size: 12px;
         color: #1E40AF;
         margin: 0;
-        line-height: 1.6;
+        line-height: 1.55;
     }
 
-    @media (max-width: 768px) {
-        .login-container {
-            flex-direction: column;
-            height: auto;
-            max-height: 100vh;
+    .form-row {
+        display: flex;
+        gap: 12px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Success / error modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(31, 41, 55, 0.5);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+    .modal-card {
+        background: white;
+        border-radius: 20px;
+        padding: 36px;
+        max-width: 380px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        animation: modalPop 0.25s ease;
+    }
+
+    @keyframes modalPop {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
         }
 
-        .login-right {
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .modal-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #D1FAE5;
+        color: #059669;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        margin: 0 auto 18px;
+    }
+
+    .modal-icon.error {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .modal-title {
+        font-size: 19px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 8px;
+    }
+
+    .modal-text {
+        font-size: 13.5px;
+        color: #6B7280;
+        line-height: 1.6;
+        margin-bottom: 22px;
+    }
+
+    .modal-button {
+        width: 100%;
+        padding: 11px 20px;
+        background: linear-gradient(135deg, #4F46E5, #7C3AED);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* ============ MOBILE ============ */
+    @media (max-width: 768px) {
+        body {
+            padding: 0;
+            display: block;
+            background: linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 50%, #DBEAFE 100%);
+        }
+
+        .auth-wrapper {
+            max-width: 100%;
+            min-height: 100vh;
+        }
+
+        .auth-wrapper::before {
             display: none;
         }
 
+        .login-container {
+            flex-direction: column;
+            border-radius: 0;
+            min-height: 100vh;
+            box-shadow: none;
+        }
+
+        .login-right {
+            border-radius: 0;
+            min-height: 240px;
+            flex: none;
+            order: -1;
+        }
+
+        .login-right svg {
+            width: 70%;
+        }
+
         .login-left {
-            padding: 40px 20px;
+            padding: 30px 24px 40px;
+            border-radius: 24px 24px 0 0;
+            margin-top: -24px;
+            background: #ffffff;
+            position: relative;
+            z-index: 2;
         }
 
         .form-title {
-            font-size: 28px;
+            font-size: 20px;
         }
 
-        .form-subtitle {
-            font-size: 14px;
+        .form-row {
+            flex-direction: column;
+            gap: 0;
         }
 
-        .auth-tabs {
+        .form-row .form-group {
             margin-bottom: 20px;
         }
 
-        .tab-btn {
-            padding: 10px 16px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-input,
-        .register-input {
-            padding: 12px 16px;
-            font-size: 15px;
-        }
-
-        .form-label,
-        .register-form-label {
-            font-size: 13px;
-            margin-bottom: 6px;
-        }
-
-        .login-button,
-        .register-button {
-            padding: 12px 16px;
-            font-size: 15px;
-        }
-
-        .register-info {
-            padding: 12px;
-            margin-top: 16px;
-        }
-
-        .register-info p {
-            font-size: 12px;
+        .modal-card {
+            margin: 16px;
+            padding: 24px;
         }
     }
 
-    @media (max-width: 480px) {
-        body {
-            padding: 0;
-        }
-
-        .login-container {
-            border-radius: 0;
-            min-height: 100vh;
-            max-height: none;
-        }
-
+    @media (max-width: 380px) {
         .login-left {
-            padding: 24px 16px;
-            max-height: none;
+            padding: 26px 18px 34px;
         }
 
         .form-title {
-            font-size: 24px;
-        }
-
-        .form-subtitle {
-            font-size: 13px;
-        }
-
-        .auth-tabs {
-            margin-bottom: 16px;
-        }
-
-        .tab-btn {
-            padding: 8px 12px;
-            font-size: 13px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-input,
-        .register-input {
-            padding: 10px 14px;
-            font-size: 14px;
-        }
-
-        .form-label,
-        .register-form-label {
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .login-button,
-        .register-button {
-            padding: 10px 14px;
-            font-size: 14px;
-        }
-
-        .register-info {
-            padding: 10px;
-            margin-top: 12px;
-        }
-
-        .register-info p {
-            font-size: 11px;
+            font-size: 19px;
         }
     }
     </style>
 </head>
 
 <body>
-    <div class="login-container">
-        <div class="login-left">
-            <!-- Toggle Tabs -->
-            <div class="auth-tabs">
-                <button class="tab-btn active" onclick="showLogin()">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Login
-                </button>
-                <button class="tab-btn" onclick="showRegister()">
-                    <i class="fas fa-user-plus"></i>
-                    Register
-                </button>
+    <div class="auth-wrapper">
+        <div class="login-container">
+            <div class="login-left">
+                <!-- ===== LOGIN PANEL ===== -->
+                <div id="loginPanel" class="form-panel active">
+                    <h1 class="form-title">Masuk ke Akun Anda</h1>
+
+                    <div class="error-message" id="loginErrorMessage">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <span>Kredensial login tidak valid. Silakan coba lagi.</span>
+                    </div>
+
+                    <form action="{{ route('mahasiswa.login.submit') }}" method="post">
+                        @csrf
+
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="nim" class="form-label">NIM</label>
+                            </div>
+                            <div class="input-wrap">
+                                <input type="text" id="nim" name="nim" class="form-input" placeholder="Masukkan NIM"
+                                    value="{{ old('nim') }}" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="token" class="form-label">Token Referral</label>
+                                <a href="#" class="forgot-link">Lupa password?</a>
+                            </div>
+                            <div class="input-wrap">
+                                <input type="password" id="token" name="token" class="form-input has-toggle"
+                                    placeholder="6 digit token" maxlength="6" required>
+                                <button type="button" class="toggle-visibility" id="toggleToken" tabindex="-1"
+                                    aria-label="Tampilkan token">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="remember-row">
+                            <label class="remember-me">
+                                <input type="checkbox" name="remember">
+                                Ingat saya
+                            </label>
+                        </div>
+
+                        <button type="submit" class="login-button">
+                            SIGN IN
+                        </button>
+                    </form>
+
+                    <p class="switch-form-text">
+                        Belum terdaftar? <a onclick="showRegister()">Daftar sekarang</a>
+                    </p>
+                </div>
+
+                <!-- ===== REGISTER PANEL ===== -->
+                <div id="registerPanel" class="form-panel">
+                    <h1 class="form-title">Buat Akun Baru</h1>
+                    <p class="form-subtitle">Daftar untuk mengakses layanan perpustakaan</p>
+
+                    <div class="error-message" id="registerErrorMessage">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <span id="registerErrorText"></span>
+                    </div>
+
+                    <form action="{{ route('publik.register.store') }}" method="POST" id="registerFormSubmit">
+                        @csrf
+
+                        <div class="form-group">
+                            <label for="reg_nama" class="form-label">Nama Lengkap</label>
+                            <input type="text" id="reg_nama" name="nama" class="form-input" placeholder="Nama lengkap"
+                                required autocomplete="name">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reg_nim" class="form-label">NIM</label>
+                                <input type="text" id="reg_nim" name="nim" class="form-input" placeholder="NIM" required
+                                    autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="reg_no_telepon" class="form-label">No. Telepon</label>
+                                <input type="tel" id="reg_no_telepon" name="no_telepon" class="form-input"
+                                    placeholder="08123456789" autocomplete="tel">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg_jurusan" class="form-label">Jurusan</label>
+                            <select id="reg_jurusan" name="jurusan" class="form-input" required>
+                                <option value="" disabled selected>Pilih Jurusan</option>
+                                <option value="Teknik Informatika (TI)">Teknik Informatika (TI)</option>
+                                <option value="Sistem Informatika (SI)">Sistem Informatika (SI)</option>
+                                <option value="Desain Komunikasi Visual (DKV)">Desain Komunikasi Visual (DKV)</option>
+                                <option value="Teknik Sipil (TS)">Teknik Sipil (TS)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg_email" class="form-label">Email</label>
+                            <input type="email" id="reg_email" name="email" class="form-input"
+                                placeholder="contoh: nama@example.com" required autocomplete="email">
+                        </div>
+
+                        <button type="submit" class="login-button">
+                            <i class="fas fa-user-plus mr-2"></i> Register Mahasiswa
+                        </button>
+                    </form>
+
+                    <div class="register-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Setelah mendaftar, akun Anda akan diverifikasi oleh admin. Anda akan dapat menggunakan
+                            layanan perpustakaan setelah akun disetujui.</p>
+                    </div>
+
+                    <p class="switch-form-text">
+                        Sudah punya akun? <a onclick="showLogin()">Masuk di sini</a>
+                    </p>
+                </div>
             </div>
 
-            <!-- Login Form -->
-            <div id="loginForm" class="form-container active">
-                <h1 class="form-title">Login Mahasiswa</h1>
-                <p class="form-subtitle">Masukkan NIM dan token mahasiswa Anda</p>
+            <div class="login-right">
+                <svg viewBox="0 0 400 440" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+                            <stop offset="0%" stop-color="#5B79FF" stop-opacity="0.9" />
+                            <stop offset="100%" stop-color="#5B79FF" stop-opacity="0" />
+                        </radialGradient>
+                    </defs>
 
-                <div class="error-message" id="loginErrorMessage">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
-                    <span>Kredensial login tidak valid. Silakan coba lagi.</span>
-                </div>
+                    <circle cx="200" cy="200" r="180" fill="url(#glow)" opacity="0.5" />
 
-                <form action="{{ route('mahasiswa.login.submit') }}" method="post">
-                    @csrf
+                    <path d="M200 200 L120 130 M200 200 L290 110 M200 200 L100 260 M200 200 L300 280" stroke="#8EA3FF"
+                        stroke-width="1.5" opacity="0.5" />
 
-                    <div class="form-group">
-                        <label for="nim" class="form-label">NIM</label>
-                        <input type="text" id="nim" name="nim" class="form-input" placeholder="Contoh: 20260001"
-                            value="{{ old('nim') }}" required autofocus>
-                    </div>
+                    <circle cx="120" cy="130" r="30" fill="#3B82F6" opacity="0.95" />
+                    <text x="120" y="138" font-family="Inter" font-size="22" fill="white" text-anchor="middle">
+                        <tspan>&#128421;</tspan>
+                    </text>
 
-                    <div class="form-group">
-                        <label for="token" class="form-label">Token Referral</label>
-                        <input type="password" id="token" name="token" class="form-input" placeholder="6 digit token"
-                            maxlength="6" required>
-                    </div>
+                    <circle cx="290" cy="110" r="32" fill="#F59E0B" opacity="0.95" />
+                    <text x="290" y="119" font-family="Inter" font-size="24" fill="white" text-anchor="middle">
+                        <tspan>&#9993;</tspan>
+                    </text>
 
-                    <button type="submit" class="login-button">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Login Mahasiswa
-                    </button>
-                </form>
+                    <circle cx="100" cy="260" r="30" fill="#EC4899" opacity="0.95" />
+                    <text x="100" y="269" font-family="Inter" font-size="22" fill="white" text-anchor="middle">
+                        <tspan>&#128227;</tspan>
+                    </text>
 
-                <a href="#" class="forgot-link">Lupa password?</a>
-            </div>
+                    <circle cx="300" cy="280" r="32" fill="#EAB308" opacity="0.95" />
+                    <text x="300" y="290" font-family="Inter" font-size="24" fill="white" text-anchor="middle">
+                        <tspan>&#128200;</tspan>
+                    </text>
 
-            <!-- Register Form -->
-            <div id="registerForm" class="form-container">
-                <h1 class="form-title">Register Mahasiswa</h1>
-                <p class="form-subtitle">Daftar untuk mengakses layanan perpustakaan</p>
+                    <circle cx="220" cy="330" r="26" fill="#EF4444" opacity="0.95" />
+                    <text x="220" y="338" font-family="Inter" font-size="20" fill="white" text-anchor="middle">
+                        <tspan>&#128222;</tspan>
+                    </text>
 
-                <div class="error-message" id="registerErrorMessage">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
-                    <span id="registerErrorText"></span>
-                </div>
+                    <ellipse cx="200" cy="215" rx="46" ry="86" fill="#1E293B" />
+                    <circle cx="200" cy="118" r="26" fill="#FBCFE8" />
 
-                <form action="{{ route('publik.register.store') }}" method="POST" id="registerFormSubmit">
-                    @csrf
-
-                    <div class="form-group">
-                        <label for="reg_nama" class="register-form-label">Nama Lengkap</label>
-                        <input type="text" id="reg_nama" name="nama" class="register-input"
-                            placeholder="Masukkan nama lengkap" required autocomplete="name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reg_nim" class="register-form-label">NIM</label>
-                        <input type="text" id="reg_nim" name="nim" class="register-input" placeholder="Masukkan NIM"
-                            required autocomplete="off">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reg_jurusan" class="register-form-label">Jurusan</label>
-                        <select id="reg_jurusan" name="jurusan" class="register-input" required>
-                            <option value="" disabled selected>Pilih Jurusan</option>
-                            <option value="Teknik Informatika (TI)">Teknik Informatika (TI)</option>
-                            <option value="Sistem Informatika (SI)">Sistem Informatika (SI)</option>
-                            <option value="Desain Komunikasi Visual (DKV)">Desain Komunikasi Visual (DKV)</option>
-                            <option value="Teknik Sipil (TS)">Teknik Sipil (TS)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reg_no_telepon" class="register-form-label">No. Telepon (Opsional)</label>
-                        <input type="tel" id="reg_no_telepon" name="no_telepon" class="register-input"
-                            placeholder="Contoh: 08123456789" autocomplete="tel">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reg_email" class="register-form-label">Email</label>
-                        <input type="email" id="reg_email" name="email" class="register-input"
-                            placeholder="contoh: nama@example.com" required autocomplete="email">
-                    </div>
-
-                    <button type="submit" class="register-button">
-                        <i class="fas fa-user-plus mr-2"></i> Register Mahasiswa
-                    </button>
-                </form>
-
-                <div class="register-info">
-                    <i class="fas fa-info-circle"></i>
-                    <p>Setelah mendaftar, akun Anda akan diverifikasi oleh admin. Anda akan dapat menggunakan layanan
-                        perpustakaan setelah akun disetujui.</p>
-                </div>
+                    <path d="M330 40 Q360 20 380 60 Q350 70 330 40 Z" fill="#2C3E8C" opacity="0.5" />
+                    <path d="M20 380 Q50 360 60 400 Q30 410 20 380 Z" fill="#2C3E8C" opacity="0.5" />
+                </svg>
             </div>
         </div>
+    </div>
 
-        <div class="login-right">
-            <svg class="illustration" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.2" />
-                        <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.05" />
-                    </linearGradient>
-                </defs>
-
-                <circle cx="200" cy="200" r="150" fill="url(#gradient1)" />
-
-                <rect x="120" y="140" width="160" height="120" rx="8" fill="white" opacity="0.9" />
-
-                <circle cx="150" cy="180" r="15" fill="#4F46E5" opacity="0.8" />
-                <circle cx="200" cy="180" r="15" fill="#7C3AED" opacity="0.8" />
-                <circle cx="250" cy="180" r="15" fill="#EC4899" opacity="0.8" />
-
-                <rect x="140" y="210" width="120" height="8" rx="4" fill="#E5E7EB" />
-                <rect x="140" y="225" width="80" height="8" rx="4" fill="#E5E7EB" />
-                <rect x="140" y="240" width="100" height="8" rx="4" fill="#E5E7EB" />
-
-                <circle cx="320" cy="120" r="30" fill="white" opacity="0.3" />
-                <circle cx="80" cy="280" r="20" fill="white" opacity="0.2" />
-
-                <path d="M280 100 Q320 80 340 120" stroke="white" stroke-width="3" fill="none" opacity="0.5" />
-                <path d="M100 300 Q60 320 40 280" stroke="white" stroke-width="3" fill="none" opacity="0.5" />
-
-                <text x="200" y="320" font-family="Inter" font-size="18" font-weight="600" fill="white"
-                    text-anchor="middle">
-                    Check Your Project Progress
-                </text>
-                <text x="200" y="345" font-family="Inter" font-size="14" fill="white" opacity="0.8"
-                    text-anchor="middle">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </text>
-            </svg>
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 class="modal-title">Pendaftaran Berhasil!</h3>
+            <p class="modal-text">Akun Anda sedang menunggu persetujuan admin. Anda akan dapat menggunakan layanan
+                perpustakaan setelah akun disetujui.</p>
+            <button class="modal-button" onclick="closeSuccessModal()">Mengerti</button>
         </div>
     </div>
 
     <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
     <script>
     function showLogin() {
-        document.getElementById('loginForm').classList.add('active');
-        document.getElementById('registerForm').classList.remove('active');
-        document.querySelectorAll('.tab-btn')[0].classList.add('active');
-        document.querySelectorAll('.tab-btn')[1].classList.remove('active');
+        document.getElementById('loginPanel').classList.add('active');
+        document.getElementById('registerPanel').classList.remove('active');
     }
 
     function showRegister() {
-        document.getElementById('loginForm').classList.remove('active');
-        document.getElementById('registerForm').classList.add('active');
-        document.querySelectorAll('.tab-btn')[0].classList.remove('active');
-        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('loginPanel').classList.remove('active');
+        document.getElementById('registerPanel').classList.add('active');
+    }
+
+    function showSuccessModal() {
+        document.getElementById('successModal').classList.add('show');
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').classList.remove('show');
+        showLogin();
     }
 
     $(function() {
         $('#token').on('input', function() {
             this.value = this.value.toUpperCase();
+        });
+
+        $('#toggleToken').on('click', function() {
+            const input = document.getElementById('token');
+            const icon = $(this).find('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
         });
 
         $('#registerFormSubmit').on('submit', function(e) {
@@ -569,7 +676,6 @@
             const errorDiv = $('#registerErrorMessage');
             const errorText = $('#registerErrorText');
 
-            // Basic validation
             if (!formData.get('nama') || !formData.get('nim') || !formData.get('jurusan') || !formData
                 .get('email')) {
                 errorText.text('Nama, NIM, Jurusan, dan Email harus diisi.');
@@ -580,7 +686,6 @@
                 return;
             }
 
-            // Submit form via AJAX
             $.ajax({
                 url: form.action,
                 type: 'POST',
@@ -592,12 +697,8 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reset form and show success message
                         form.reset();
-                        alert(
-                            'Pendaftaran berhasil! Akun Anda sedang menunggu persetujuan admin.'
-                        );
-                        showLogin();
+                        showSuccessModal();
                     } else {
                         errorText.text(response.message ||
                             'Terjadi kesalahan. Silakan coba lagi.');
@@ -619,7 +720,12 @@
             });
         });
     });
+
+    document.getElementById('successModal').addEventListener('click', function(e) {
+        if (e.target === this) closeSuccessModal();
+    });
     </script>
+
 </body>
 
 </html>

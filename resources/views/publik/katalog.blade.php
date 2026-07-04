@@ -2161,7 +2161,8 @@
             });
             const esc = document.createElement('div');
             esc.textContent = text;
-            d.innerHTML = `<div class="msg-text">${esc.innerHTML}</div><div class="msg-time">${time}</div>`;
+            const escapedHtml = esc.innerHTML.replace(/\n/g, '<br>');
+            d.innerHTML = `<div class="msg-text">${escapedHtml}</div><div class="msg-time">${time}</div>`;
             msgs.appendChild(d);
             msgs.scrollTop = msgs.scrollHeight;
         }
@@ -2272,8 +2273,9 @@
                 })
                 .then(r => r.json()).then(d => {
                     (d.messages || []).forEach(m => {
-                        if (m.sender_type === 'admin' || m.sender_type === 'bot') addMsg(m.sender_type,
-                            m.message);
+                        // Bot messages sudah ditampilkan langsung dari respons sendMsg() —
+                        // polling cukup tangani pesan admin saja, supaya tidak dobel.
+                        if (m.sender_type === 'admin') addMsg(m.sender_type, m.message);
                         if (m.id > lastId.value) lastId.value = m.id;
                     });
                     if (d.is_connected_to_admin && !adminConnected) {

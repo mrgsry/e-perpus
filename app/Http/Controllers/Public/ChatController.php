@@ -261,6 +261,12 @@ class ChatController extends Controller
             'cara pinjam buku' => 'Cara meminjam buku: 1) Cari buku di katalog, 2) Klik Pinjam, 3) Isi formulir dengan NIM Anda, 4) Tunggu konfirmasi admin.',
             'total buku' => 'Anda dapat melihat daftar buku yang tersedia di halaman Katalog Buku.',
             'kategori' => 'Kategori buku yang tersedia meliputi fiksi, non-fiksi, pelajaran, dan referensi akademik.',
+            'daftar member' => 'Untuk mendaftar sebagai anggota, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
+            'cara daftar' => 'Untuk mendaftar sebagai anggota, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
+            'register' => 'Untuk mendaftar sebagai anggota, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
+            'daftar akun' => 'Untuk mendaftar akun, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
+            'gimana daftar' => 'Untuk mendaftar sebagai anggota, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
+            'gimana jadi member' => 'Untuk menjadi member, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
         ];
 
         foreach ($keywords as $key => $response) {
