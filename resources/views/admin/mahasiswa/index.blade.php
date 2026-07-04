@@ -27,99 +27,102 @@
                 <h3 class="card-title">Daftar Mahasiswa</h3>
             </div>
             <div class="card-body">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama</th>
-                            <th>NIM</th>
-                            <th>Jurusan</th>
-                            <th>No. Telepon</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Token Referral</th>
-                            <th>Aksi</th>
-                            <th>Update Request</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($mahasiswas as $i => $mahasiswa)
-                        <tr>
-                            <td>{{ $i + 1 }}</td>
-                            <td>{{ $mahasiswa->nama }}</td>
-                            <td>{{ $mahasiswa->nim }}</td>
-                            <td>{{ $mahasiswa->jurusan }}</td>
-                            <td>{{ $mahasiswa->no_telepon ?? '-' }}</td>
-                            <td>{{ $mahasiswa->email }}</td>
-                            <td>
-                                @if($mahasiswa->status === 'pending')
-                                <span class="badge badge-warning">Pending</span>
-                                @elseif($mahasiswa->status === 'approved')
-                                <span class="badge badge-success">Approved</span>
-                                @else
-                                <span class="badge badge-danger">Rejected</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($mahasiswa->referral_token)
-                                <code class="bg-light p-1">{{ $mahasiswa->referral_token }}</code>
-                                @else
-                                <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if ($mahasiswa->status === 'pending')
-                                <button type="button" class="btn btn-success btn-xs btn-action"
-                                    data-url="{{ route('admin.mahasiswa.approve', $mahasiswa->id) }}"
-                                    data-action="Approve" data-nama="{{ $mahasiswa->nama }}">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button type="button" class="btn btn-danger btn-xs btn-action"
-                                    data-url="{{ route('admin.mahasiswa.reject', $mahasiswa->id) }}"
-                                    data-action="Reject" data-nama="{{ $mahasiswa->nama }}">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                                @endif
-                                <button type="button" class="btn btn-outline-primary btn-xs btn-edit"
-                                    data-url="{{ route('admin.mahasiswa.update', $mahasiswa->id) }}"
-                                    data-nama="{{ $mahasiswa->nama }}" data-nim="{{ $mahasiswa->nim }}"
-                                    data-jurusan="{{ $mahasiswa->jurusan }}" data-telepon="{{ $mahasiswa->no_telepon }}"
-                                    data-email="{{ $mahasiswa->email }}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                @if($mahasiswa->status === 'approved' && $mahasiswa->email)
-                                <button type="button" class="btn btn-outline-warning btn-xs btn-resend-email"
-                                    data-url="{{ route('admin.mahasiswa.resend-email', $mahasiswa->id) }}"
-                                    data-nama="{{ $mahasiswa->nama }}" data-email="{{ $mahasiswa->email }}"
-                                    title="Kirim Ulang Email Informasi Akun">
-                                    <i class="fas fa-envelope"></i>
-                                </button>
-                                @endif
-                                <button type="button" class="btn btn-outline-info btn-xs btn-action"
-                                    data-url="{{ route('admin.mahasiswa.approve', $mahasiswa->id) }}"
-                                    data-action="Generate Token" data-nama="{{ $mahasiswa->nama }}">
-                                    <i class="fas fa-key"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-danger btn-xs btn-delete"
-                                    data-url="{{ route('admin.mahasiswa.destroy', $mahasiswa->id) }}"
-                                    data-nama="{{ $mahasiswa->nama }}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                            <td>
-                                @if($mahasiswa->pending_updates)
-                                <button type="button" class="btn btn-sm btn-outline-warning btn-update-request"
-                                    data-url="{{ route('admin.mahasiswa.process-update', $mahasiswa->id) }}"
-                                    data-nama="{{ $mahasiswa->nama }}"
-                                    data-updates="{{ json_encode($mahasiswa->pending_updates) }}">
-                                    <i class="fas fa-exclamation-triangle"></i> Update
-                                </button>
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <div class="table-responsive-sm">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>NIM</th>
+                                <th>Jurusan</th>
+                                <th>No. Telepon</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Token Referral</th>
+                                <th>Aksi</th>
+                                <th>Update Request</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($mahasiswas as $i => $mahasiswa)
+                            <tr>
+                                <td>{{ $i + 1 }}</td>
+                                <td>{{ $mahasiswa->nama }}</td>
+                                <td>{{ $mahasiswa->nim }}</td>
+                                <td>{{ $mahasiswa->jurusan }}</td>
+                                <td>{{ $mahasiswa->no_telepon ?? '-' }}</td>
+                                <td>{{ $mahasiswa->email }}</td>
+                                <td>
+                                    @if($mahasiswa->status === 'pending')
+                                    <span class="badge badge-warning">Pending</span>
+                                    @elseif($mahasiswa->status === 'approved')
+                                    <span class="badge badge-success">Approved</span>
+                                    @else
+                                    <span class="badge badge-danger">Rejected</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($mahasiswa->referral_token)
+                                    <code class="bg-light p-1">{{ $mahasiswa->referral_token }}</code>
+                                    @else
+                                    <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($mahasiswa->status === 'pending')
+                                    <button type="button" class="btn btn-success btn-xs btn-action"
+                                        data-url="{{ route('admin.mahasiswa.approve', $mahasiswa->id) }}"
+                                        data-action="Approve" data-nama="{{ $mahasiswa->nama }}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-xs btn-action"
+                                        data-url="{{ route('admin.mahasiswa.reject', $mahasiswa->id) }}"
+                                        data-action="Reject" data-nama="{{ $mahasiswa->nama }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    @endif
+                                    <button type="button" class="btn btn-outline-primary btn-xs btn-edit"
+                                        data-url="{{ route('admin.mahasiswa.update', $mahasiswa->id) }}"
+                                        data-nama="{{ $mahasiswa->nama }}" data-nim="{{ $mahasiswa->nim }}"
+                                        data-jurusan="{{ $mahasiswa->jurusan }}"
+                                        data-telepon="{{ $mahasiswa->no_telepon }}"
+                                        data-email="{{ $mahasiswa->email }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    @if($mahasiswa->status === 'approved' && $mahasiswa->email)
+                                    <button type="button" class="btn btn-outline-warning btn-xs btn-resend-email"
+                                        data-url="{{ route('admin.mahasiswa.resend-email', $mahasiswa->id) }}"
+                                        data-nama="{{ $mahasiswa->nama }}" data-email="{{ $mahasiswa->email }}"
+                                        title="Kirim Ulang Email Informasi Akun">
+                                        <i class="fas fa-envelope"></i>
+                                    </button>
+                                    @endif
+                                    <button type="button" class="btn btn-outline-info btn-xs btn-action"
+                                        data-url="{{ route('admin.mahasiswa.approve', $mahasiswa->id) }}"
+                                        data-action="Generate Token" data-nama="{{ $mahasiswa->nama }}">
+                                        <i class="fas fa-key"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-xs btn-delete"
+                                        data-url="{{ route('admin.mahasiswa.destroy', $mahasiswa->id) }}"
+                                        data-nama="{{ $mahasiswa->nama }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    @if($mahasiswa->pending_updates)
+                                    <button type="button" class="btn btn-sm btn-outline-warning btn-update-request"
+                                        data-url="{{ route('admin.mahasiswa.process-update', $mahasiswa->id) }}"
+                                        data-nama="{{ $mahasiswa->nama }}"
+                                        data-updates="{{ json_encode($mahasiswa->pending_updates) }}">
+                                        <i class="fas fa-exclamation-triangle"></i> Update
+                                    </button>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
