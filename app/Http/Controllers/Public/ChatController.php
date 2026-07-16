@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\Mahasiswa;
+use App\Models\Peminjaman;
 use App\Services\GeminiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -111,8 +112,12 @@ class ChatController extends Controller
                     ];
                 })->toArray();
 
-            // Try to get AI response using Gemini Service
-            $aiService = new GeminiService();
+            // Try to get AI response using Gemini Service (with mahasiswa context)
+            $aiService = new GeminiService([
+                'id' => session('chat_mahasiswa_id'),
+                'nim' => session('chat_mahasiswa_nim'),
+                'nama' => session('chat_mahasiswa_nama'),
+            ]);
             $aiResult = $aiService->generateResponse($message, $history);
             $botResponse = $aiResult['response'] ?? null;
 
@@ -261,12 +266,12 @@ class ChatController extends Controller
             'cara pinjam buku' => 'Cara meminjam buku: 1) Cari buku di katalog, 2) Klik Pinjam, 3) Isi formulir dengan NIM Anda, 4) Tunggu konfirmasi admin.',
             'total buku' => 'Anda dapat melihat daftar buku yang tersedia di halaman Katalog Buku.',
             'kategori' => 'Kategori buku yang tersedia meliputi fiksi, non-fiksi, pelajaran, dan referensi akademik.',
-            'daftar member' => 'Untuk mendaftar sebagai anggota, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
-            'cara daftar' => 'Untuk mendaftar sebagai anggota, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
-            'register' => 'Untuk mendaftar sebagai anggota, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
-            'daftar akun' => 'Untuk mendaftar akun, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
-            'gimana daftar' => 'Untuk mendaftar sebagai anggota, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
-            'gimana jadi member' => 'Untuk menjadi member, silakan ikuti langkah-langkah berikut: 1) Klik menu Mahasiswa di header, 2) Pilih Register, 3) Isi data Anda, 4) Tunggu approval admin, 5) Cek email untuk informasi login.',
+            'daftar member' => 'Tentu! Berikut adalah langkah-langkah lengkap untuk mendaftar sebagai anggota perpustakaan digital kami:\n\n1. **Klik menu Mahasiswa** pada header di bagian pojok kanan atas halaman\n2. **Pilih ke bagian Register** (halaman pendaftaran)\n3. **Masukan data Anda** dengan lengkap dan akurat\n4. **Jika sudah, tunggu sampai akun Anda di approve** oleh admin perpustakaan\n5. **Jika akun sudah di approve, akan ada email masuk** berisi informasi akses Anda\n\nSetelah menerima email, Anda bisa login menggunakan NIM dan password yang diberikan. Jika ada pertanyaan lain, jangan ragu untuk bertanya!',
+            'cara daftar' => 'Tentu! Berikut adalah langkah-langkah lengkap untuk mendaftar sebagai anggota perpustakaan digital kami:\n\n1. **Klik menu Mahasiswa** pada header di bagian pojok kanan atas halaman\n2. **Pilih ke bagian Register** (halaman pendaftaran)\n3. **Masukan data Anda** dengan lengkap dan akurat\n4. **Jika sudah, tunggu sampai akun Anda di approve** oleh admin perpustakaan\n5. **Jika akun sudah di approve, akan ada email masuk** berisi informasi akses Anda\n\nSetelah menerima email, Anda bisa login menggunakan NIM dan password yang diberikan. Jika ada pertanyaan lain, jangan ragu untuk bertanya!',
+            'register' => 'Tentu! Berikut adalah langkah-langkah lengkap untuk mendaftar sebagai anggota perpustakaan digital kami:\n\n1. **Klik menu Mahasiswa** pada header di bagian pojok kanan atas halaman\n2. **Pilih ke bagian Register** (halaman pendaftaran)\n3. **Masukan data Anda** dengan lengkap dan akurat\n4. **Jika sudah, tunggu sampai akun Anda di approve** oleh admin perpustakaan\n5. **Jika akun sudah di approve, akan ada email masuk** berisi informasi akses Anda\n\nSetelah menerima email, Anda bisa login menggunakan NIM dan password yang diberikan. Jika ada pertanyaan lain, jangan ragu untuk bertanya!',
+            'daftar akun' => 'Tentu! Berikut adalah langkah-langkah lengkap untuk mendaftar sebagai anggota perpustakaan digital kami:\n\n1. **Klik menu Mahasiswa** pada header di bagian pojok kanan atas halaman\n2. **Pilih ke bagian Register** (halaman pendaftaran)\n3. **Masukan data Anda** dengan lengkap dan akurat\n4. **Jika sudah, tunggu sampai akun Anda di approve** oleh admin perpustakaan\n5. **Jika akun sudah di approve, akan ada email masuk** berisi informasi akses Anda\n\nSetelah menerima email, Anda bisa login menggunakan NIM dan password yang diberikan. Jika ada pertanyaan lain, jangan ragu untuk bertanya!',
+            'gimana daftar' => 'Tentu! Berikut adalah langkah-langkah lengkap untuk mendaftar sebagai anggota perpustakaan digital kami:\n\n1. **Klik menu Mahasiswa** pada header di bagian pojok kanan atas halaman\n2. **Pilih ke bagian Register** (halaman pendaftaran)\n3. **Masukan data Anda** dengan lengkap dan akurat\n4. **Jika sudah, tunggu sampai akun Anda di approve** oleh admin perpustakaan\n5. **Jika akun sudah di approve, akan ada email masuk** berisi informasi akses Anda\n\nSetelah menerima email, Anda bisa login menggunakan NIM dan password yang diberikan. Jika ada pertanyaan lain, jangan ragu untuk bertanya!',
+            'gimana jadi member' => 'Tentu! Berikut adalah langkah-langkah lengkap untuk mendaftar sebagai anggota perpustakaan digital kami:\n\n1. **Klik menu Mahasiswa** pada header di bagian pojok kanan atas halaman\n2. **Pilih ke bagian Register** (halaman pendaftaran)\n3. **Masukan data Anda** dengan lengkap dan akurat\n4. **Jika sudah, tunggu sampai akun Anda di approve** oleh admin perpustakaan\n5. **Jika akun sudah di approve, akan ada email masuk** berisi informasi akses Anda\n\nSetelah menerima email, Anda bisa login menggunakan NIM dan password yang diberikan. Jika ada pertanyaan lain, jangan ragu untuk bertanya!',
         ];
 
         foreach ($keywords as $key => $response) {
@@ -275,39 +280,99 @@ class ChatController extends Controller
             }
         }
 
-        // Filter unrelated topics
-        $unrelatedTopics = [
-            'basket',
-            'bola',
-            'sepak',
-            'game',
-            'main',
-            'film',
-            'nonton',
-            'lagu',
-            'musik',
-            'makanan',
-            'resep',
-            'masak',
-            'travel',
-            'wisata',
-            'liburan',
-            'joke',
-            'lucu',
-            'gombal',
-            'curhat',
-            'pacar',
-            'jodoh',
-            'politik',
-            'berita',
-            'prediksi',
-            'togel',
-            'jud',
-            'saham',
-            'crypto',
-            'bitcoin',
-            'ramal',
+        // Borrowing data query keywords (dynamic database fallback when AI fails)
+        $borrowingKeywords = [
+            'peminjaman saya',
+            'pinjaman saya',
+            'status pinjaman',
+            'status peminjaman',
+            'cek pinjaman',
+            'cek peminjaman',
+            'buku yang saya pinjam',
+            'riwayat peminjaman',
+            'history pinjaman',
+            'data peminjaman',
+            'lihat peminjaman',
         ];
+        foreach ($borrowingKeywords as $keyword) {
+            if (str_contains($message, $keyword)) {
+                return $this->getMahasiswaBorrowingsResponse();
+            }
+        }
+
+                // Filter unrelated topics
+                $unrelatedTopics = [
+                    'basket',
+                    'bola',
+                    'sepak',
+                    'game',
+                    'main',
+                    'film',
+                    'nonton',
+                    'lagu',
+                    'musik',
+                    'makanan',
+                    'resep',
+                    'masak',
+                    'travel',
+                    'wisata',
+                    'liburan',
+                    'joke',
+                    'lucu',
+                    'gombal',
+                    'curhat',
+                    'pacar',
+                    'jodoh',
+                    'politik',
+                    'berita',
+                    'prediksi',
+                    'togel',
+                    'jud',
+                    'saham',
+                    'crypto',
+                    'bitcoin',
+                    'ramal',
+                ];
+
+                // Denda-related keywords
+                $dendaKeywords = [
+                    'denda',
+                    'cek denda',
+                    'denda saya',
+                    'informasi denda',
+                    'total denda',
+                    'denda buku',
+                    'denda terlambat',
+                    'denda peminjaman',
+                    'berapa denda',
+                    'denda keterlambatan',
+                ];
+                foreach ($dendaKeywords as $keyword) {
+                    if (str_contains($message, $keyword)) {
+                        return $this->getMahasiswaDendaResponse();
+                    }
+                }
+
+                // Loan eligibility keywords (fallback when AI fails)
+                $loanEligibilityKeywords = [
+                    'saya mau pinjam',
+                    'mau pinjam buku',
+                    'bisa pinjam',
+                    'ingin pinjam',
+                    'pinjam buku baru',
+                    'saya mau meminjam',
+                    'gimana cara pinjam',
+                    'bisa tidak saya',
+                    'syarat pinjam',
+                    'cek pinjam',
+                    'apakah bisa',
+                    'kapan bisa pinjam',
+                ];
+                foreach ($loanEligibilityKeywords as $keyword) {
+                    if (str_contains($message, $keyword)) {
+                        return $this->getMahasiswaLoanEligibilityResponse();
+                    }
+                }
 
         foreach ($unrelatedTopics as $word) {
             if (str_contains($message, $word)) {
@@ -316,5 +381,156 @@ class ChatController extends Controller
         }
 
         return 'Maaf, saya tidak mengerti pertanyaan Anda. Bisa dijelaskan lebih detail?';
+    }
+
+    /**
+     * Query borrowing data for the authenticated mahasiswa
+     */
+    private function getMahasiswaBorrowingsResponse(): string
+    {
+        $mahasiswaId = session('chat_mahasiswa_id');
+        if (!$mahasiswaId) {
+            return 'Maaf, Anda belum terverifikasi. Silakan masukkan NIM terlebih dahulu.';
+        }
+
+        $borrowings = Peminjaman::with('buku')
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if ($borrowings->isEmpty()) {
+            return 'Saat ini tidak ada data peminjaman buku atas nama Anda. Jika ingin meminjam buku, silakan kunjungi halaman Katalog Buku.';
+        }
+
+        $response = "Berikut adalah data peminjaman buku Anda:\n\n";
+
+        foreach ($borrowings as $index => $pinjam) {
+            $num = $index + 1;
+            $namaBuku = $pinjam->buku->nama_buku ?? 'Buku tidak ditemukan';
+            $tglPinjam = $pinjam->tanggal_pinjam ? date('d/m/Y', strtotime($pinjam->tanggal_pinjam)) : '-';
+            $tglKembali = $pinjam->tanggal_kembali_rencana ? date('d/m/Y', strtotime($pinjam->tanggal_kembali_rencana)) : '-';
+
+            $statusMap = [
+                'pending' => 'Menunggu Konfirmasi',
+                'approved' => 'Disetujui',
+                'borrowed' => 'Sedang Dipinjam',
+                'returned' => 'Sudah Dikembalikan',
+                'rejected' => 'Ditolak',
+                'overdue' => 'Terlambat',
+            ];
+            $statusLabel = $statusMap[$pinjam->status] ?? $pinjam->status;
+
+            $response .= "{$num}. {$namaBuku}\n";
+            $response .= "   Tanggal Pinjam: {$tglPinjam}\n";
+            $response .= "   Batas Kembali: {$tglKembali}\n";
+            $response .= "   Status: {$statusLabel}\n\n";
+        }
+
+        $response .= "Total: {$borrowings->count()} peminjaman.";
+
+        return $response;
+    }
+
+    /**
+     * Check loan eligibility for the authenticated mahasiswa
+     * Fallback method when AI fails to respond
+     */
+    private function getMahasiswaLoanEligibilityResponse(): string
+    {
+        $mahasiswaId = session('chat_mahasiswa_id');
+        if (!$mahasiswaId) {
+            return 'Maaf, Anda belum terverifikasi. Silakan masukkan NIM terlebih dahulu.';
+        }
+
+        $now = now();
+
+        // Cek peminjaman yang overdue
+        $overdueBorrowings = Peminjaman::with('buku')
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->where(function ($query) use ($now) {
+                $query->where('status', 'overdue')
+                    ->orWhere(function ($q) use ($now) {
+                        $q->where('status', 'borrowed')
+                          ->where('tanggal_kembali_rencana', '<', $now);
+                    });
+            })
+            ->orderBy('tanggal_kembali_rencana', 'asc')
+            ->get();
+
+        if ($overdueBorrowings->isEmpty()) {
+            // Tidak ada peminjaman terlambat -> BISA PINJAM
+            $response = "✅ **Status Kelayakan Peminjaman** ✅\n\n";
+            $response .= "Selamat! Anda **BISA MEMINJAM BUKU** di perpustakaan e-perpus.\n";
+            $response .= "Saat ini Anda tidak memiliki peminjaman yang terlambat.\n\n";
+
+            // Tampilkan buku yang sedang dipinjam (jika ada)
+            $activeBorrowings = Peminjaman::with('buku')
+                ->where('mahasiswa_id', $mahasiswaId)
+                ->whereIn('status', ['borrowed', 'approved'])
+                ->get();
+
+            if ($activeBorrowings->isNotEmpty()) {
+                $response .= "Buku yang sedang Anda pinjam:\n";
+                foreach ($activeBorrowings as $index => $pinjam) {
+                    $num = $index + 1;
+                    $namaBuku = $pinjam->buku->nama_buku ?? 'Buku tidak ditemukan';
+                    $tglKembali = $pinjam->tanggal_kembali_rencana ? date('d/m/Y', strtotime($pinjam->tanggal_kembali_rencana)) : '-';
+                    $response .= "{$num}. {$namaBuku} (Batas kembali: {$tglKembali})\n";
+                }
+            }
+
+            $response .= "\nSilakan menuju halaman Katalog Buku untuk memilih buku yang ingin dipinjam. Selamat membaca!";
+        } else {
+            // Ada peminjaman terlambat -> TIDAK BISA PINJAM
+            $response = "❌ **Status Kelayakan Peminjaman** ❌\n\n";
+            $response .= "Mohon maaf, saat ini Anda **TIDAK BISA MEMINJAM BUKU** karena ada peminjaman yang terlambat.\n";
+            $response .= "Anda harus menyelesaikan peminjaman yang terlambat terlebih dahulu.\n\n";
+            $response .= "Detail Peminjaman Terlambat:\n\n";
+
+            foreach ($overdueBorrowings as $index => $pinjam) {
+                $num = $index + 1;
+                $namaBuku = $pinjam->buku->nama_buku ?? 'Buku tidak ditemukan';
+                $tglPinjam = $pinjam->tanggal_pinjam ? date('d/m/Y', strtotime($pinjam->tanggal_pinjam)) : '-';
+                $tglKembali = $pinjam->tanggal_kembali_rencana ? date('d/m/Y', strtotime($pinjam->tanggal_kembali_rencana)) : '-';
+
+                // Hitung hari terlambat
+                $hariTerlambat = 0;
+                if ($pinjam->tanggal_kembali_rencana) {
+                    $rencana = $pinjam->tanggal_kembali_rencana->timestamp;
+                    $sekarang = time();
+                    $hariTerlambat = max(0, floor(($sekarang - $rencana) / (60 * 60 * 24)));
+                }
+
+                // Ambil data denda jika ada relasi denda
+                $totalDenda = 0;
+                if ($pinjam->relationLoaded('denda') && $pinjam->denda) {
+                    $totalDenda = $pinjam->denda->total_denda;
+                    $hariTerlambat = $pinjam->denda->hari_terlambat ?? $hariTerlambat;
+                }
+
+                $alasan = $pinjam->status === 'overdue'
+                    ? "Terlambat {$hariTerlambat} hari"
+                    : "Lewat batas waktu {$hariTerlambat} hari";
+
+                $response .= "{$num}. {$namaBuku}\n";
+                $response .= "   Tanggal Pinjam: {$tglPinjam}\n";
+                $response .= "   Batas Kembali: {$tglKembali}\n";
+                $response .= "   Alasan: {$alasan}\n";
+
+                if ($totalDenda > 0) {
+                    $response .= "   Denda: Rp " . number_format($totalDenda, 0, ',', '.') . "\n";
+                }
+
+                $response .= "\n";
+            }
+
+            $response .= "Cara Mengaktifkan Kembali Kelayakan Meminjam:\n";
+            $response .= "1. Kembalikan buku yang terlambat ke perpustakaan\n";
+            $response .= "2. Lunasi denda keterlambatan (jika ada)\n";
+            $response .= "3. Tunggu konfirmasi dari admin perpustakaan\n\n";
+            $response .= "Jika ada pertanyaan, silakan hubungi admin perpustakaan.";
+        }
+
+        return $response;
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Buku;
+use App\Models\Denda;
+use App\Models\Peminjaman;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -14,9 +16,11 @@ class GeminiService
     protected $timeout;
     protected $maxTokens;
     protected $temperature;
+    protected $mahasiswa = null;
 
-    public function __construct()
+    public function __construct(?array $mahasiswa = null)
     {
+        $this->mahasiswa = $mahasiswa;
         $this->baseUrl = env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/');
         $this->apiKey = env('GEMINI_API_KEY');
         $this->model = env('GEMINI_MODEL', 'gemini-2.5-flash');
@@ -37,7 +41,7 @@ class GeminiService
         try {
             $systemPrompt = 'Anda adalah asisten AI untuk perpustakaan e-perpus yang bertugas menganalisis pertanyaan pengguna dan mengembalikan respons dalam format JSON.
 
-Tugas Anda:
+Tugas Saya:
 1. DETEKSI INTENT dari pertanyaan pengguna
 2. Ekstrak parameter yang relevan
 
@@ -48,6 +52,9 @@ INTENT yang tersedia:
 - filter_by_genre: Filter berdasarkan genre (contoh: "buku genre romance", "novel thriller")
 - check_availability: Cek ketersediaan buku (contoh: "stok buku", "buku tersedia?")
 - borrowing_info: Info peminjaman (contoh: "cara pinjam", "aturan peminjaman")
+- my_borrowings: Pengguna ingin melihat status peminjaman buku mereka sendiri (contoh: "peminjaman saya", "cek status peminjaman", "buku yang saya pinjam", "pinjaman saya", "riwayat peminjaman", "status pinjaman")
+- my_denda: Pengguna ingin melihat informasi denda mereka (contoh: "cek denda saya", "berapa denda saya?", "informasi denda", "total denda saya", "denda buku", "denda terlambat", "denda peminjaman", "denda keterlambatan", "cek denda peminjaman", "denda buku saya")
+- check_loan_eligibility: Pengguna ingin mengecek apakah bisa pinjam buku atau tidak, atau ada masalah dengan peminjaman (contoh: "saya mau pinjam buku", "apakah saya bisa pinjam buku?", "kenapa tidak bisa pinjam", "saya ingin meminjam", "cek status pinjaman untuk pinjam baru", "bisa tidak saya pinjam buku", "syarat pinjam buku", "apakah ada denda", "ada telat tidak saya")
 - member_registration: Pengguna ingin mendaftar menjadi anggota/member perpustakaan (contoh: "cara daftar member", "gimana caranya jadi anggota?", "daftar akun")
 - general_info: Pertanyaan umum tentang perpustakaan
 
@@ -67,7 +74,13 @@ User: "ada buku apa aja?"
 Output: {"intent": "list_all_books", "query_params": {}, "response_text": "Saya akan menampilkan daftar buku yang tersedia di perpustakaan kami!"}
 
 User: "gimana caranya jadi anggota?"
-Output: {"intent": "member_registration", "query_params": {}, "response_text": "Tentu, saya akan bantu jelaskan cara mendaftar menjadi anggota e-perpus kami. Prosesnya mudah kok!"}';
+Output: {"intent": "member_registration", "query_params": {}, "response_text": "Tentu, saya akan bantu jelaskan cara mendaftar menjadi anggota e-perpus kami. Prosesnya mudah kok!"}
+
+User: "saya mau pinjam buku"
+Output: {"intent": "check_loan_eligibility", "query_params": {}, "response_text": "Baik, saya akan mengecek status peminjaman Anda untuk menentukan apakah Anda bisa meminjam buku."}
+
+User: "apakah saya bisa pinjam buku?"
+Output: {"intent": "check_loan_eligibility", "query_params": {}, "response_text": "Saya akan memeriksa apakah ada peminjaman yang terlambat atas nama Anda."}';
 
             $response = $this->callGeminiAPI($systemPrompt, $userMessage);
 
@@ -183,6 +196,66 @@ Output: {"intent": "member_registration", "query_params": {}, "response_text": "
                     }
                     break;
 
+                case 'my_borrowings':
+                    $mahasiswaId = $this->mahasiswa['id'] ?? null;
+                    if ($mahasiswaId) {
+                        $borrowings = Peminjaman::with(['buku:id,nama_buku'])
+                            ->where('mahasiswa_id', $mahasiswaId)
+                            ->orderBy('created_at', 'desc')
+                            ->get()
+                            ->toArray();
+                        $result['borrowings'] = $borrowings;
+                    }
+                    break;
+
+                case 'my_denda':
+                    $mahasiswaId = $this->mahasiswa['id'] ?? null;
+                    if ($mahasiswaId) {
+                        $denda = Denda::with(['peminjaman.buku:id,nama_buku'])
+                            ->whereHas('peminjaman', function ($q) use ($mahasiswaId) {
+                                $q->where('mahasiswa_id', $mahasiswaId);
+                            })
+                            ->orderBy('created_at', 'desc')
+                            ->get()
+                            ->toArray();
+                        $result['denda'] = $denda;
+                    }
+                    break;
+
+                case 'check_loan_eligibility':
+                    $mahasiswaId = $this->mahasiswa['id'] ?? null;
+                    if ($mahasiswaId) {
+            // Cek peminjaman yang terlambat (overdue atau ada denda)
+            $overdueBorrowings = Peminjaman::with(['buku:id,nama_buku', 'denda'])
+                ->where('mahasiswa_id', $mahasiswaId)
+                ->where(function ($query) {
+                    $query->where('status', 'overdue')
+                        ->orWhere(function ($q) {
+                            $q->whereHas('denda', function ($d) {
+                                $d->where('status_bayar', 'Belum Dibayar');
+                            });
+                        })
+                        ->orWhere(function ($q) {
+                            $q->where('status', 'borrowed')
+                              ->where('tanggal_kembali_rencana', '<', now());
+                        });
+                })
+                ->get()
+                ->toArray();
+
+            // Cek peminjaman yang masih aktif (belum dikembalikan)
+            $activeBorrowings = Peminjaman::with('buku:id,nama_buku')
+                ->where('mahasiswaId', $mahasiswaId) // Fixed typo: mahasiswaId -> mahasiswa_id
+                ->whereIn('status', ['borrowed', 'approved'])
+                ->get()
+                ->toArray();
+
+            $result['overdue_borrowings'] = $overdueBorrowings;
+            $result['active_borrowings'] = $activeBorrowings;
+            $result['can_borrow'] = empty($result['overdue_borrowings']);
+                    }
+                    break;
+
                 case 'member_registration':
                     // No database query needed, just provide the step-by-step guide
                     $registrationSteps = [
@@ -261,7 +334,78 @@ Output: {"intent": "member_registration", "query_params": {}, "response_text": "
                 }
             }
 
-            // Step 4: Format registration steps if needed
+            // Step 4: Format borrowing data if needed
+            $borrowingsFormatted = '';
+            if ($intentData['intent'] === 'my_borrowings') {
+                if (!empty($result['borrowings'])) {
+                    $borrowingsFormatted = "\n\n📋 **Data Peminjaman Saya** 📋\n\n";
+                    $borrowingsFormatted .= "Berikut adalah data peminjaman buku Anda:\n\n";
+
+                    foreach ($result['borrowings'] as $index => $pinjam) {
+                        $num = $index + 1;
+                        $namaBuku = $pinjam['buku']['nama_buku'] ?? 'Buku tidak ditemukan';
+                        $tglPinjam = isset($pinjam['tanggal_pinjam']) ? date('d/m/Y', strtotime($pinjam['tanggal_pinjam'])) : '-';
+                        $tglKembali = isset($pinjam['tanggal_kembali_rencana']) ? date('d/m/Y', strtotime($pinjam['tanggal_kembali_rencana'])) : '-';
+                        $status = $pinjam['status'] ?? '-';
+
+                        // Map status ke bahasa Indonesia
+                        $statusMap = [
+                            'pending' => '⏳ Menunggu Konfirmasi',
+                            'approved' => '✅ Disetujui',
+                            'borrowed' => '📖 Sedang Dipinjam',
+                            'returned' => '📚 Sudah Dikembalikan',
+                            'rejected' => '❌ Ditolak',
+                            'overdue' => '⚠️ Terlambat',
+                        ];
+                        $statusLabel = $statusMap[$status] ?? $status;
+
+                        $borrowingsFormatted .= "{$num}. **{$namaBuku}**\n";
+                        $borrowingsFormatted .= "   📅 Tanggal Pinjam: {$tglPinjam}\n";
+                        $borrowingsFormatted .= "   📅 Batas Kembali: {$tglKembali}\n";
+                        $borrowingsFormatted .= "   📊 Status: {$statusLabel}\n\n";
+                    }
+
+                    $totalPinjam = count($result['borrowings']);
+                    $borrowingsFormatted .= "📝 Total: {$totalPinjam} peminjaman\n";
+                } else {
+                    $borrowingsFormatted = "\n\n📋 **Data Peminjaman Saya** 📋\n\n";
+                    $borrowingsFormatted .= "Saat ini tidak ada data peminjaman buku atas nama Anda.\n";
+                    $borrowingsFormatted .= "Jika ingin meminjam buku, silakan kunjungi halaman Katalog Buku dan pilih buku yang tersedia. 😊\n";
+                }
+            }
+
+            // Step 5: Format denda data if needed
+            $dendaFormatted = '';
+            if ($intentData['intent'] === 'my_denda') {
+                if (!empty($result['denda'])) {
+                    $dendaFormatted = "\n\n💰 **Data Denda Saya** 💰\n\n";
+                    $dendaFormatted .= "Berikut adalah data denda Anda:\n\n";
+
+                    foreach ($result['denda'] as $index => $dendaData) {
+                        $num = $index + 1;
+                        $namaBuku = $dendaData['peminjaman']['buku']['nama_buku'] ?? 'Buku tidak ditemukan';
+                        $hariTerlambat = $dendaData['hari_terlambat'] ?? 0;
+                        $totalDenda = $dendaData['total_denda'] ?? 0;
+                        $statusBayar = $dendaData['status_bayar'] ?? 'Belum Dibayar';
+                        $dibayarAt = $dendaData['dibayar_at'] ? date('d/m/Y', strtotime($dendaData['dibayar_at'])) : '-';
+
+                        $dendaFormatted .= "{$num}. **{$namaBuku}**\n";
+                        $dendaFormatted .= "   📅 Hari Terlambat: {$hariTerlambat} hari\n";
+                        $dendaFormatted .= "   💰 Total Denda: Rp " . number_format($totalDenda, 0, ',', '.') . "\n";
+                        $dendaFormatted .= "   📊 Status: " . ($statusBayar === 'Belum Dibayar' ? '⚠️ Belum Dibayar' : '✅ Sudah Dibayar') . "\n";
+                        $dendaFormatted .= "   📅 Dibayar Pada: {$dibayarAt}\n\n";
+                    }
+
+                    $totalDenda = count($result['denda']);
+                    $dendaFormatted .= "📝 Total: {$totalDenda} data denda\n";
+                } else {
+                    $dendaFormatted = "\n\n💰 **Data Denda Saya** 💰\n\n";
+                    $dendaFormatted .= "Saat ini tidak ada data denda atas nama Anda.\n";
+                    $dendaFormatted .= "Jika ada buku yang terlambat dikembalikan, denda akan tercatat di sini. 😊\n";
+                }
+            }
+
+            // Step 5: Format registration steps if needed
             $registrationFormatted = '';
             if ($intentData['intent'] === 'member_registration' && isset($result['registration_steps'])) {
                 $registrationFormatted = "\n\n📝 **Cara Mendaftar Member Perpustakaan** 📝\n\n";
@@ -276,8 +420,92 @@ Output: {"intent": "member_registration", "query_params": {}, "response_text": "
                 $registrationFormatted .= "Jika Anda sudah memiliki akun, silakan login menggunakan link di atas. Jika ada pertanyaan lain, jangan ragu untuk bertanya! 😊";
             }
 
-            // Step 5: Combine AI text with book data and registration steps
-            $rawResponse = trim($result['response_text'] . $booksFormatted . $registrationFormatted);
+            // Step 6: Format loan eligibility response if needed
+            $loanEligibilityFormatted = '';
+            if ($intentData['intent'] === 'check_loan_eligibility') {
+                $canBorrow = $result['can_borrow'] ?? false;
+                $overdueBorrowings = $result['overdue_borrowings'] ?? [];
+                $activeBorrowings = $result['active_borrowings'] ?? [];
+
+                if ($canBorrow) {
+                    $loanEligibilityFormatted = "\n\n✅ **Status Kelayakan Peminjaman** ✅\n\n";
+                    $loanEligibilityFormatted .= "🎉 Selamat! Anda **BISA MEMINJAM BUKU** di perpustakaan e-perpus.\n";
+                    $loanEligibilityFormatted .= "Saat ini Anda tidak memiliki peminjaman yang terlambat.\n";
+
+                    if (!empty($activeBorrowings)) {
+                        $loanEligibilityFormatted .= "\n📋 **Buku yang sedang Anda pinjam:**\n";
+                        foreach ($activeBorrowings as $index => $pinjam) {
+                            $num = $index + 1;
+                            $namaBuku = $pinjam['buku']['nama_buku'] ?? 'Buku tidak ditemukan';
+                            $tglKembali = isset($pinjam['tanggal_kembali_rencana']) ? date('d/m/Y', strtotime($pinjam['tanggal_kembali_rencana'])) : '-';
+                            $loanEligibilityFormatted .= "   {$num}. {$namaBuku} (Batas kembali: {$tglKembali})\n";
+                        }
+                    }
+
+                    $loanEligibilityFormatted .= "\n💡 Silakan menuju halaman Katalog Buku untuk memilih buku yang ingin dipinjam. Selamat membaca! 📚\n";
+                } else {
+                    $loanEligibilityFormatted = "\n\n❌ **Status Kelayakan Peminjaman** ❌\n\n";
+                    $loanEligibilityFormatted .= "Mohon maaf, saat ini Anda **TIDAK BISA MEMINJAM BUKU** karena ada peminjaman yang terlambat.\n";
+                    $loanEligibilityFormatted .= "Anda harus menyelesaikan peminjaman yang terlambat terlebih dahulu sebelum dapat meminjam buku baru.\n";
+
+                    if (!empty($overdueBorrowings)) {
+                        $loanEligibilityFormatted .= "\n📋 **Detail Peminjaman Terlambat:**\n";
+
+                        foreach ($overdueBorrowings as $index => $pinjam) {
+                            $num = $index + 1;
+                            $namaBuku = $pinjam['buku']['nama_buku'] ?? 'Buku tidak ditemukan';
+                            $tglPinjam = isset($pinjam['tanggal_pinjam']) ? date('d/m/Y', strtotime($pinjam['tanggal_pinjam'])) : '-';
+                            $tglKembali = isset($pinjam['tanggal_kembali_rencana']) ? date('d/m/Y', strtotime($pinjam['tanggal_kembali_rencana'])) : '-';
+
+                            // Hitung hari terlambat
+                            $hariTerlambat = 0;
+                            if (isset($pinjam['tanggal_kembali_rencana'])) {
+                                $rencana = strtotime($pinjam['tanggal_kembali_rencana']);
+                                $sekarang = time();
+                                $hariTerlambat = max(0, floor(($sekarang - $rencana) / (60 * 60 * 24)));
+                            }
+
+                            // Ambil informasi denda jika ada
+                            $totalDenda = 0;
+                            $statusDenda = 'Belum Dibayar';
+                            if (isset($pinjam['denda']) && !empty($pinjam['denda'])) {
+                                $denda = $pinjam['denda'];
+                                $totalDenda = $denda['total_denda'] ?? 0;
+                                $hariTerlambat = $denda['hari_terlambat'] ?? $hariTerlambat;
+                                $statusDenda = $denda['status_bayar'] ?? 'Belum Dibayar';
+                            }
+
+                            $alasan = '';
+                            if ($pinjam['status'] === 'overdue') {
+                                $alasan = "Status: Terlambat ({$hariTerlambat} hari)";
+                            } elseif ($statusDenda === 'Belum Dibayar') {
+                                $alasan = "Status: Ada denda belum dibayar";
+                            } else {
+                                $alasan = "Status: Lewat batas waktu ({$hariTerlambat} hari)";
+                            }
+
+                            $loanEligibilityFormatted .= "\n   📖 {$num}. {$namaBuku}\n";
+                            $loanEligibilityFormatted .= "      📅 Tanggal Pinjam: {$tglPinjam}\n";
+                            $loanEligibilityFormatted .= "      📅 Batas Kembali: {$tglKembali}\n";
+                            $loanEligibilityFormatted .= "      ⚠️ {$alasan}\n";
+
+                            if ($totalDenda > 0) {
+                                $loanEligibilityFormatted .= "      💰 Denda: Rp " . number_format($totalDenda, 0, ',', '.') . "\n";
+                                $loanEligibilityFormatted .= "      📊 Status Denda: " . ($statusDenda === 'Sudah Dibayar' ? 'Sudah Dibayar' : 'Belum Dibayar') . "\n";
+                            }
+                        }
+
+                        $loanEligibilityFormatted .= "\n⚠️ **Cara Mengaktifkan Kembali Kelayakan Meminjam:**\n";
+                        $loanEligibilityFormatted .= "   1. Kembalikan buku yang terlambat ke perpustakaan\n";
+                        $loanEligibilityFormatted .= "   2. Lunasi denda keterlambatan (jika ada)\n";
+                        $loanEligibilityFormatted .= "   3. Tunggu konfirmasi dari admin perpustakaan\n";
+                        $loanEligibilityFormatted .= "\n📞 Jika ada pertanyaan, silakan hubungi admin perpustakaan.\n";
+                    }
+                }
+            }
+
+            // Step 7: Combine AI text with all formatted data
+            $rawResponse = trim($result['response_text'] . $booksFormatted . $borrowingsFormatted . $dendaFormatted . $registrationFormatted . $loanEligibilityFormatted);
 
             // Step 6: Clean up markdown-lite bold markers into plain text.
             // IMPORTANT: the chat widget inserts this as plain text (.text()), not HTML —
@@ -292,6 +520,7 @@ Output: {"intent": "member_registration", "query_params": {}, "response_text": "
                 'response' => $finalResponse,
                 'books_data' => $result['books'],
                 'registration_steps' => $result['registration_steps'] ?? [],
+                'denda_data' => $result['denda'] ?? [],
             ];
 
         } catch (\Exception $e) {
