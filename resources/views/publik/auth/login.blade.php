@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login Mahasiswa | Sipusaka</title>
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}">
     <style>
     * {
@@ -15,85 +17,141 @@
         box-sizing: border-box;
     }
 
+    :root {
+        --navy-900: #0F2A4D;
+        --navy-700: #16385E;
+        --navy-600: #1D4373;
+        --blue-100: #0A1F3D;
+        --gold-500: #B98A2E;
+        --gold-300: #D9B565;
+        --cream-50: #FAF7F0;
+        --cream-100: #F2EDE1;
+        --ink-900: #1E2430;
+        --ink-600: #545B68;
+        --slate-400: #8B93A3;
+        --line: #E4DFD2;
+        --maroon-600: #7C2430;
+    }
+
     body {
         font-family: 'Inter', sans-serif;
         min-height: 100vh;
-        background: linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 50%, #DBEAFE 100%);
+        background: var(--blue-100);
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(217, 181, 101, 0.08) 1px, transparent 0);
+        background-size: 22px 22px;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 40px 20px;
         margin: 0;
+        color: var(--ink-900);
     }
 
-    /* Outer wrapper creates the soft colorful glow around the card */
     .auth-wrapper {
         position: relative;
         width: 100%;
-        max-width: 1000px;
-    }
-
-    .auth-wrapper::before {
-        content: "";
-        position: absolute;
-        inset: -18px;
-        border-radius: 40px;
-        background: linear-gradient(120deg, #C7B6FF 0%, #FBC7E0 45%, #BFDBFE 100%);
-        filter: blur(18px);
-        opacity: 0.75;
-        z-index: 0;
+        max-width: 980px;
     }
 
     .login-container {
         position: relative;
         z-index: 1;
         width: 100%;
-        min-height: 560px;
-        background: #ffffff;
-        border-radius: 28px;
-        box-shadow: 0 25px 60px rgba(79, 70, 229, 0.18);
+        min-height: 580px;
+        background: var(--cream-50);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        box-shadow: 0 30px 60px rgba(15, 42, 77, 0.16);
         overflow: hidden;
         display: flex;
     }
 
+    /* ================= LEFT: FORM PANEL ================= */
     .login-left {
         flex: 1;
-        padding: 56px 64px;
+        padding: 52px 60px;
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
 
-    .login-right {
-        flex: 1;
-        position: relative;
-        background: radial-gradient(circle at 30% 50%, #3B57D9 0%, #2E3F9E 60%, #1E2A73 100%);
-        border-radius: 0 28px 28px 0;
-        overflow: hidden;
+    .brand-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 34px;
+    }
+
+    .brand-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--navy-900);
+        border: 1.5px solid var(--gold-500);
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
     }
 
-    .login-right svg {
-        width: 92%;
-        height: auto;
-        position: relative;
-        z-index: 1;
+    .brand-mark i {
+        color: var(--gold-300);
+        font-size: 15px;
+    }
+
+    .brand-text {
+        line-height: 1.25;
+    }
+
+    .brand-text strong {
+        display: block;
+        font-family: 'Source Serif 4', serif;
+        font-size: 15.5px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--navy-900);
+    }
+
+    .brand-text span {
+        display: block;
+        font-size: 10.5px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-600);
+    }
+
+    .form-eyebrow {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--gold-500);
+        margin-bottom: 10px;
     }
 
     .form-title {
-        font-size: 22px;
-        font-weight: 700;
-        color: #1F2937;
-        margin-bottom: 28px;
+        font-family: 'Source Serif 4', serif;
+        font-size: 27px;
+        font-weight: 600;
+        color: var(--navy-900);
+        margin-bottom: 6px;
+        letter-spacing: -0.01em;
     }
 
     .form-subtitle {
         font-size: 13.5px;
-        color: #6B7280;
-        margin-bottom: 22px;
-        line-height: 1.5;
+        color: var(--ink-600);
+        margin-bottom: 26px;
+        line-height: 1.55;
+    }
+
+    .form-title+.form-subtitle {
+        margin-top: 4px;
+    }
+
+    #loginPanel .form-title {
+        margin-bottom: 28px;
     }
 
     .form-group {
@@ -109,9 +167,11 @@
 
     .form-label {
         display: block;
-        font-size: 13px;
+        font-size: 11.5px;
         font-weight: 600;
-        color: #374151;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--ink-600);
     }
 
     .input-wrap {
@@ -120,21 +180,25 @@
 
     .form-input {
         width: 100%;
-        padding: 12px 16px;
-        border: 1px solid #E5E7EB;
-        border-radius: 10px;
+        padding: 12px 15px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
         font-size: 14.5px;
         transition: all 0.2s ease;
         font-family: 'Inter', sans-serif;
         min-height: 46px;
-        background: #F9FAFB;
+        background: #ffffff;
+        color: var(--ink-900);
+    }
+
+    .form-input::placeholder {
+        color: var(--slate-400);
     }
 
     .form-input:focus {
         outline: none;
-        border-color: #4F46E5;
-        background: #ffffff;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        border-color: var(--navy-600);
+        box-shadow: 0 0 0 3px rgba(15, 42, 77, 0.10);
     }
 
     .input-wrap .form-input.has-toggle {
@@ -148,7 +212,7 @@
         transform: translateY(-50%);
         background: none;
         border: none;
-        color: #9CA3AF;
+        color: var(--slate-400);
         cursor: pointer;
         font-size: 15px;
         padding: 4px;
@@ -156,84 +220,87 @@
     }
 
     .toggle-visibility:hover {
-        color: #4F46E5;
+        color: var(--navy-700);
     }
 
     .remember-row {
-        margin: 6px 0 24px;
+        margin: 6px 0 26px;
     }
 
     .remember-me {
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #4B5563;
+        color: var(--ink-600);
         font-size: 13.5px;
         cursor: pointer;
         user-select: none;
     }
 
     .remember-me input {
-        width: 16px;
-        height: 16px;
-        accent-color: #4F46E5;
+        width: 15px;
+        height: 15px;
+        accent-color: var(--navy-700);
         cursor: pointer;
     }
 
     .forgot-link {
-        color: #4F46E5;
+        color: var(--navy-700);
         text-decoration: none;
-        font-weight: 500;
+        font-weight: 600;
         font-size: 12.5px;
+        border-bottom: 1px solid transparent;
     }
 
     .forgot-link:hover {
-        text-decoration: underline;
+        border-bottom-color: var(--navy-700);
     }
 
     .login-button {
         width: 100%;
         padding: 13px 20px;
-        background: linear-gradient(135deg, #4F46E5, #6366F1);
-        color: white;
+        background: var(--navy-900);
+        color: #ffffff;
         border: none;
-        border-radius: 10px;
-        font-size: 14.5px;
+        border-radius: 4px;
+        font-size: 13.5px;
         font-weight: 600;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
         cursor: pointer;
         transition: all 0.2s ease;
         min-height: 48px;
     }
 
     .login-button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        background: var(--navy-700);
     }
 
     .switch-form-text {
         text-align: left;
-        margin-top: 18px;
+        margin-top: 20px;
         font-size: 13px;
-        color: #6B7280;
+        color: var(--ink-600);
     }
 
     .switch-form-text a {
-        color: #4F46E5;
+        color: var(--navy-700);
         font-weight: 600;
         text-decoration: none;
         cursor: pointer;
+        border-bottom: 1px solid transparent;
     }
 
     .switch-form-text a:hover {
-        text-decoration: underline;
+        border-bottom-color: var(--navy-700);
     }
 
     .error-message {
-        background: #FEE2E2;
-        color: #DC2626;
+        background: #F7E7E4;
+        border: 1px solid rgba(124, 36, 48, 0.25);
+        color: var(--maroon-600);
         padding: 11px 14px;
-        border-radius: 10px;
+        border-radius: 4px;
         margin-bottom: 18px;
         font-size: 13px;
         display: none;
@@ -255,22 +322,23 @@
         display: flex;
         gap: 9px;
         align-items: flex-start;
-        background: #EFF6FF;
-        border-radius: 10px;
+        background: var(--cream-100);
+        border-left: 3px solid var(--gold-500);
+        border-radius: 3px;
         padding: 13px 14px;
-        margin-top: 16px;
+        margin-top: 18px;
     }
 
     .register-info i {
         flex-shrink: 0;
-        color: #2563EB;
+        color: var(--navy-700);
         margin-top: 2px;
         font-size: 13px;
     }
 
     .register-info p {
         font-size: 12px;
-        color: #1E40AF;
+        color: var(--ink-600);
         margin: 0;
         line-height: 1.55;
     }
@@ -285,12 +353,29 @@
         min-width: 0;
     }
 
-    /* Success / error modal */
+    /* ================= RIGHT: INSTITUTIONAL PANEL ================= */
+    .login-right {
+        flex: 0.92;
+        position: relative;
+        background: var(--navy-900);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-right svg {
+        width: 84%;
+        height: auto;
+        position: relative;
+        z-index: 1;
+    }
+
     .modal-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(31, 41, 55, 0.5);
+        background: rgba(15, 23, 33, 0.55);
         backdrop-filter: blur(4px);
         align-items: center;
         justify-content: center;
@@ -303,8 +388,9 @@
     }
 
     .modal-card {
-        background: white;
-        border-radius: 20px;
+        background: var(--cream-50);
+        border: 1px solid var(--line);
+        border-radius: 6px;
         padding: 36px;
         max-width: 380px;
         width: 100%;
@@ -316,7 +402,7 @@
     @keyframes modalPop {
         from {
             opacity: 0;
-            transform: scale(0.9) translateY(10px);
+            transform: scale(0.94) translateY(8px);
         }
 
         to {
@@ -326,33 +412,36 @@
     }
 
     .modal-icon {
-        width: 60px;
-        height: 60px;
+        width: 56px;
+        height: 56px;
         border-radius: 50%;
-        background: #D1FAE5;
-        color: #059669;
+        background: var(--navy-900);
+        border: 1.5px solid var(--gold-500);
+        color: var(--gold-300);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 26px;
+        font-size: 22px;
         margin: 0 auto 18px;
     }
 
     .modal-icon.error {
-        background: #FEE2E2;
-        color: #DC2626;
+        background: var(--maroon-600);
+        border-color: var(--maroon-600);
+        color: #ffffff;
     }
 
     .modal-title {
+        font-family: 'Source Serif 4', serif;
         font-size: 19px;
-        font-weight: 700;
-        color: #1F2937;
+        font-weight: 600;
+        color: var(--navy-900);
         margin-bottom: 8px;
     }
 
     .modal-text {
         font-size: 13.5px;
-        color: #6B7280;
+        color: var(--ink-600);
         line-height: 1.6;
         margin-bottom: 22px;
     }
@@ -360,14 +449,20 @@
     .modal-button {
         width: 100%;
         padding: 11px 20px;
-        background: linear-gradient(135deg, #4F46E5, #7C3AED);
+        background: var(--navy-900);
         color: white;
         border: none;
-        border-radius: 10px;
-        font-size: 14px;
+        border-radius: 4px;
+        font-size: 13px;
         font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
         cursor: pointer;
         font-family: 'Inter', sans-serif;
+    }
+
+    .modal-button:hover {
+        background: var(--navy-700);
     }
 
     /* ============ MOBILE ============ */
@@ -375,7 +470,7 @@
         body {
             padding: 0;
             display: block;
-            background: linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 50%, #DBEAFE 100%);
+            background: var(--blue-100);
         }
 
         .auth-wrapper {
@@ -383,39 +478,30 @@
             min-height: 100vh;
         }
 
-        .auth-wrapper::before {
-            display: none;
-        }
-
         .login-container {
             flex-direction: column;
             border-radius: 0;
+            border: none;
             min-height: 100vh;
             box-shadow: none;
         }
 
         .login-right {
-            border-radius: 0;
-            min-height: 240px;
+            min-height: 190px;
             flex: none;
             order: -1;
         }
 
         .login-right svg {
-            width: 70%;
+            width: 62%;
         }
 
         .login-left {
             padding: 30px 24px 40px;
-            border-radius: 24px 24px 0 0;
-            margin-top: -24px;
-            background: #ffffff;
-            position: relative;
-            z-index: 2;
         }
 
         .form-title {
-            font-size: 20px;
+            font-size: 22px;
         }
 
         .form-row {
@@ -439,7 +525,7 @@
         }
 
         .form-title {
-            font-size: 19px;
+            font-size: 20px;
         }
     }
     </style>
@@ -449,8 +535,17 @@
     <div class="auth-wrapper">
         <div class="login-container">
             <div class="login-left">
+                <div class="brand-row">
+                    <div class="brand-mark"><i class="fas fa-book"></i></div>
+                    <div class="brand-text">
+                        <strong>SIPUSAKA</strong>
+                        <span>Sistem Informasi Perpustakaan</span>
+                    </div>
+                </div>
+
                 <!-- ===== LOGIN PANEL ===== -->
                 <div id="loginPanel" class="form-panel active">
+                    <p class="form-eyebrow">Portal Mahasiswa</p>
                     <h1 class="form-title">Masuk ke Akun Anda</h1>
 
                     <div class="error-message" id="loginErrorMessage">
@@ -463,7 +558,7 @@
 
                         <div class="form-group">
                             <div class="form-label-row">
-                                <label for="nim" class="form-label">NIM</label>
+                                <label for="nim" class="form-label">Nomor Induk Mahasiswa</label>
                             </div>
                             <div class="input-wrap">
                                 <input type="text" id="nim" name="nim" class="form-input" placeholder="Masukkan NIM"
@@ -494,7 +589,7 @@
                         </div>
 
                         <button type="submit" class="login-button">
-                            SIGN IN
+                            Masuk
                         </button>
                     </form>
 
@@ -505,8 +600,9 @@
 
                 <!-- ===== REGISTER PANEL ===== -->
                 <div id="registerPanel" class="form-panel">
+                    <p class="form-eyebrow">Pendaftaran Anggota</p>
                     <h1 class="form-title">Buat Akun Baru</h1>
-                    <p class="form-subtitle">Daftar untuk mengakses layanan perpustakaan</p>
+                    <p class="form-subtitle">Daftar untuk mengakses layanan perpustakaan kampus</p>
 
                     <div class="error-message" id="registerErrorMessage">
                         <i class="fas fa-exclamation-circle mr-2"></i>
@@ -570,49 +666,74 @@
             </div>
 
             <div class="login-right">
-                <svg viewBox="0 0 400 440" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 380 460" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <radialGradient id="glow" cx="50%" cy="45%" r="60%">
-                            <stop offset="0%" stop-color="#5B79FF" stop-opacity="0.9" />
-                            <stop offset="100%" stop-color="#5B79FF" stop-opacity="0" />
+                        <radialGradient id="glow" cx="50%" cy="38%" r="55%">
+                            <stop offset="0%" stop-color="#2A4E80" stop-opacity="0.9" />
+                            <stop offset="100%" stop-color="#2A4E80" stop-opacity="0" />
                         </radialGradient>
+                        <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+                            <circle cx="1" cy="1" r="1" fill="#3E5C87" opacity="0.4" />
+                        </pattern>
                     </defs>
 
-                    <circle cx="200" cy="200" r="180" fill="url(#glow)" opacity="0.5" />
+                    <rect x="0" y="0" width="380" height="460" fill="url(#dots)" />
+                    <circle cx="190" cy="175" r="200" fill="url(#glow)" />
 
-                    <path d="M200 200 L120 130 M200 200 L290 110 M200 200 L100 260 M200 200 L300 280" stroke="#8EA3FF"
-                        stroke-width="1.5" opacity="0.5" />
+                    <!-- concentric seal rings -->
+                    <circle cx="190" cy="175" r="108" fill="none" stroke="#C9A85B" stroke-width="1" opacity="0.55" />
+                    <circle cx="190" cy="175" r="96" fill="none" stroke="#C9A85B" stroke-width="1" opacity="0.35" />
 
-                    <circle cx="120" cy="130" r="30" fill="#3B82F6" opacity="0.95" />
-                    <text x="120" y="138" font-family="Inter" font-size="22" fill="white" text-anchor="middle">
-                        <tspan>&#128421;</tspan>
-                    </text>
+                    <!-- laurel left -->
+                    <g stroke="#D9B565" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.9">
+                        <path d="M148 220 C130 200 128 165 140 130" />
+                        <path d="M140 210 L122 202" />
+                        <path d="M136 190 L116 184" />
+                        <path d="M134 168 L114 165" />
+                        <path d="M137 146 L119 138" />
+                    </g>
+                    <!-- laurel right -->
+                    <g stroke="#D9B565" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.9">
+                        <path d="M232 220 C250 200 252 165 240 130" />
+                        <path d="M240 210 L258 202" />
+                        <path d="M244 190 L264 184" />
+                        <path d="M246 168 L266 165" />
+                        <path d="M243 146 L261 138" />
+                    </g>
 
-                    <circle cx="290" cy="110" r="32" fill="#F59E0B" opacity="0.95" />
-                    <text x="290" y="119" font-family="Inter" font-size="24" fill="white" text-anchor="middle">
-                        <tspan>&#9993;</tspan>
-                    </text>
+                    <!-- open book emblem -->
+                    <g transform="translate(190 178)">
+                        <path
+                            d="M-46 -8 C-30 -18 -12 -18 0 -8 C12 -18 30 -18 46 -8 L46 30 C30 20 12 20 0 30 C-12 20 -30 20 -46 30 Z"
+                            fill="#F2EDE1" stroke="#0F2A4D" stroke-width="1.5" />
+                        <line x1="0" y1="-8" x2="0" y2="30" stroke="#0F2A4D" stroke-width="1.2" opacity="0.5" />
+                        <line x1="-34" y1="-3" x2="-8" y2="-6" stroke="#0F2A4D" stroke-width="1" opacity="0.35" />
+                        <line x1="-34" y1="6" x2="-8" y2="3" stroke="#0F2A4D" stroke-width="1" opacity="0.35" />
+                        <line x1="-34" y1="15" x2="-8" y2="12" stroke="#0F2A4D" stroke-width="1" opacity="0.35" />
+                        <line x1="34" y1="-3" x2="8" y2="-6" stroke="#0F2A4D" stroke-width="1" opacity="0.35" />
+                        <line x1="34" y1="6" x2="8" y2="3" stroke="#0F2A4D" stroke-width="1" opacity="0.35" />
+                        <line x1="34" y1="15" x2="8" y2="12" stroke="#0F2A4D" stroke-width="1" opacity="0.35" />
+                    </g>
 
-                    <circle cx="100" cy="260" r="30" fill="#EC4899" opacity="0.95" />
-                    <text x="100" y="269" font-family="Inter" font-size="22" fill="white" text-anchor="middle">
-                        <tspan>&#128227;</tspan>
-                    </text>
+                    <!-- ribbon -->
+                    <g transform="translate(190 300)">
+                        <path d="M-70 0 L70 0 L58 14 L70 28 L-70 28 L-58 14 Z" fill="#16385E" stroke="#D9B565"
+                            stroke-width="1" />
+                        <text x="0" y="19" font-family="Source Serif 4, serif" font-size="14" font-weight="700"
+                            fill="#F2EDE1" text-anchor="middle" letter-spacing="2">SIPUSAKA</text>
+                    </g>
 
-                    <circle cx="300" cy="280" r="32" fill="#EAB308" opacity="0.95" />
-                    <text x="300" y="290" font-family="Inter" font-size="24" fill="white" text-anchor="middle">
-                        <tspan>&#128200;</tspan>
-                    </text>
-
-                    <circle cx="220" cy="330" r="26" fill="#EF4444" opacity="0.95" />
-                    <text x="220" y="338" font-family="Inter" font-size="20" fill="white" text-anchor="middle">
-                        <tspan>&#128222;</tspan>
-                    </text>
-
-                    <ellipse cx="200" cy="215" rx="46" ry="86" fill="#1E293B" />
-                    <circle cx="200" cy="118" r="26" fill="#FBCFE8" />
-
-                    <path d="M330 40 Q360 20 380 60 Q350 70 330 40 Z" fill="#2C3E8C" opacity="0.5" />
-                    <path d="M20 380 Q50 360 60 400 Q30 410 20 380 Z" fill="#2C3E8C" opacity="0.5" />
+                    <!-- campus silhouette baseline -->
+                    <g fill="#16385E" opacity="0.9">
+                        <rect x="20" y="410" width="340" height="4" />
+                        <rect x="40" y="378" width="16" height="32" />
+                        <rect x="66" y="392" width="16" height="18" />
+                        <rect x="150" y="360" width="30" height="50" />
+                        <polygon points="150,360 165,344 180,360" />
+                        <rect x="220" y="386" width="14" height="24" />
+                        <rect x="242" y="372" width="14" height="38" />
+                        <rect x="300" y="388" width="16" height="22" />
+                    </g>
                 </svg>
             </div>
         </div>

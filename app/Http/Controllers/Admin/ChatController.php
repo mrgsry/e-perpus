@@ -43,8 +43,13 @@ class ChatController extends Controller
 
     public function sendMessage(Request $request)
     {
+        $request->validate([
+            'session_id' => 'required|string',
+            'message' => 'required|string|max:2000',
+        ]);
+
         $sessionId = $request->input('session_id');
-        $message = $request->input('message');
+        $message = trim($request->input('message'));
         $adminId = auth()->id();
 
         $session = ChatSession::where('session_id', $sessionId)->firstOrFail();
@@ -59,7 +64,7 @@ class ChatController extends Controller
 
         $session->save();
 
-        ChatMessage::create([
+        $chatMessage = ChatMessage::create([
             'session_id' => $sessionId,
             'user_id' => $adminId,
             'sender_type' => 'admin',
@@ -68,6 +73,7 @@ class ChatController extends Controller
 
         return response()->json([
             'status' => 'success',
+            'message' => $chatMessage,
         ]);
     }
 
@@ -98,7 +104,6 @@ class ChatController extends Controller
 
         $messages = ChatMessage::where('session_id', $sessionId)
             ->where('id', '>', $lastMessageId)
-            ->where('sender_type', '!=', 'admin') // Only get user/bot messages
             ->orderBy('id', 'asc')
             ->get();
 

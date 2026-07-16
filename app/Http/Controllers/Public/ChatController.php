@@ -66,8 +66,13 @@ class ChatController extends Controller
             ], 401);
         }
 
+        $request->validate([
+            'session_id' => 'nullable|string',
+            'message' => 'required|string|max:2000',
+        ]);
+
         $sessionId = $request->input('session_id');
-        $message = $request->input('message');
+        $message = trim($request->input('message'));
 
         if (!$sessionId) {
             $sessionId = Str::uuid();
@@ -79,7 +84,16 @@ class ChatController extends Controller
             ]);
         }
 
-        $session = ChatSession::where('session_id', $sessionId)->firstOrFail();
+        $session = ChatSession::where('session_id', $sessionId)
+            ->where('mahasiswa_id', session('chat_mahasiswa_id'))
+            ->firstOrFail();
+
+        if ($session->status === 'closed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi chat telah ditutup oleh admin. Silakan mulai sesi chat baru untuk bantuan lainnya.',
+            ], 422);
+        }
 
         $userMessageCount = ChatMessage::where('session_id', $sessionId)
             ->where('sender_type', 'user')
@@ -91,11 +105,20 @@ class ChatController extends Controller
             'message' => $message,
         ]);
 
-        // Auto-connect to admin if 3 or more user messages
-        if ($userMessageCount + 1 >= 6) {
+        $isNewAdminConnection = false;
+
+        if (!$session->is_connected_to_admin && $this->isAdminHandoffRequest($message)) {
             $session->is_connected_to_admin = true;
-            $session->save();
+            $isNewAdminConnection = true;
         }
+
+        // Auto-connect to admin if 3 or more user messages
+        if (!$session->is_connected_to_admin && $userMessageCount + 1 >= 6) {
+            $session->is_connected_to_admin = true;
+            $isNewAdminConnection = true;
+        }
+
+        $session->save();
 
         $botResponse = null;
         if (!$session->is_connected_to_admin) {
@@ -139,6 +162,7 @@ class ChatController extends Controller
                 if ($session->bot_fail_count >= 3) {
                     $session->is_connected_to_admin = true;
                     $session->save();
+                    $isNewAdminConnection = true;
                 }
             }
         }
@@ -154,6 +178,16 @@ class ChatController extends Controller
             $responseMessage = $botResponse;
         }
 
+        if ($isNewAdminConnection) {
+            ChatMessage::create([
+                'session_id' => $sessionId,
+                'sender_type' => 'bot',
+                'message' => 'Baik, percakapan Anda telah dialihkan ke Admin. Silakan tunggu respons dan Anda dapat melanjutkan mengirim pesan di sini.',
+            ]);
+        }
+
+        $session->touch();
+
         $status = $session->is_connected_to_admin ? 'connected_admin' : 'bot';
 
         return response()->json([
@@ -163,6 +197,7 @@ class ChatController extends Controller
             'message_id' => $botMessage ? $botMessage->id : null,
             'is_connected_to_admin' => $session->is_connected_to_admin,
             'bot_fail_count' => $session->bot_fail_count,
+            'admin_handoff' => $isNewAdminConnection,
         ]);
     }
 
@@ -177,18 +212,22 @@ class ChatController extends Controller
             ], 400);
         }
 
-        $session = ChatSession::where('session_id', $sessionId)->first();
+        $session = ChatSession::where('session_id', $sessionId)
+            ->where('mahasiswa_id', session('chat_mahasiswa_id'))
+            ->first();
 
-        if ($session) {
+        if ($session && $session->status !== 'closed') {
+            $wasConnected = $session->is_connected_to_admin;
             $session->is_connected_to_admin = true;
             $session->save();
 
-            // Add system message indicating manual connection
-            ChatMessage::create([
-                'session_id' => $sessionId,
-                'sender_type' => 'bot',
-                'message' => 'Mohon tunggu sebentar, Anda sedang dialihkan ke Admin kami...',
-            ]);
+            if (!$wasConnected) {
+                ChatMessage::create([
+                    'session_id' => $sessionId,
+                    'sender_type' => 'bot',
+                    'message' => 'Mohon tunggu sebentar, Anda sedang dialihkan ke Admin kami...',
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -198,7 +237,7 @@ class ChatController extends Controller
 
         return response()->json([
             'success' => false,
-            'message' => 'Sesi chat tidak ditemukan',
+            'message' => $session ? 'Sesi chat telah ditutup oleh admin.' : 'Sesi chat tidak ditemukan',
         ], 404);
     }
 
@@ -214,7 +253,9 @@ class ChatController extends Controller
             ]);
         }
 
-        $session = ChatSession::where('session_id', $sessionId)->first();
+        $session = ChatSession::where('session_id', $sessionId)
+            ->where('mahasiswa_id', session('chat_mahasiswa_id'))
+            ->first();
 
         if (!$session) {
             return response()->json([
@@ -381,6 +422,27 @@ class ChatController extends Controller
         }
 
         return 'Maaf, saya tidak mengerti pertanyaan Anda. Bisa dijelaskan lebih detail?';
+    }
+
+    private function isAdminHandoffRequest(string $message): bool
+    {
+        $normalizedMessage = strtolower(trim(preg_replace('/\s+/', ' ', $message)));
+
+        $handoffPatterns = [
+            '/\b(bicara|ngobrol|berbicara|hubungkan|sambungkan|dialihkan|alihkah?n)\s+(ke|dengan|sama)\s+(cs|customer service|admin|petugas|operator|manusia)\b/u',
+            '/\b(mau|ingin|pengen|butuh|tolong)\s+(bicara|ngobrol|berbicara|terhubung|dihubungkan|hubungi)\b.*\b(cs|customer service|admin|petugas|operator|manusia)\b/u',
+            '/\b(hubungi|chat|kontak)\s+(cs|customer service|admin|petugas|operator)\b/u',
+            '/\b(cs|customer service|admin|petugas|operator)\s*(manusia|asli)?\b/u',
+            '/\b(minta|butuh)\s+bantuan\s+(manusia|langsung)\b/u',
+        ];
+
+        foreach ($handoffPatterns as $pattern) {
+            if (preg_match($pattern, $normalizedMessage)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

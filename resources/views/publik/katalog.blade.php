@@ -2251,6 +2251,10 @@
                 })
                 .then(r => r.json()).then(d => {
                     hideTyping();
+                    if (!d.session_id && d.message) {
+                        addMsg('bot', '❌ ' + d.message);
+                        return;
+                    }
                     if (d.session_id) sessId.value = d.session_id;
                     if (d.is_connected_to_admin && !adminConnected) {
                         adminConnected = true;
@@ -2281,6 +2285,11 @@
                     if (d.is_connected_to_admin && !adminConnected) {
                         adminConnected = true;
                         addMsg('bot', '🟢 Anda terhubung dengan Admin.');
+                    }
+                    if (d.session_closed) {
+                        stopPoll();
+                        input.disabled = true;
+                        addMsg('bot', 'Sesi chat telah ditutup oleh Admin.');
                     }
                 }).catch(() => {});
         }

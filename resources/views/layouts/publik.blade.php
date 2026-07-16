@@ -724,7 +724,13 @@
                     })
                 })
                 .then(function(response) {
-                    return response.json();
+                    return response.json().then(function(data) {
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Gagal mengirim pesan.');
+                        }
+
+                        return data;
+                    });
                 })
                 .then(function(data) {
                     hideTyping();
@@ -853,6 +859,7 @@
                     if (sendBtn) sendBtn.disabled = false;
                     chatInput.focus();
                     console.error('Error:', err);
+                    addMessage('bot', '❌ ' + (err.message || 'Gagal mengirim pesan. Silakan coba lagi.'));
                 });
         }
 
@@ -958,6 +965,15 @@
                             hasShownAdminConnectedMessage = true;
                             addMessage('bot', '\u{1F7E2} Anda sekarang terhubung dengan Admin.');
                         }
+                    }
+
+                    if (data.session_closed) {
+                        stopPolling();
+                        chatInput.disabled = true;
+                        if (connectAdminBtn) connectAdminBtn.disabled = true;
+                        addMessage('bot',
+                            'Sesi chat telah ditutup oleh Admin. Silakan mulai chat baru bila membutuhkan bantuan lagi.'
+                            );
                     }
                 })
                 .catch(function(err) {

@@ -28,43 +28,40 @@
                 <div class="card card-primary card-outline">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fas fa-user"></i> 
+                            <i class="fas fa-user"></i>
                             <strong>{{ $session->mahasiswa_nama ?? 'Mahasiswa' }}</strong>
                             <span class="text-muted">(NIM: {{ $session->mahasiswa_nim ?? '-' }})</span>
                         </h3>
                         <div class="card-tools">
                             @if($session->is_connected_to_admin)
-                                <span class="badge badge-success mr-2">
-                                    <i class="fas fa-check-circle"></i> Terhubung
-                                </span>
+                            <span class="badge badge-success mr-2">
+                                <i class="fas fa-check-circle"></i> Terhubung
+                            </span>
                             @else
-                                <span class="badge badge-warning mr-2">
-                                    <i class="fas fa-robot"></i> Bot
-                                </span>
+                            <span class="badge badge-warning mr-2">
+                                <i class="fas fa-robot"></i> Bot
+                            </span>
                             @endif
                             <button type="button" class="btn btn-sm btn-danger" onclick="closeSession()">
                                 <i class="fas fa-times"></i> Tutup Sesi
                             </button>
                         </div>
                     </div>
-                    
-                    <div class="card-body" style="height: 500px; overflow-y: auto; background: #f8f9fa;" id="chatMessagesContainer">
+
+                    <div class="card-body" style="height: 500px; overflow-y: auto; background: #f8f9fa;"
+                        id="chatMessagesContainer">
                         <div id="chatMessages">
                             <!-- Messages will be loaded here -->
                         </div>
                     </div>
-                    
+
                     <div class="card-footer">
                         <form id="chatForm" class="d-flex">
                             @csrf
                             <input type="hidden" id="sessionId" value="{{ $session->session_id }}">
                             <input type="hidden" id="lastMessageId" value="0">
-                            <input type="text" 
-                                   id="messageInput" 
-                                   class="form-control" 
-                                   placeholder="Ketik pesan Anda..." 
-                                   autocomplete="off"
-                                   required>
+                            <input type="text" id="messageInput" class="form-control" placeholder="Ketik pesan Anda..."
+                                autocomplete="off" required>
                             <button type="submit" class="btn btn-primary ml-2">
                                 <i class="fas fa-paper-plane"></i> Kirim
                             </button>
@@ -171,19 +168,32 @@
     animation: typing 1.4s infinite ease-in-out both;
 }
 
-.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+.typing-indicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
 
 @keyframes typing {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1); }
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1);
+    }
 }
 </style>
 
 <script>
 (function() {
     'use strict';
-    
+
     const sessionId = document.getElementById('sessionId').value;
     const chatForm = document.getElementById('chatForm');
     const messageInput = document.getElementById('messageInput');
@@ -191,27 +201,42 @@
     const chatContainer = document.getElementById('chatMessagesContainer');
     const lastMessageIdInput = document.getElementById('lastMessageId');
     const csrfToken = document.querySelector('input[name="_token"]').value;
-    
+    const sendButton = chatForm.querySelector('button[type="submit"]');
+
     let pollInterval = null;
-    
+    let isLoadingMessages = false;
+    const renderedMessageIds = new Set();
+
     // Format time
     function formatTime(dateString) {
         const date = new Date(dateString);
-        return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
-    
+
     // Escape HTML
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     // Add message to chat
     function addMessage(msg) {
+        if (msg.id && renderedMessageIds.has(msg.id)) {
+            return;
+        }
+
+        const emptyState = chatMessages.querySelector('.chat-empty-state');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message ' + msg.sender_type;
-        
+
         let senderName = '';
         if (msg.sender_type === 'user') {
             senderName = 'Mahasiswa';
@@ -220,7 +245,7 @@
         } else {
             senderName = 'Bot';
         }
-        
+
         messageDiv.innerHTML = `
             <div class="message-bubble">
                 <div class="message-sender">${senderName}</div>
@@ -228,105 +253,131 @@
                 <div class="message-time">${formatTime(msg.created_at)}</div>
             </div>
         `;
-        
+
         chatMessages.appendChild(messageDiv);
         scrollToBottom();
-        
+
+        if (msg.id) {
+            renderedMessageIds.add(msg.id);
+        }
+
         // Update last message ID
         if (msg.id > parseInt(lastMessageIdInput.value)) {
             lastMessageIdInput.value = msg.id;
         }
     }
-    
+
     // Scroll to bottom
     function scrollToBottom() {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-    
-    // Load all messages
+
+    // Load messages newer than the current cursor. A request guard prevents polling races.
     function loadMessages() {
-        const url = '{{ route("admin.chat.messages", ":sessionId") }}'.replace(':sessionId', sessionId) + '?last_message_id=' + lastMessageIdInput.value;
-        fetch(url, {
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.messages && data.messages.length > 0) {
-                data.messages.forEach(msg => {
-                    addMessage(msg);
-                });
+        if (isLoadingMessages) {
+            return Promise.resolve();
+        }
+
+        isLoadingMessages = true;
+        const url = '{{ route("admin.chat.messages", ":sessionId") }}'
+            .replace(':sessionId', sessionId) + '?last_message_id=' + encodeURIComponent(lastMessageIdInput.value);
+
+        return fetch(url, {
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gagal memuat pesan.');
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                (data.messages || []).forEach(addMessage);
+            })
+            .catch(err => {
+                console.error('Error loading messages:', err);
+            })
+            .finally(() => {
+                isLoadingMessages = false;
+            });
+    }
+
+    // Load initial messages
+    function loadInitialMessages() {
+        chatMessages.innerHTML = '';
+        lastMessageIdInput.value = '0';
+        renderedMessageIds.clear();
+
+        return loadMessages().then(() => {
+            if (!chatMessages.children.length) {
+                chatMessages.innerHTML =
+                    '<div class="text-center text-muted chat-empty-state">Belum ada pesan</div>';
             }
-        })
-        .catch(err => {
-            console.error('Error loading messages:', err);
         });
     }
-    
-    // Load initial messages
-    const initialUrl = '{{ route("admin.chat.messages", ":sessionId") }}'.replace(':sessionId', sessionId) + '?last_message_id=0';
-    fetch(initialUrl, {
-        credentials: 'same-origin'
-    })
-    .then(response => response.json())
-    .then(data => {
-        chatMessages.innerHTML = '';
-        if (data.messages && data.messages.length > 0) {
-            data.messages.forEach(msg => {
-                addMessage(msg);
-            });
-        } else {
-            chatMessages.innerHTML = '<div class="text-center text-muted">Belum ada pesan</div>';
-        }
-    });
-    
+
     // Send message
     chatForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
         const message = messageInput.value.trim();
         if (!message) return;
-        
-        // Add message to UI immediately
-        const tempMsg = {
-            id: 0,
-            message: message,
-            sender_type: 'admin',
-            created_at: new Date().toISOString()
-        };
-        addMessage(tempMsg);
+
         messageInput.value = '';
-        
+        messageInput.disabled = true;
+        sendButton.disabled = true;
+
         const sendUrl = '{{ route("admin.chat.send") }}';
         fetch(sendUrl, {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({
-                session_id: sessionId,
-                message: message
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    message: message
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Reload messages to get the correct ID
-                loadMessages();
-            }
-        })
-        .catch(err => {
-            console.error('Error sending message:', err);
-showAlert('Gagal mengirim pesan. Silakan coba lagi.');
-        });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gagal mengirim pesan.');
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    addMessage(data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Error sending message:', err);
+                showAlert('Gagal mengirim pesan. Silakan coba lagi.');
+                messageInput.value = message;
+            })
+            .finally(() => {
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.focus();
+            });
     });
-    
+
     // Start polling for new messages
     function startPolling() {
+        if (pollInterval) {
+            return;
+        }
+
+        loadMessages();
         pollInterval = setInterval(loadMessages, 3000);
     }
-    
+
     // Close session
     window.closeSession = function() {
         showConfirm('Apakah Anda yakin ingin menutup sesi chat ini?')
@@ -334,33 +385,34 @@ showAlert('Gagal mengirim pesan. Silakan coba lagi.');
                 if (!confirmed) {
                     return;
                 }
-                const closeUrl = '{{ route("admin.chat.close", ":sessionId") }}'.replace(':sessionId', sessionId);
+                const closeUrl = '{{ route("admin.chat.close", ":sessionId") }}'.replace(':sessionId',
+                    sessionId);
                 fetch(closeUrl, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        showAlert('Sesi chat telah ditutup.').then(() => {
-                            window.location.href = '{{ route("admin.chat.index") }}';
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error('Error closing session:', err);
-                    showAlert('Gagal menutup sesi. Silakan coba lagi.');
-                });
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            showAlert('Sesi chat telah ditutup.').then(() => {
+                                window.location.href = '{{ route("admin.chat.index") }}';
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error closing session:', err);
+                        showAlert('Gagal menutup sesi. Silakan coba lagi.');
+                    });
             });
     };
-    
-    // Start polling
-    startPolling();
-    
+
+    // Load history first, then begin polling so the cursor cannot race with the initial request.
+    loadInitialMessages().finally(startPolling);
+
     // Focus input
     messageInput.focus();
 })();
