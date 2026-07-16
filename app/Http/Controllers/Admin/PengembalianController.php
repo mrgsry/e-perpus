@@ -8,6 +8,7 @@ use App\Models\History;
 use App\Models\Denda;
 use App\Services\DendaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class PengembalianController extends Controller
@@ -19,7 +20,51 @@ class PengembalianController extends Controller
             ->latest()
             ->get();
 
-        return view('admin.pengembalian.index', compact('pinjamans'));
+        $totalPengembalian = Peminjaman::where('status', 'dikembalikan')->count();
+        $pengembalianTerlambat = Peminjaman::where(function ($query) {
+                $query->where('status', 'terlambat')
+                    ->orWhere(function ($activeLoanQuery) {
+                        $activeLoanQuery->where('status', 'dipinjam')
+                            ->whereDate('tanggal_kembali_rencana', '<', today());
+                    });
+            })
+            ->count();
+        $pengembalianTepatWaktu = Peminjaman::where('status', 'dikembalikan')
+            ->where(function ($query) {
+                $query->whereColumn('tanggal_kembali_aktual', '<=', 'tanggal_kembali_rencana')
+                    ->orWhereNull('tanggal_kembali_aktual');
+            })
+            ->count();
+        $belumKembali = Peminjaman::where('status', 'dipinjam')->count();
+
+        $terlambatPerJurusan = Peminjaman::query()
+            ->join('mahasiswas', 'mahasiswas.id', '=', 'pinjamans.mahasiswa_id')
+            ->where(function ($query) {
+                $query->where('pinjamans.status', 'terlambat')
+                    ->orWhere(function ($activeLoanQuery) {
+                        $activeLoanQuery->where('pinjamans.status', 'dipinjam')
+                            ->whereDate('pinjamans.tanggal_kembali_rencana', '<', today());
+                    });
+            })
+            ->selectRaw("COALESCE(mahasiswas.jurusan, 'Belum diisi') as jurusan, COUNT(*) as total")
+            ->groupBy('mahasiswas.jurusan')
+            ->orderByDesc('total')
+            ->get();
+
+        $pengembalianChartData = json_encode([$pengembalianTerlambat, $pengembalianTepatWaktu]);
+        $jurusanTerlambatLabels = $terlambatPerJurusan->pluck('jurusan')->toJson();
+        $jurusanTerlambatData = $terlambatPerJurusan->pluck('total')->toJson();
+
+        return view('admin.pengembalian.index', compact(
+            'pinjamans',
+            'totalPengembalian',
+            'pengembalianTerlambat',
+            'pengembalianTepatWaktu',
+            'belumKembali',
+            'pengembalianChartData',
+            'jurusanTerlambatLabels',
+            'jurusanTerlambatData'
+        ));
     }
 
     public function scanQr()

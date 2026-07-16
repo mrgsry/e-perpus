@@ -42,6 +42,31 @@
         box-shadow: 0 4px 24px rgba(15, 36, 68, 0.25);
     }
 
+    .book-info-footer {
+        background: var(--navy);
+        color: #fff;
+        margin-top: 56px;
+        padding: 48px 0 28px;
+    }
+
+    .book-info-footer h5 {
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .book-info-footer p,
+    .book-info-footer .footer-muted {
+        color: rgba(255, 255, 255, .72);
+    }
+
+    .book-info-footer a {
+        color: rgba(255, 255, 255, .85);
+    }
+
+    .book-info-footer a:hover {
+        color: var(--gold-light);
+    }
+
     .navbar-brand-custom {
         font-family: 'Fraunces', serif;
         font-size: 1.6rem;
@@ -1125,36 +1150,36 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-navy text-white py-5">
+    <footer class="book-info-footer">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <h5 class="mb-3" style="font-family:'Fraunces',serif">SiPusaka</h5>
-                    <p class="text-white-50 small">
+                    <p class="footer-muted small">
                         Sistem Informasi Perpustakaan Digital<br>
                         Menyediakan koleksi buku fisik dan digital
                     </p>
                 </div>
                 <div class="col-md-4 mb-4">
                     <h5 class="mb-3">Navigasi</h5>
-                    <ul class="list-unstyled text-white-50 small">
-                        <li class="mb-2"><a href="/" class="text-white text-decoration-none">Beranda</a></li>
-                        <li class="mb-2"><a href="/cek-status" class="text-white text-decoration-none">Cek Status</a>
+                    <ul class="list-unstyled footer-muted small">
+                        <li class="mb-2"><a href="/" class="text-decoration-none">Beranda</a></li>
+                        <li class="mb-2"><a href="/cek-status" class="text-decoration-none">Cek Status</a>
                         </li>
-                        <li class="mb-2"><a href="/admin/login" class="text-white text-decoration-none">Admin Login</a>
+                        <li class="mb-2"><a href="/admin/login" class="text-decoration-none">Admin Login</a>
                         </li>
                     </ul>
                 </div>
                 <div class="col-md-4 mb-4">
                     <h5 class="mb-3">Kontak</h5>
-                    <p class="text-white-50 small">
+                    <p class="footer-muted small">
                         hnet.diigital.biz.id<br>
                         <i class="fas fa-envelope me-2"></i>info@siplushaka.id<br>
                         <i class="fas fa-phone me-2"></i>+62 812-3456-7890
                     </p>
                 </div>
             </div>
-            <div class="border-top border-secondary pt-4 mt-4 text-center text-white-50 small">
+            <div class="border-top border-secondary pt-4 mt-4 text-center footer-muted small">
                 © {{ date('Y') }} SiPusaka - Sistem Informasi Perpustakaan Digital
             </div>
         </div>

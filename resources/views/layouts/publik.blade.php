@@ -19,10 +19,10 @@
     }
 
     :root {
-        --brand-primary: #2563eb;
-        --brand-dark: #1d4ed8;
+        --brand-primary: #0f2444;
+        --brand-dark: #1a3c6b;
         --brand-light: #eff6ff;
-        --bg-page: #f8fafc;
+        --bg-page: #faf8f3;
         --bg-white: #ffffff;
         --text-primary: #0f172a;
         --text-muted: #64748b;
@@ -54,10 +54,9 @@
         top: 0;
         z-index: 100;
         height: var(--nav-h);
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--border);
+        background: var(--brand-primary);
+        border-bottom: 0;
+        box-shadow: 0 4px 24px rgba(15, 36, 68, 0.25);
     }
 
     .nav-inner {
@@ -82,8 +81,8 @@
     .nav-brand-icon {
         width: 36px;
         height: 36px;
-        background: var(--brand-primary);
-        border-radius: 10px;
+        background: transparent;
+        border-radius: 0;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -102,12 +101,12 @@
     .nav-brand-text {
         font-size: 1.125rem;
         font-weight: 800;
-        color: var(--text-primary);
+        color: #fff;
         letter-spacing: -0.02em;
     }
 
     .nav-brand-text span {
-        color: var(--brand-primary);
+        color: #f0b429;
     }
 
     .nav-links {
@@ -124,20 +123,20 @@
         padding: 0.5rem 0.875rem;
         font-size: 0.875rem;
         font-weight: 500;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.7);
         text-decoration: none;
         border-radius: var(--radius-sm);
         transition: all 0.15s;
     }
 
     .nav-links a:hover {
-        color: var(--brand-primary);
-        background: var(--brand-light);
+        color: #f0b429;
+        background: transparent;
     }
 
     .nav-links a.active {
-        color: var(--brand-primary);
-        background: var(--brand-light);
+        color: #f0b429;
+        background: transparent;
         font-weight: 600;
     }
 
@@ -156,7 +155,7 @@
         display: block;
         width: 22px;
         height: 2px;
-        background: var(--text-primary);
+        background: #fff;
         border-radius: 2px;
         transition: all 0.25s;
     }
@@ -166,9 +165,10 @@
     }
 
     .sipusaka-footer {
-        background: var(--bg-white);
-        border-top: 1px solid var(--border);
-        padding: 1.5rem;
+        background: var(--brand-primary);
+        color: #fff;
+        border-top: 0;
+        padding: 2rem 1.5rem;
     }
 
     .footer-inner {
@@ -190,20 +190,20 @@
     .footer-brand-dot {
         width: 8px;
         height: 8px;
-        background: var(--brand-primary);
+        background: #f0b429;
         border-radius: 50%;
     }
 
     .footer-brand-name {
         font-size: 0.875rem;
         font-weight: 700;
-        color: var(--text-primary);
+        color: #fff;
         letter-spacing: -0.01em;
     }
 
     .footer-copy {
         font-size: 0.8rem;
-        color: var(--text-light);
+        color: rgba(255, 255, 255, 0.72);
     }
 
     @stack('styles') @media (max-width: 640px) {
@@ -973,7 +973,7 @@
                         if (connectAdminBtn) connectAdminBtn.disabled = true;
                         addMessage('bot',
                             'Sesi chat telah ditutup oleh Admin. Silakan mulai chat baru bila membutuhkan bantuan lagi.'
-                            );
+                        );
                     }
                 })
                 .catch(function(err) {

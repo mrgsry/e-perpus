@@ -5,6 +5,66 @@
 @section('content')
 <div class="container-fluid">
     <div class="row">
+        <div class="col-lg-3 col-md-6">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>{{ $totalPengembalian }}</h3>
+                    <p>Total Pengembalian</p>
+                </div>
+                <div class="icon"><i class="fas fa-book"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>{{ $pengembalianTerlambat }}</h3>
+                    <p>Pengembalian Terlambat</p>
+                </div>
+                <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>{{ $pengembalianTepatWaktu }}</h3>
+                    <p>Pengembalian Tepat Waktu</p>
+                </div>
+                <div class="icon"><i class="fas fa-check-circle"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>{{ $belumKembali }}</h3>
+                    <p>Belum Dikembalikan</p>
+                </div>
+                <div class="icon"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Perbandingan Pengembalian</h3>
+                </div>
+                <div class="card-body">
+                    <div style="height:260px"><canvas id="statusPengembalianChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Keterlambatan per Jurusan</h3>
+                </div>
+                <div class="card-body">
+                    <div style="height:260px"><canvas id="jurusanTerlambatChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -31,8 +91,8 @@
                         <tbody>
                             @forelse($pinjamans as $i => $p)
                             @php
-                                $batas    = \Carbon\Carbon::parse($p->tanggal_kembali_rencana)->startOfDay();
-                                $sisaHari = (int) now()->startOfDay()->diffInDays($batas, false);
+                            $batas = \Carbon\Carbon::parse($p->tanggal_kembali_rencana)->startOfDay();
+                            $sisaHari = (int) now()->startOfDay()->diffInDays($batas, false);
                             @endphp
                             <tr class="{{ $sisaHari < 0 ? 'table-danger' : ($sisaHari <= 2 ? 'table-warning' : '') }}">
                                 <td>{{ $i+1 }}</td>
@@ -43,17 +103,18 @@
                                 <td>{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</td>
                                 <td>{{ $batas->format('d/m/Y') }}</td>
                                 <td>
-                                    @if($sisaHari < 0)
-                                        <span class="badge badge-danger">Terlambat {{ abs($sisaHari) }} hari</span>
-                                    @elseif($sisaHari == 0)
+                                    @if($sisaHari < 0) <span class="badge badge-danger">Terlambat {{ abs($sisaHari) }}
+                                        hari</span>
+                                        @elseif($sisaHari == 0)
                                         <span class="badge badge-warning text-dark">Hari ini</span>
-                                    @else
+                                        @else
                                         <span class="badge badge-success">{{ $sisaHari }} hari lagi</span>
-                                    @endif
+                                        @endif
                                 </td>
                                 <td>
-                                    <button onclick="konfirmasiKembali({{ $p->id }}, '{{ $p->booking_id }}', '{{ $p->mahasiswa->nama ?? '' }}')"
-                                            class="btn btn-success btn-sm">
+                                    <button
+                                        onclick="konfirmasiKembali({{ $p->id }}, '{{ $p->booking_id }}', '{{ $p->mahasiswa->nama ?? '' }}')"
+                                        class="btn btn-success btn-sm">
                                         <i class="fas fa-check"></i> Konfirmasi Kembali
                                     </button>
                                 </td>
@@ -102,7 +163,48 @@
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<div id="pengembalianChartData" data-status="{{ $pengembalianChartData }}"
+    data-jurusan-labels="{{ $jurusanTerlambatLabels }}" data-jurusan-values="{{ $jurusanTerlambatData }}"></div>
 <script>
+const pengembalianChartData = document.getElementById('pengembalianChartData').dataset;
+const pengembalianStatus = JSON.parse(pengembalianChartData.status);
+const jurusanTerlambatLabels = JSON.parse(pengembalianChartData.jurusanLabels);
+const jurusanTerlambatValues = JSON.parse(pengembalianChartData.jurusanValues);
+const donutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '62%',
+    plugins: {
+        legend: {
+            position: 'bottom'
+        }
+    }
+};
+new Chart(document.getElementById('statusPengembalianChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Terlambat', 'Tepat Waktu'],
+        datasets: [{
+            data: pengembalianStatus,
+            backgroundColor: ['#dc3545', '#28a745'],
+            borderWidth: 0
+        }]
+    },
+    options: donutOptions
+});
+new Chart(document.getElementById('jurusanTerlambatChart'), {
+    type: 'doughnut',
+    data: {
+        labels: jurusanTerlambatLabels,
+        datasets: [{
+            data: jurusanTerlambatValues,
+            backgroundColor: ['#007bff', '#fd7e14', '#6f42c1', '#17a2b8', '#e83e8c', '#20c997'],
+            borderWidth: 0
+        }]
+    },
+    options: donutOptions
+});
 $(document).ready(function() {
     $('#tablePengembalian').DataTable();
 });
@@ -119,7 +221,9 @@ function prosesPengembalian() {
     $.ajax({
         url: '/admin/pengembalian/' + id + '/approve',
         method: 'POST',
-        data: { _token: '{{ csrf_token() }}' },
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
         success: function(res) {
             if (res.success) {
                 $('#modalKembali').modal('hide');

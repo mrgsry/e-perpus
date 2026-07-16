@@ -1468,6 +1468,66 @@
             opacity: 0;
         }
     }
+
+    .katalog-footer {
+        background: var(--ink);
+        color: #fff;
+        padding: 48px 24px 28px;
+        margin-top: 20px;
+    }
+
+    .katalog-footer-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.3fr 1fr 1fr;
+        gap: 32px;
+    }
+
+    .katalog-footer h5 {
+        font-family: 'Lora', serif;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .katalog-footer p,
+    .katalog-footer a {
+        color: rgba(255, 255, 255, .68);
+        font-size: 13px;
+        line-height: 1.7;
+        text-decoration: none;
+    }
+
+    .katalog-footer a:hover {
+        color: var(--amber-lt);
+    }
+
+    .katalog-footer ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .katalog-footer li {
+        margin-bottom: 7px;
+    }
+
+    .katalog-footer-bottom {
+        max-width: 1280px;
+        margin: 28px auto 0;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255, 255, 255, .14);
+        text-align: center;
+        color: rgba(255, 255, 255, .55);
+        font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+        .katalog-footer-inner {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
     </style>
 </head>
 
@@ -1495,7 +1555,7 @@
         <div class="hero-inner">
             <div>
                 <div class="hero-eyebrow">
-                    <i class="fas fa-sparkles" style="font-size:10px"></i> Perpustakaan Digital
+                    <i class="fas fa-sparkles" style="font-size:10px"></i> Sistem Perpustakaan Akademik
                 </div>
                 <h1 class="hero-title">
                     <span class="static-line">Temukan Buku</span>
@@ -1711,6 +1771,29 @@
         </div>
 
     </main>
+
+    <footer class="katalog-footer">
+        <div class="katalog-footer-inner">
+            <div>
+                <h5>📚 Si<span style="color:var(--amber-lt);font-style:italic">Pusaka</span></h5>
+                <p>Sistem Informasi Perpustakaan Digital untuk menjelajahi, membaca, dan meminjam koleksi buku.</p>
+            </div>
+            <div>
+                <h5>Navigasi</h5>
+                <ul>
+                    <li><a href="/">Beranda & Katalog</a></li>
+                    <li><a href="/cek-status">Cek Status Peminjaman</a></li>
+                    <li><a href="/register">Registrasi Mahasiswa</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5>Kontak</h5>
+                <p>hnet.diigital.biz.id<br><i class="fas fa-envelope me-2"></i>info@sipusaka.id<br><i
+                        class="fas fa-phone me-2"></i>+62 812-3456-7890</p>
+            </div>
+        </div>
+        <div class="katalog-footer-bottom">© {{ date('Y') }} SiPusaka — Sistem Informasi Perpustakaan Digital</div>
+    </footer>
 
     {{-- ─── FLOATING CART ─── --}}
     <div class="float-cart" id="floatCart">

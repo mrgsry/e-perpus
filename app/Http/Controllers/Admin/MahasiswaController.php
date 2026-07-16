@@ -20,6 +20,23 @@ class MahasiswaController extends Controller
     public function index()
     {
         $mahasiswas = Mahasiswa::latest()->get();
+        $mahasiswaStatusCounts = $mahasiswas->countBy('status');
+        $totalMahasiswa = $mahasiswas->count();
+        $approvedMahasiswa = $mahasiswaStatusCounts->get('approved', 0);
+        $pendingMahasiswa = $mahasiswaStatusCounts->get('pending', 0);
+        $rejectedMahasiswa = $mahasiswaStatusCounts->get('rejected', 0);
+        $approvedPercentage = $totalMahasiswa > 0 ? round(($approvedMahasiswa / $totalMahasiswa) * 100) : 0;
+        $mahasiswaJurusanCounts = $mahasiswas
+            ->groupBy(fn ($mahasiswa) => $mahasiswa->jurusan ?: 'Belum diisi')
+            ->map->count()
+            ->sortDesc();
+        $statusChartData = json_encode([
+            $mahasiswaStatusCounts->get('approved', 0),
+            $mahasiswaStatusCounts->get('pending', 0),
+            $mahasiswaStatusCounts->get('rejected', 0),
+        ]);
+        $jurusanChartLabels = $mahasiswaJurusanCounts->keys()->values()->toJson();
+        $jurusanChartData = $mahasiswaJurusanCounts->values()->toJson();
         
         // Total peminjaman per judul buku (top 5)
         $peminjamanPerJudul = Buku::select('bukus.nama_buku as buku_judul', DB::raw('count(p.id) as total'))
@@ -53,7 +70,21 @@ class MahasiswaController extends Controller
             ]);
         }
         
-        return view('admin.mahasiswa.index', compact('mahasiswas', 'peminjamanPerJudul', 'login7Hari'));
+        return view('admin.mahasiswa.index', compact(
+            'mahasiswas',
+            'totalMahasiswa',
+            'approvedMahasiswa',
+            'pendingMahasiswa',
+            'rejectedMahasiswa',
+            'approvedPercentage',
+            'mahasiswaStatusCounts',
+            'mahasiswaJurusanCounts',
+            'statusChartData',
+            'jurusanChartLabels',
+            'jurusanChartData',
+            'peminjamanPerJudul',
+            'login7Hari'
+        ));
     }
 
     /**

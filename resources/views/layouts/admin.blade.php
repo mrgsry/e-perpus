@@ -162,7 +162,13 @@
         height: var(--nav-h) !important;
         min-height: var(--nav-h) !important;
         padding: 0 1.25rem !important;
-        margin-left: var(--sidebar-w) !important;
+        margin-left: 0 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: var(--sidebar-w) !important;
+        right: 0 !important;
+        width: auto !important;
+        z-index: 1040 !important;
     }
 
     .main-header .nav-link {
@@ -236,6 +242,7 @@
         margin-left: var(--sidebar-w) !important;
         min-height: calc(100vh - var(--nav-h)) !important;
         padding-top: var(--nav-h) !important;
+        padding-bottom: 58px !important;
     }
 
     /* ── CONTENT HEADER ── */
@@ -509,11 +516,17 @@
     .main-footer {
         background: var(--bg-card) !important;
         border-top: 1px solid var(--border) !important;
-        margin-left: var(--sidebar-w) !important;
+        margin-left: 0 !important;
         padding: 0.875rem 1.5rem !important;
         font-size: 0.8rem !important;
         color: var(--text-muted) !important;
         font-weight: 500 !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        left: var(--sidebar-w) !important;
+        z-index: 1030 !important;
+        min-height: 58px !important;
     }
 
     /* ── DATATABLE ── */
@@ -640,6 +653,7 @@
     body.sidebar-collapse .main-header.navbar,
     body.sidebar-collapse .main-footer {
         margin-left: 0 !important;
+        left: 0 !important;
     }
 
     body.sidebar-collapse .badge-sidebar {
@@ -653,6 +667,8 @@
         .main-header.navbar,
         .main-footer {
             margin-left: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
         }
     }
     </style>

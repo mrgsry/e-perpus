@@ -10,6 +10,43 @@
     background: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
+
+.mahasiswa-summary-card {
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+    overflow: hidden;
+}
+
+.mahasiswa-summary-card.summary-card .card-body {
+    min-height: 118px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mahasiswa-summary-card .summary-value {
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.mahasiswa-summary-card .summary-icon {
+    font-size: 2.5rem;
+    opacity: .25;
+}
+
+.mahasiswa-summary-card .summary-note {
+    display: block;
+    margin-top: 9px;
+    font-size: .75rem;
+    opacity: .82;
+}
+
+.summary-chart {
+    height: 240px;
+    position: relative;
+}
 </style>
 @endpush
 
@@ -22,6 +59,40 @@
 
 <div class="content">
     <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-lg-5 mb-3">
+                <div class="card mahasiswa-summary-card h-100">
+                    <div class="card-header border-0">
+                        <h3 class="card-title font-weight-bold">Status Akun Mahasiswa</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="summary-chart"><canvas id="statusMahasiswaChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 mb-3">
+                <div class="card mahasiswa-summary-card h-100">
+                    <div class="card-header border-0">
+                        <h3 class="card-title font-weight-bold">Mahasiswa per Jurusan</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="summary-chart"><canvas id="jurusanMahasiswaChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 mb-3">
+                <div class="card mahasiswa-summary-card summary-card bg-warning text-white h-100">
+                    <div class="card-body">
+                        <div>
+                            <small>Menunggu Persetujuan</small>
+                            <div class="summary-value mt-2">{{ $pendingMahasiswa }}</div>
+                            <span class="summary-note">Perlu ditinjau admin</span>
+                        </div>
+                        <i class="fas fa-user-clock summary-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Daftar Mahasiswa</h3>
@@ -231,7 +302,53 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<div id="mahasiswaChartData" data-status="{{ $statusChartData }}" data-jurusan-labels="{{ $jurusanChartLabels }}"
+    data-jurusan-values="{{ $jurusanChartData }}"></div>
 <script>
+const mahasiswaChartData = document.getElementById('mahasiswaChartData').dataset;
+const statusChartData = JSON.parse(mahasiswaChartData.status);
+const jurusanChartLabels = JSON.parse(mahasiswaChartData.jurusanLabels);
+const jurusanChartData = JSON.parse(mahasiswaChartData.jurusanValues);
+const chartDefaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'bottom'
+        }
+    }
+};
+new Chart(document.getElementById('statusMahasiswaChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Approved', 'Pending', 'Rejected'],
+        datasets: [{
+            data: statusChartData,
+            backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        ...chartDefaults,
+        cutout: '62%'
+    }
+});
+new Chart(document.getElementById('jurusanMahasiswaChart'), {
+    type: 'doughnut',
+    data: {
+        labels: jurusanChartLabels,
+        datasets: [{
+            data: jurusanChartData,
+            backgroundColor: ['#007bff', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        ...chartDefaults,
+        cutout: '62%'
+    }
+});
 // Initialize Bootstrap modal
 const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
 const editModal = new bootstrap.Modal(document.getElementById('editModal'));
